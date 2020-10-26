@@ -1,18 +1,12 @@
 defmodule Pigeon do
-  @moduledoc """
-  Documentation for `Pigeon`.
-  """
+  use Application
 
-  @doc """
-  Hello world.
+  def start(_type, _args) do
+    User.start_link("username1", User1)
+    User.start_link("username2", User2)
+    User.start_link("username3", User3)
+    MessageServer.start_link()
 
-  ## Examples
-
-      iex> Pigeon.hello()
-      :world
-
-  """
-  def hello do
-    :world
   end
+
 end
