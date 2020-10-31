@@ -20,9 +20,9 @@ and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at [https://hexdocs.pm/pigeon](https://hexdocs.pm/pigeon).
 
 
-`User.send_message("Holis", User1, "username2")`
+`User.enviar_mensaje("Holis", User1, "username2")`
 El user username1 manda "Holis" al username2
 
-`User.send_message("Holis", User1, "group1")`
+`User.enviar_mensaje("Holis", User1, "group1")`
 
 El user username1 manda Holis al grupo1 donde están username2 y username3

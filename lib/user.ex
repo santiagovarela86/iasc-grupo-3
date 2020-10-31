@@ -1,30 +1,30 @@
 defmodule User do
   use GenServer
 
-  def start_link(username, name) do
-    GenServer.start_link(__MODULE__, username, name: name)
+  def start_link(name) do
+    GenServer.start_link(__MODULE__, [], name: name)
   end
 
   def init(init_arg) do
     {:ok, init_arg}
   end
 
-  def handle_cast({:receive_message, {message, from, _to}}, userNameTo) do
-    IO.puts("Im #{userNameTo} and #{from} says: #{message}")
-    {:noreply, userNameTo}
+
+  def enviar_mensaje(identificador, mensaje) do
+    SupervisorMensajero.start_child({identificador, mensaje})
   end
 
-  def handle_cast({:send_message, {message, to}}, usernameFrom) do
-    MessageServer.send_message(message, usernameFrom, to)
-    {:noreply, usernameFrom}
-  end
-
-  def send_message(message, pidFrom, to) do
-    GenServer.cast(pidFrom, {:send_message, {message, to}})
-  end
-
+  @spec receive_message(any, any, atom | pid | {atom, any} | {:via, atom, any}) :: :ok
   def receive_message(message, from, pid) do
     GenServer.cast(pid, {:receive_message, {message, from, pid}})
+  end
+
+  def get_historial(:user_chat, from, to) do
+    SupervisorHistorialManager.start_child({:get_historial, {:user_chat, from, to}})
+  end
+
+  def get_historial(:group_chat, group) do
+    SupervisorHistorialManager.start_child({:get_historial, {:group_chat, group}})
   end
 
   def modify_message(message, new_message) do
