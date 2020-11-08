@@ -3,7 +3,8 @@ defmodule Pigeon do
 
   def start(_type, _args) do
     children = [
-      # empty at the moment
+      MessengerServer,
+      ChatRepository
     ]
 
     opts = [strategy: :one_for_one, name: Pigeon.Supervisor]
