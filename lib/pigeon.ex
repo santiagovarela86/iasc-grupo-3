@@ -1,18 +1,13 @@
 defmodule Pigeon do
-  @moduledoc """
-  Documentation for `Pigeon`.
-  """
+  use Application
 
-  @doc """
-  Hello world.
+  def start(_type, _args) do
+    children = [
+      # empty at the moment
+    ]
 
-  ## Examples
-
-      iex> Pigeon.hello()
-      :world
-
-  """
-  def hello do
-    :world
+    opts = [strategy: :one_for_one, name: Pigeon.Supervisor]
+    Supervisor.start_link(children, opts)
   end
+
 end
