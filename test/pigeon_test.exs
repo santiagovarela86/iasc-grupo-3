@@ -3,7 +3,7 @@ defmodule PigeonTest do
   doctest Pigeon
 
 
-  test "algo" do
+  test "Test -> Crear, Editar y Eliminar mensajes" do
     {:ok, pidUsuario} = Usuario.start_link(:usuario1, [])
     chatCreado = Usuario.iniciar_chat(pidUsuario, :usuario2)
 
