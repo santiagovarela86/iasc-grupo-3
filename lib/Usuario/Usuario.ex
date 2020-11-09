@@ -22,6 +22,16 @@ defmodule Usuario do
 
   end
 
+  def editar_mensaje(pid, destinatario, mensajeNuevo, idMensaje) do
+    GenServer.call(pid, {:editar_mensaje, destinatario, mensajeNuevo, idMensaje})
+
+  end
+
+  def eliminar_mensaje(pid, destinatario, idMensaje) do
+    GenServer.call(pid, {:eliminar_mensaje, destinatario, idMensaje})
+
+  end
+
   def get_historial(:group_chat, group) do
 
   end
@@ -46,6 +56,18 @@ defmodule Usuario do
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
     idChatDestino = obtener_chat_destino(destinatario)
     repuestaChat = Chat.enviar_mensaje(idChatDestino, mensaje, state.name)
+    {:reply, repuestaChat, state}
+  end
+
+  def handle_call({:editar_mensaje, destinatario, mensajeNuevo, idMensaje}, _from, state) do
+    idChatDestino = obtener_chat_destino(destinatario)
+    repuestaChat = Chat.editar_mensaje(idChatDestino, mensajeNuevo, idMensaje, state.name)
+    {:reply, repuestaChat, state}
+  end
+
+  def handle_call({:eliminar_mensaje, destinatario, idMensaje}, _from, state) do
+    idChatDestino = obtener_chat_destino(destinatario)
+    repuestaChat = Chat.eliminar_mensaje(idChatDestino, idMensaje, state.name)
     {:reply, repuestaChat, state}
   end
 
