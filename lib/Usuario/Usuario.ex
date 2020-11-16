@@ -2,7 +2,7 @@ defmodule Usuario do
   use GenServer
 
   def start_link(name, chats) do
-    GenServer.start_link(__MODULE__, {name, chats}, name: name)
+    GenServer.start_link(__MODULE__, {name, chats}, name: UsuarioRegistry.build_name(name))
   end
 
   def init({name, chats}) do
@@ -13,7 +13,17 @@ defmodule Usuario do
     {:ok, state}
   end
 
-  def iniciar_chat(pid, destinatario) do
+  def child_spec(name) do
+    %{
+      id: name,
+      start: {__MODULE__, :start_link, [name, []]},
+      type: :worker,
+      restart: :transient
+    }
+  end
+
+  def iniciar_chat(username, destinatario) do
+    pid = UsuarioServer.get_user(username)
     GenServer.call(pid, {:crear_chat, destinatario})
   end
 
