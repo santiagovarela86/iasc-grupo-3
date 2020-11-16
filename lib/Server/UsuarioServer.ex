@@ -26,8 +26,8 @@ defmodule UsuarioServer do
 
   def handle_call({:register_user, username}, _from, state) do
     case UsuarioSupervisor.start_child(username) do
-      {:ok, _} -> {:reply, username, state}
-      {:error, {:already_started, _}} -> {:reply, username, state}
+      {:ok, pid} -> {:reply, pid, state}
+      {:error, {:already_started, pid}} -> {:reply, pid, state}
     end
   end
 end

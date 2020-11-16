@@ -27,7 +27,8 @@ defmodule Usuario do
     GenServer.call(pid, {:crear_chat, destinatario})
   end
 
-  def enviar_mensaje(pid, destinatario, mensaje) do
+  def enviar_mensaje(origen, destinatario, mensaje) do
+    pid = UsuarioServer.get_user(origen)
     GenServer.call(pid, {:enviar_mensaje, destinatario, mensaje})
 
   end
@@ -39,6 +40,16 @@ defmodule Usuario do
 
   def eliminar_mensaje(pid, destinatario, idMensaje) do
     GenServer.call(pid, {:eliminar_mensaje, destinatario, idMensaje})
+  end
+
+  def informar_chat(chat_name, origen, destino) do
+    pid = UsuarioServer.get_user(destino)
+    GenServer.cast(pid, {:informar_chat, chat_name, origen})
+  end
+
+  def obtener_chats(username) do
+    pid = UsuarioServer.get_user(username)
+    GenServer.call(pid, {:obtener_chats})
 
   end
 
@@ -46,26 +57,22 @@ defmodule Usuario do
 
   end
 
-  defp obtener_chat_destino(_destino) do
-    ## Separado
-    :id_chat
+  defp obtener_chat_destino(origen, destino) do
+    ChatServer.get_chat(origen, destino)
   end
 
   def handle_call({:crear_chat, destinatario}, _from, state) do
-    mensajesIniciales = []
-    personasInvolucradas = [destinatario] ++ state.name
+    UsuarioServer.get_user(destinatario)
+    chat_name = ChatServer.register_chat(destinatario, state.name)
+    Usuario.informar_chat(chat_name, state.name, destinatario)
+    nuevoState = Map.update!(state, :chats, fn(chats) -> chats ++ [{chat_name, destinatario}] end)
 
-    {:ok, pidChat} = Chat.start_link(mensajesIniciales, personasInvolucradas, :id_chat)
-
-    nuevoState = Map.update!(state, :chats, fn(chats) -> chats ++ [pidChat] end)
-
-    {:reply, :id_chat, nuevoState}
+    {:reply, chat_name, nuevoState}
 
   end
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
-    idChatDestino = obtener_chat_destino(destinatario)
-    repuestaChat = Chat.enviar_mensaje(idChatDestino, mensaje, state.name)
+    repuestaChat = Chat.enviar_mensaje(state.name, destinatario, mensaje)
     {:reply, repuestaChat, state}
   end
 
@@ -79,6 +86,15 @@ defmodule Usuario do
     idChatDestino = obtener_chat_destino(destinatario)
     repuestaChat = Chat.eliminar_mensaje(idChatDestino, idMensaje, state.name)
     {:reply, repuestaChat, state}
+  end
+
+  def handle_call({:obtener_chats}, _from, state) do
+    {:reply, state.chats, state}
+  end
+
+  def handle_cast({:informar_chat, chat_name, destinatario}, state) do
+    nuevoState = Map.update!(state, :chats, fn(chats) -> chats ++ [{chat_name, destinatario}] end)
+    {:noreply, nuevoState}
   end
 
 end
