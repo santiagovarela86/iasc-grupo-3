@@ -77,13 +77,13 @@ defmodule Usuario do
   end
 
   def handle_call({:editar_mensaje, destinatario, mensajeNuevo, idMensaje}, _from, state) do
-    idChatDestino = obtener_chat_destino(destinatario)
+    idChatDestino = obtener_chat_destino(state.name, destinatario)
     repuestaChat = Chat.editar_mensaje(idChatDestino, mensajeNuevo, idMensaje, state.name)
     {:reply, repuestaChat, state}
   end
 
   def handle_call({:eliminar_mensaje, destinatario, idMensaje}, _from, state) do
-    idChatDestino = obtener_chat_destino(destinatario)
+    idChatDestino = obtener_chat_destino(state.name, destinatario)
     repuestaChat = Chat.eliminar_mensaje(idChatDestino, idMensaje, state.name)
     {:reply, repuestaChat, state}
   end
