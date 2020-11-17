@@ -1,6 +1,11 @@
 # Pigeon
 
-**TODO: Add description**
+## How to test it
+
+- Run **iex -S mix** in the project folder
+- Run **Pigeon.start("","")**
+- Run **Messenger.create_one_to_one_chat("juan","pedro")**
+- See how it fails...
 
 ## Installation
 
