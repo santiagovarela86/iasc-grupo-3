@@ -33,8 +33,10 @@ defmodule Chat do
     GenServer.call(pid, {:get_messages})
   end
 
-  def editar_mensaje(idChatDestino, mensajeNuevo, idMensaje ,idOrigen) do
-    GenServer.call(idChatDestino, {:editar_mensaje, mensajeNuevo, idMensaje, idOrigen})
+  #def editar_mensaje(idChatDestino, mensajeNuevo, idMensaje ,idOrigen) do
+  def editar_mensaje(sender, reciever, mensajeNuevo , idMensaje) do
+    pid = get_chat_pid(sender, reciever)
+    GenServer.call(pid, {:editar_mensaje, sender, reciever, mensajeNuevo, idMensaje})
   end
 
   def eliminar_mensaje(idChatDestino, idMensaje ,idOrigen) do
@@ -42,16 +44,23 @@ defmodule Chat do
   end
 
 
+  def getHash(mensaje) do
+    :crypto.hash(:md5, mensaje <> to_string(DateTime.utc_now)) |> Base.encode16()
+  end  
+
+
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
     # (existing_value :: value ->    updated_value :: value))
-    newState = Map.update!(state, :mensajes, fn mensajes -> mensajes ++ [{sender, mensaje}] end)
-    {:reply, newState, newState}
+    idMensaje = getHash(mensaje)
+    newState = Map.update!(state, :mensajes, fn mensajes -> mensajes ++ [{idMensaje, sender, mensaje}] end)
+    {:reply, idMensaje, newState}
   end
 
 
-  def handle_call({:editar_mensaje, mensajeNuevo, idMensaje, idOrigen}, _from, state) do
-
-    newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, idOrigen, 0, {idOrigen, mensajeNuevo})  end)
+  def handle_call({:editar_mensaje, sender, reciever, mensajeNuevo ,idMensaje}, _from, state) do
+    IO.inspect(state)
+    newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, idMensaje, 0, {idMensaje, sender, mensajeNuevo})  end)
+    IO.inspect(newState)
     {:reply, newState, newState}
   end
 
