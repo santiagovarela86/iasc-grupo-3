@@ -26,6 +26,11 @@ defmodule Chat do
   def enviar_mensaje(sender, reciever, mensaje) do
     pid = get_chat_pid(sender, reciever)
     GenServer.call(pid, {:enviar_mensaje, sender, mensaje})
+    IO.puts("Sending Message to.. ->"<>reciever)
+    host = String.to_atom(reciever<>"@"<>"iaschost")
+    Node.connect(host)
+    send { String.to_atom(reciever) , host }, mensaje
+
   end
 
   def get_messages(username1, username2) do

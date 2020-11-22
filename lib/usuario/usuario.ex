@@ -76,6 +76,12 @@ defmodule Usuario do
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
     repuestaChat = Chat.enviar_mensaje(state.name, destinatario, mensaje)
+
+    IO.puts("Sending Message to.. -> "<>destinatario)
+    host = String.to_atom(destinatario<>"@"<>"iaschost")
+    Node.connect(host)
+    send { String.to_atom(destinatario) , host }, repuestaChat
+
     {:reply, repuestaChat, state}
   end
 
