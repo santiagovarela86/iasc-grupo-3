@@ -42,7 +42,7 @@ defmodule Chat do
   #def eliminar_mensaje(idChatDestino, idMensaje ,idOrigen) do
   def eliminar_mensaje(sender, reciever, mensaje) do
     pid = get_chat_pid(sender, reciever)
-    GenServer.call(pid, {:eliminar_mensaje, sender, reciever, mensaje})
+    GenServer.call(pid, {:eliminar_mensaje, sender, mensaje})
   end
 
 

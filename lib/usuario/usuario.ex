@@ -84,8 +84,8 @@ defmodule Usuario do
     {:reply, repuestaChat, state}
   end
 
-  def handle_call({:eliminar_mensaje, destinatario, idMensaje}, _from, state) do
-    repuestaChat = Chat.eliminar_mensaje(state.name, destinatario, idMensaje)
+  def handle_call({:eliminar_mensaje, destinatario, mensaje}, _from, state) do
+    repuestaChat = Chat.eliminar_mensaje(state.name, destinatario, mensaje)
     {:reply, repuestaChat, state}
   end
 
