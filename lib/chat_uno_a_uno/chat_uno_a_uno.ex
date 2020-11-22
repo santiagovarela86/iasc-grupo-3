@@ -39,10 +39,9 @@ defmodule Chat do
     GenServer.call(pid, {:editar_mensaje, sender, reciever, mensajeNuevo, idMensaje})
   end
 
-  #def eliminar_mensaje(idChatDestino, idMensaje ,idOrigen) do
-  def eliminar_mensaje(sender, reciever, mensaje) do
+  def eliminar_mensaje(sender, reciever, idMensaje) do
     pid = get_chat_pid(sender, reciever)
-    GenServer.call(pid, {:eliminar_mensaje, sender, mensaje})
+    GenServer.call(pid, {:eliminar_mensaje, idMensaje})
   end
 
 
@@ -59,17 +58,12 @@ defmodule Chat do
 
 
   def handle_call({:editar_mensaje, sender, _, mensajeNuevo ,idMensaje}, _from, state) do
-    IO.inspect(state)
-    idMensajeNuevo = getHash(mensajeNuevo)
-    newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, idMensaje, 0, {idMensajeNuevo, sender, mensajeNuevo})  end)
-    IO.inspect(newState)
+    newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, idMensaje, 0, {idMensaje, sender, mensajeNuevo})  end)
     {:reply, newState, newState}
   end
 
-  # def handle_call({:eliminar_mensaje, sender, mensaje}, _from, state) do
-  # Deberiamos borrar por id creo
-  def handle_call({:eliminar_mensaje, _, _}, _from, state) do
-    newState = Map.update!(state, :mensajes, fn mensajes -> List.delete_at(mensajes, 0) end )
+  def handle_call({:eliminar_mensaje, idMensaje}, _from, state) do
+    newState = Map.update!(state, :mensajes, fn mensajes -> List.keydelete(mensajes, idMensaje, 0) end )
     {:reply, newState, newState}
   end
 
