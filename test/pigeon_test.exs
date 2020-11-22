@@ -9,12 +9,12 @@ defmodule PigeonTest do
 
   #   respuestaChat = Usuario.enviar_mensaje(pidUsuario, :usuario2, "holaaa")
   #   assert respuestaChat == %{mensajes: [usuario1: "holaaa"], usuarios: [:usuario2 | :usuario1]}
-    
+
   #   respuestaUpdate = Usuario.editar_mensaje(pidUsuario, :usuario2, "chau", 0)
   #   assert respuestaUpdate == %{mensajes: [usuario1: "chau"], usuarios: [:usuario2 | :usuario1]}
 
   #   Usuario.enviar_mensaje(pidUsuario, :usuario2, "perro")
-  #   respuestaDelete = Usuario.eliminar_mensaje(pidUsuario, :usuario2, 0)
+  #   respuestaDelete = Usuario.eliminar_mensaje(:usuario1, :usuario2, "perror")
   #   assert respuestaDelete == %{mensajes: [usuario1: "perro"], usuarios: [:usuario2 | :usuario1]}
   # end
 
@@ -38,7 +38,7 @@ defmodule PigeonTest do
 
     mensajes = Chat.get_messages("juan", "franco")
 
-  end  
+  end
 
 
   test "Test editar chats" do
@@ -54,13 +54,11 @@ defmodule PigeonTest do
     idChat2 = Usuario.enviar_mensaje("guido", "fede", "hola Fede, como va?")
 
     respuestaUpdate = Usuario.editar_mensaje("fede", "guido" , "chau", idChat)
- 
+
     assert respuestaUpdate == %{mensajes: [{idChat, "fede", "chau"}, {idChat2, "guido", "hola Fede, como va?"}], usuarios: ["guido" , "fede"]}
 
 
- end  
+ end
 
 
 end
-
-

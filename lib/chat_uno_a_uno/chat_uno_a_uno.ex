@@ -39,14 +39,16 @@ defmodule Chat do
     GenServer.call(pid, {:editar_mensaje, sender, reciever, mensajeNuevo, idMensaje})
   end
 
-  def eliminar_mensaje(idChatDestino, idMensaje ,idOrigen) do
-    GenServer.call(idChatDestino, {:eliminar_mensaje, idMensaje, idOrigen})
+  #def eliminar_mensaje(idChatDestino, idMensaje ,idOrigen) do
+  def eliminar_mensaje(sender, reciever, mensaje) do
+    pid = get_chat_pid(sender, reciever)
+    GenServer.call(pid, {:eliminar_mensaje, sender, reciever, mensaje})
   end
 
 
   def getHash(mensaje) do
     :crypto.hash(:md5, mensaje <> to_string(DateTime.utc_now)) |> Base.encode16()
-  end  
+  end
 
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
@@ -65,9 +67,9 @@ defmodule Chat do
   end
 
 
-  def handle_call({:eliminar_mensaje, idMensaje, idOrigen}, _from, state) do
-
-    newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.delete_at(mensajes, 0)  end)
+  def handle_call({:eliminar_mensaje, sender, mensaje}, _from, state) do
+    idMensaje = getHash(mensaje)
+    newState = Map.update!(state, :mensajes, fn mensajes ->  List.delete(mensajes, idMensaje)  end)
     {:reply, newState, newState}
   end
 
