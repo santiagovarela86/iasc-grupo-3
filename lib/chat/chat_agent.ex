@@ -14,8 +14,9 @@ defmodule ChatAgent do
     #TODO: agregar en todos los agentes del mismo chat
   end
 
-  def eliminar_mensaje(agente, mensaje_id) do
-    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn (mensajes) ->  List.delete_at(mensajes, 0)  end) end )
+  def eliminar_mensaje(agente, mensaje) do
+    message_id = getHash(mensaje)
+    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn (mensajes) ->  List.delete(mensajes, message_id)  end) end )
     #TODO: borra el ultimo mensaje, tiene que borrar mensaje_id
     #TODO: borrar en todos los agentes del mismo chat
   end
@@ -24,6 +25,11 @@ defmodule ChatAgent do
     #Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, idOrigen, 0, {idOrigen, mensaje_nuevo})  end) end )
     #TODO: reemplaza el primero de los mensajes de idOrigen, tendria que remplazar el mensaje_id
     #TODO: modificar el mensaje en todos los agents del mismo chat
+  end
+
+  # Get (ID) Hash of a message.
+  def getHash(mensaje) do
+    :crypto.hash(:md5, mensaje <> to_string(DateTime.utc_now)) |> Base.encode16()
   end
 
 end

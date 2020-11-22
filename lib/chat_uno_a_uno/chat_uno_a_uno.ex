@@ -50,7 +50,6 @@ defmodule Chat do
     :crypto.hash(:md5, mensaje <> to_string(DateTime.utc_now)) |> Base.encode16()
   end
 
-
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
     # (existing_value :: value ->    updated_value :: value))
     idMensaje = getHash(mensaje)
