@@ -59,9 +59,10 @@ defmodule Chat do
   end
 
 
-  def handle_call({:editar_mensaje, sender, reciever, mensajeNuevo ,idMensaje}, _from, state) do
+  def handle_call({:editar_mensaje, sender, _, mensajeNuevo ,idMensaje}, _from, state) do
     IO.inspect(state)
-    newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, idMensaje, 0, {idMensaje, sender, mensajeNuevo})  end)
+    idMensajeNuevo = getHash(mensajeNuevo)
+    newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, idMensaje, 0, {idMensajeNuevo, sender, mensajeNuevo})  end)
     IO.inspect(newState)
     {:reply, newState, newState}
   end
