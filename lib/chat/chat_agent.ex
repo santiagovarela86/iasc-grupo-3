@@ -14,9 +14,8 @@ defmodule ChatAgent do
     #TODO: agregar en todos los agentes del mismo chat
   end
 
-  def eliminar_mensaje(agente, mensaje) do
-    message_id = getHash(mensaje)
-    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn (mensajes) ->  List.delete(mensajes, message_id)  end) end )
+  def eliminar_mensaje(agente, _) do
+    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn (mensajes) ->  List.delete_at(mensajes, 0)  end) end )
     #TODO: borra el ultimo mensaje, tiene que borrar mensaje_id
     #TODO: borrar en todos los agentes del mismo chat
   end

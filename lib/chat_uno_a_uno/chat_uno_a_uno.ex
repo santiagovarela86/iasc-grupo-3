@@ -67,9 +67,9 @@ defmodule Chat do
   end
 
   # def handle_call({:eliminar_mensaje, sender, mensaje}, _from, state) do
-  def handle_call({:eliminar_mensaje, _, mensaje}, _from, state) do
-    idMensaje = getHash(mensaje)
-    newState = Map.update!(state, :mensajes, fn mensajes ->  List.delete(mensajes, idMensaje)  end)
+  # Deberiamos borrar por id creo
+  def handle_call({:eliminar_mensaje, _, _}, _from, state) do
+    newState = Map.update!(state, :mensajes, fn mensajes -> List.delete_at(mensajes, 0) end )
     {:reply, newState, newState}
   end
 
