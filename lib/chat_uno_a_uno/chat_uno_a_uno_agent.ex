@@ -15,7 +15,6 @@ defmodule ChatUnoAUnoAgent do
     ChatAgent.get_mensajes(agente)
   end
 
-  @spec registrar_mensaje(atom | pid | {atom, any} | {:via, atom, any}, any, any) :: :ok
   def registrar_mensaje(agente, mensaje, origen) do
     ChatAgent.registrar_mensaje(agente, mensaje, origen)
   end
