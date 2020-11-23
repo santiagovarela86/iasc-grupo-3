@@ -6,7 +6,9 @@ defmodule ChatSeguroAgent do
       usuarios: MapSet.new([usuario1, usuario2]),
       mensajes: Map.new,
       tiempo_limite: tiempo_limite
-    } end)
+    } end,
+    name: Enum.at(ChatSeguroAgentRegistry.register(Enum.sort([usuario1, usuario2])), 0, nil)
+    )
   end
   def get_usuarios(agente) do
     ChatAgent.get_usuarios(agente)

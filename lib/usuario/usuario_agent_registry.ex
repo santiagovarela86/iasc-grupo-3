@@ -18,6 +18,6 @@ defmodule UsuarioAgentRegistry do
   end
 
   def register(username) do
-    Registry.register(UsuarioAgentRegistry, username, nil)
+    Registry.register(UsuarioAgentRegistry, username, [])
   end
 end

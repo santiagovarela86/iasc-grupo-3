@@ -1,12 +1,20 @@
 defmodule ChatDeGrupoAgent do
   use Agent
 
-  def start_link(creador) do
-    Agent.start_link(fn -> %{
-      usuarios: MapSet.new([creador]),
-      admins: MapSet.new([creador]),
-      mensajes: Map.new
-    } end)
+  def start_link(creador, nombre_grupo) do
+    Agent.start_link(
+      fn -> %{
+        usuarios: MapSet.new([creador]),
+        admins: MapSet.new([creador]),
+        mensajes: Map.new,
+        nombre_grupo: nombre_grupo
+      } end,
+      name: Enum.at(ChatDeGrupoAgentRegistry.register(nombre_grupo), 0, nil)
+    )
+  end
+
+  def get_nombre(agente) do
+    Agent.get(agente, &Map.get(&1, :nombre_grupo))
   end
 
   def agregar_usuario(agente, usuario) do

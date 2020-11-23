@@ -18,6 +18,6 @@ defmodule ChatDeGrupoAgentRegistry do
   end
 
   def register(chat_id) do
-    Registry.register(ChatDeGrupoAgentRegistry, chat_id, nil)
+    Registry.register(ChatDeGrupoAgentRegistry, chat_id, [])
   end
 end
