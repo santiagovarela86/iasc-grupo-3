@@ -16,19 +16,19 @@ defmodule ChatDeGrupo do
   def child_spec(nombre_grupo) do
     %{
       id: nombre_grupo,
-      start: {__MODULE__, :start_link, []},
+      start: {__MODULE__, :start_link, [nombre_grupo]},
       type: :worker,
       restart: :transient
     }
   end
 
-  def enviar_mensaje(sender, reciever, mensaje) do
-    pid = get_chat_pid(sender, reciever)
+  def enviar_mensaje(sender, grupo, mensaje) do
+    pid = get_grupo_pid(grupo)
     GenServer.call(pid, {:enviar_mensaje, sender, mensaje})
   end
 
-  def get_messages(username1, username2) do
-    pid = get_chat_pid(username1, username2)
+  def get_messages(grupo) do
+    pid = get_grupo_pid(grupo)
     GenServer.call(pid, {:get_messages})
   end
 
@@ -136,11 +136,9 @@ defmodule ChatDeGrupo do
          end) do
       :not_found ->
         :not_found
-
       mensaje ->
         if(puede_borrar(nombre_grupo, mensaje, origen)) do
           fn_a_ejecutar.()
-          ChatDeGrupoAgent.eliminar_mensaje(agent, id_mensaje)
           :ok
         else
           :forbidden
@@ -148,8 +146,8 @@ defmodule ChatDeGrupo do
     end
   end
 
-  defp get_chat_pid(username1, username2) do
-    ChatServer.get_chat(username1, username2)
+  defp get_grupo_pid(nombre_grupo) do
+    GrupoServer.get_grupo(nombre_grupo)
   end
 
   defp es_administrador(usuario, nombre_grupo) do
@@ -173,7 +171,8 @@ defmodule ChatDeGrupo do
   end
 
   defp obtener_agent(nombre_grupo) do
-    nombre_grupo
+    [{agent, _} | _] = ChatDeGrupoAgentRegistry.lookup(nombre_grupo)
+    agent
   end
 
   defp puede_borrar(nombre_grupo, mensaje, origen) do

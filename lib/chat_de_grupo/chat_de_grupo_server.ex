@@ -1,7 +1,7 @@
 defmodule GrupoServer do
   use GenServer
 
-  def start_link() do
+  def start_link(_) do
     GenServer.start_link(__MODULE__, [], name: GrupoServer)
   end
 
@@ -10,11 +10,11 @@ defmodule GrupoServer do
   end
 
   def get_grupo(nombre_grupo) do
-    GenServer.call(ChatServer, {:get_grupo, nombre_grupo})
+    GenServer.call(GrupoServer, {:get_grupo, nombre_grupo})
   end
 
   def crear_grupo(nombre_grupo, usuario_admin) do
-    GenServer.call(ChatServer, {:crear_grupo, nombre_grupo, usuario_admin})
+    GenServer.call(GrupoServer, {:crear_grupo, nombre_grupo, usuario_admin})
   end
 
   def handle_call({:get_grupo, nombre_grupo}, _from, state) do

@@ -34,7 +34,7 @@ defmodule Usuario do
 
   def crear_grupo(username, nombre_grupo) do
     pid = UsuarioServer.get_user(username)
-    GenServer.call(pid, {:crear_grupo, username, nombre_grupo})
+    GenServer.call(pid, {:crear_grupo, nombre_grupo})
   end
 
   def enviar_mensaje(origen, destinatario, mensaje) do
@@ -68,7 +68,9 @@ defmodule Usuario do
   end
 
   def informar_grupo(nombre_grupo, username) do
+    IO.puts("Informar grupo")
     pid = UsuarioServer.get_user(username)
+    IO.inspect("pid es" <> pid)
     GenServer.cast(pid, {:informar_grupo, nombre_grupo})
 
   end
@@ -94,7 +96,8 @@ defmodule Usuario do
   def handle_call({:crear_grupo, nombre_grupo}, _from, state) do
     case GrupoServer.crear_grupo(nombre_grupo, state.name) do
       :already_exists -> {:reply, :already_exists, state}
-      _ -> informar_grupo(nombre_grupo, state.name)
+      _ -> {} #informar_grupo(nombre_grupo, state.name)
+      {:reply, :ok, state}
     end
   end
 
@@ -103,8 +106,8 @@ defmodule Usuario do
     {:reply, repuestaChat, state}
   end
 
-  def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
-    repuestaChat = Chat.enviar_mensaje(state.name, destinatario, mensaje)
+  def handle_call({:enviar_mensaje_grupo, destinatario, mensaje}, _from, state) do
+    repuestaChat = ChatDeGrupo.enviar_mensaje(state.name, destinatario, mensaje)
     {:reply, repuestaChat, state}
   end
 

@@ -10,7 +10,7 @@ defmodule GrupoSupervisor do
   end
 
   def start_child(nombre_grupo) do
-    spec = {GrupoSupervisor, {nombre_grupo}}
+    spec = {ChatDeGrupo, nombre_grupo}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 end
