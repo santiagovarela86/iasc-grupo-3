@@ -33,32 +33,37 @@ defmodule Chat do
     GenServer.call(pid, {:get_messages})
   end
 
-  def editar_mensaje(idChatDestino, mensajeNuevo, idMensaje ,idOrigen) do
-    GenServer.call(idChatDestino, {:editar_mensaje, mensajeNuevo, idMensaje, idOrigen})
+  #def editar_mensaje(idChatDestino, mensajeNuevo, idMensaje ,idOrigen) do
+  def editar_mensaje(sender, reciever, mensajeNuevo , idMensaje) do
+    pid = get_chat_pid(sender, reciever)
+    GenServer.call(pid, {:editar_mensaje, sender, reciever, mensajeNuevo, idMensaje})
   end
 
-  def eliminar_mensaje(idChatDestino, idMensaje ,idOrigen) do
-    GenServer.call(idChatDestino, {:eliminar_mensaje, idMensaje, idOrigen})
+  def eliminar_mensaje(sender, reciever, idMensaje) do
+    pid = get_chat_pid(sender, reciever)
+    GenServer.call(pid, {:eliminar_mensaje, idMensaje})
   end
 
+
+  def getHash(mensaje) do
+    :crypto.hash(:md5, mensaje <> to_string(DateTime.utc_now)) |> Base.encode16()
+  end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
     # (existing_value :: value ->    updated_value :: value))
-    newState = Map.update!(state, :mensajes, fn mensajes -> mensajes ++ [{sender, mensaje}] end)
-    {:reply, newState, newState}
+    idMensaje = getHash(mensaje)
+    newState = Map.update!(state, :mensajes, fn mensajes -> mensajes ++ [{idMensaje, sender, mensaje}] end)
+    {:reply, idMensaje, newState}
   end
 
 
-  def handle_call({:editar_mensaje, mensajeNuevo, idMensaje, idOrigen}, _from, state) do
-
-    newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, idOrigen, 0, {idOrigen, mensajeNuevo})  end)
+  def handle_call({:editar_mensaje, sender, _, mensajeNuevo ,idMensaje}, _from, state) do
+    newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, idMensaje, 0, {idMensaje, sender, mensajeNuevo})  end)
     {:reply, newState, newState}
   end
 
-
-  def handle_call({:eliminar_mensaje, idMensaje, idOrigen}, _from, state) do
-
-    newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.delete_at(mensajes, 0)  end)
+  def handle_call({:eliminar_mensaje, idMensaje}, _from, state) do
+    newState = Map.update!(state, :mensajes, fn mensajes -> List.keydelete(mensajes, idMensaje, 0) end )
     {:reply, newState, newState}
   end
 

@@ -22,35 +22,38 @@ defmodule Usuario do
     }
   end
 
+  defp get_pid(username) do
+    UsuarioServer.get_user(username)
+  end
+
   def iniciar_chat(username, destinatario) do
-    pid = UsuarioServer.get_user(username)
+    pid = get_pid(username)
     GenServer.call(pid, {:crear_chat, destinatario})
   end
 
   def enviar_mensaje(origen, destinatario, mensaje) do
-    pid = UsuarioServer.get_user(origen)
+    pid = get_pid(origen)
     GenServer.call(pid, {:enviar_mensaje, destinatario, mensaje})
-
   end
 
-  def editar_mensaje(pid, destinatario, mensajeNuevo, idMensaje) do
+  def editar_mensaje(origen, destinatario, mensajeNuevo, idMensaje) do
+    pid = get_pid(origen)
     GenServer.call(pid, {:editar_mensaje, destinatario, mensajeNuevo, idMensaje})
-
   end
 
-  def eliminar_mensaje(pid, destinatario, idMensaje) do
-    GenServer.call(pid, {:eliminar_mensaje, destinatario, idMensaje})
+  def eliminar_mensaje(origen, destinatario, mensaje) do
+    pid = get_pid(origen)
+    GenServer.call(pid, {:eliminar_mensaje, destinatario, mensaje})
   end
 
   def informar_chat(chat_name, origen, destino) do
-    pid = UsuarioServer.get_user(destino)
+    pid = get_pid(destino)
     GenServer.cast(pid, {:informar_chat, chat_name, origen})
   end
 
   def obtener_chats(username) do
-    pid = UsuarioServer.get_user(username)
+    pid = get_pid(username)
     GenServer.call(pid, {:obtener_chats})
-
   end
 
   def get_historial(:group_chat, group) do
@@ -77,14 +80,12 @@ defmodule Usuario do
   end
 
   def handle_call({:editar_mensaje, destinatario, mensajeNuevo, idMensaje}, _from, state) do
-    idChatDestino = obtener_chat_destino(state.name, destinatario)
-    repuestaChat = Chat.editar_mensaje(idChatDestino, mensajeNuevo, idMensaje, state.name)
+    repuestaChat = Chat.editar_mensaje(state.name, destinatario, mensajeNuevo, idMensaje)
     {:reply, repuestaChat, state}
   end
 
-  def handle_call({:eliminar_mensaje, destinatario, idMensaje}, _from, state) do
-    idChatDestino = obtener_chat_destino(state.name, destinatario)
-    repuestaChat = Chat.eliminar_mensaje(idChatDestino, idMensaje, state.name)
+  def handle_call({:eliminar_mensaje, destinatario, mensaje}, _from, state) do
+    repuestaChat = Chat.eliminar_mensaje(state.name, destinatario, mensaje)
     {:reply, repuestaChat, state}
   end
 
