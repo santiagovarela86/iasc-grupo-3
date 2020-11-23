@@ -10,20 +10,16 @@ defmodule ChatAgent do
   end
 
   def registrar_mensaje(agente, mensaje, origen) do
-    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn mensajes -> mensajes ++ [{origen, mensaje}] end) end )
-    #TODO: agregar en todos los agentes del mismo chat
+    mensaje_id = :crypto.hash(:md5, mensaje <> to_string(DateTime.utc_now)) |> Base.encode16()
+    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn mensajes -> mensajes ++ [{mensaje_id, origen, mensaje}] end) end )
   end
 
   def eliminar_mensaje(agente, mensaje_id) do
-    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn (mensajes) ->  List.delete_at(mensajes, 0)  end) end )
-    #TODO: borra el ultimo mensaje, tiene que borrar mensaje_id
-    #TODO: borrar en todos los agentes del mismo chat
+    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn mensajes -> List.keydelete(mensajes, mensaje_id, 0) end ) end )
   end
 
-  def modificar_mensaje(agente, mensaje_nuevo, mensaje_id) do
-    #Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, idOrigen, 0, {idOrigen, mensaje_nuevo})  end) end )
-    #TODO: reemplaza el primero de los mensajes de idOrigen, tendria que remplazar el mensaje_id
-    #TODO: modificar el mensaje en todos los agents del mismo chat
+  def modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id) do
+    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, mensaje_id, 0, {mensaje_id, origen, mensaje_nuevo})  end) end )
   end
 
 end
