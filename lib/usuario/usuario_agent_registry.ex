@@ -20,6 +20,7 @@ defmodule UsuarioAgentRegistry do
   def build_name(nombre) do
     #name = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now)) |> Base.encode16()
     #creo que el nombre tendria que ser simplemente el nombre del usuario
-    {:via, :swarm, nombre}
+    pname = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now)) |> Base.encode16()
+    {:via, :swarm, pname}
   end
 end

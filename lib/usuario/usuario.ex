@@ -10,7 +10,7 @@ defmodule Usuario do
     {:ok, state}
   end
 
-  def child_spec({name}) do
+  def child_spec(name) do
     %{
       id: name,
       start: {__MODULE__, :start_link, [name]},
@@ -43,9 +43,9 @@ defmodule Usuario do
     GenServer.call(pid, {:eliminar_mensaje, destinatario, mensaje})
   end
 
-  def informar_chat(chat_name, origen, destino) do
+  def informar_chat(chat_name, _origen, destino) do
     pid = get_pid(destino)
-    GenServer.cast(pid, {:informar_chat, chat_name, origen})
+    GenServer.cast(pid, {:informar_chat, chat_name})
   end
 
   def obtener_chats(username) do
@@ -57,8 +57,9 @@ defmodule Usuario do
     UsuarioServer.get_user(destinatario)
     chat_name = ChatServer.register_chat(destinatario, state)
     Usuario.informar_chat(chat_name, state, destinatario)
-    nuevoState = Map.update!(state, :chats, fn(chats) -> chats ++ [{chat_name, destinatario}] end)
-    {:reply, chat_name, nuevoState}
+    mi_agente = UsuarioAgentRegistry.lookup(state)
+    UsuarioAgent.agregar_chat_uno_a_uno(mi_agente, chat_name)
+    {:reply, chat_name, state}
   end
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
@@ -84,7 +85,7 @@ defmodule Usuario do
 
   def handle_cast({:informar_chat, chat_name}, state) do
     mi_agente = UsuarioAgentRegistry.lookup(state)
-    UsuarioAgent.agregar_chat_uno_a_uno(mi_agente,chat_name)
+    UsuarioAgent.agregar_chat_uno_a_uno(mi_agente, chat_name)
     {:noreply, state}
   end
 

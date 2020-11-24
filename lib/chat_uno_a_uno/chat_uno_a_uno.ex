@@ -10,7 +10,7 @@ defmodule Chat do
     {:ok, state}
   end
 
-  def child_spec({chat_name}) do
+  def child_spec(chat_name) do
     %{
       id: chat_name,
       start: {__MODULE__, :start_link, [chat_name]},
@@ -39,28 +39,29 @@ defmodule Chat do
 
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
-    {my_agent,_} = List.first(ChatUnoAUnoAgentRegistry.lookup(state))
+    my_agent = ChatUnoAUnoAgentRegistry.lookup(state)
     ChatUnoAUnoAgent.registrar_mensaje(my_agent, mensaje, sender)
     {:reply, state, state}
   end
 
 
   def handle_call({:editar_mensaje, mensajeNuevo, idMensaje, idOrigen}, _from, state) do
-    {my_agent,_} = List.first(ChatUnoAUnoAgentRegistry.lookup(state))
+    my_agent = ChatUnoAUnoAgentRegistry.lookup(state)
     ChatUnoAUnoAgent.modificar_mensaje(my_agent, idOrigen , mensajeNuevo, idMensaje)
     {:reply, state, state}
   end
 
 
   def handle_call({:eliminar_mensaje, idMensaje, _idOrigen}, _from, state) do
-    {my_agent,_} = List.first(ChatUnoAUnoAgentRegistry.lookup(state))
+    my_agent = ChatUnoAUnoAgentRegistry.lookup(state)
     ChatUnoAUnoAgent.eliminar_mensaje(my_agent,idMensaje)
     {:reply, state, state}
   end
 
   def handle_call({:get_messages}, _from, state) do
-    {my_agent,_} = List.first(ChatUnoAUnoAgentRegistry.lookup(state))
-    ChatUnoAUnoAgent.get_mensajes(my_agent)
+    my_agent = ChatUnoAUnoAgentRegistry.lookup(state)
+    mensajes = ChatUnoAUnoAgent.get_mensajes(my_agent)
+    {:reply, mensajes, state}
   end
 
   defp get_chat_pid(username1, username2) do

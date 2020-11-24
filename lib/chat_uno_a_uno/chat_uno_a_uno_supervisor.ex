@@ -10,7 +10,7 @@ defmodule ChatSupervisor do
   end
 
   def start_child(chat_name) do
-    spec = {Chat, {chat_name}}
+    spec = {Chat, chat_name}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 end

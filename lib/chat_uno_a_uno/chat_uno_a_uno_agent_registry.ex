@@ -14,11 +14,12 @@ defmodule ChatUnoAUnoAgentRegistry do
   end
 
   def lookup(chat_id) do
-    Swarm.members(chat_id)
+    List.first(Swarm.members(chat_id))
   end
 
   def build_name(usuario1, usuario2) do
-    name = :crypto.hash(:md5, usuario1 <> usuario2 <> to_string(DateTime.utc_now)) |> Base.encode16()
+    usuarios_en_orden = Enum.sort([usuario1, usuario2])
+    name = :crypto.hash(:md5, List.first(usuarios_en_orden) <> List.last(usuarios_en_orden) <> to_string(DateTime.utc_now)) |> Base.encode16()
     {:via, :swarm, name}
   end
 end
