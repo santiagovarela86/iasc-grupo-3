@@ -9,7 +9,7 @@ defmodule ChatDeGrupoAgent do
         mensajes: Map.new,
         nombre_grupo: nombre_grupo
       } end,
-      name: Enum.at(ChatDeGrupoAgentRegistry.register(nombre_grupo), 0, nil)
+      name: ChatDeGrupoAgentRegistry.build_name(nombre_grupo))
     )
   end
 
