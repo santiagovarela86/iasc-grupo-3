@@ -36,7 +36,7 @@ defmodule PigeonTest do
     chats = Usuario.obtener_chats("franco")
     assert chats == [{["franco", "juan"], "juan"}]
 
-    mensajes = Chat.get_messages("juan", "franco")
+    mensajes = ChatUnoAUno.get_messages("juan", "franco")
 
   end
 

@@ -1,4 +1,4 @@
-defmodule ChatSupervisor do
+defmodule ChatUnoAUnoSupervisor do
   use DynamicSupervisor
 
   def start_link(init_arg) do
@@ -10,7 +10,7 @@ defmodule ChatSupervisor do
   end
 
   def start_child(chat_name) do
-    spec = {Chat, chat_name}
+    spec = {ChatUnoAUno, chat_name}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 end

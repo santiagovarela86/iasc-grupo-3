@@ -1,7 +1,7 @@
-defmodule ChatRegistry do
+defmodule ChatUnoAUnoRegistry do
 
   def start_link(_) do
-    Registry.start_link(keys: :unique, name: ChatRegistry)
+    Registry.start_link(keys: :unique, name: ChatUnoAUnoRegistry)
   end
 
   def child_spec(opts) do
@@ -14,10 +14,10 @@ defmodule ChatRegistry do
   end
 
   def lookup_chat(chat_name) do
-    Registry.lookup(ChatRegistry, chat_name)
+    Registry.lookup(ChatUnoAUnoRegistry, chat_name)
   end
 
   def build_name(chat_name) do
-    {:via, Registry, {ChatRegistry, chat_name}}
+    {:via, Registry, {ChatUnoAUnoRegistry, chat_name}}
   end
 end

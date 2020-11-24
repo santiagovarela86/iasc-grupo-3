@@ -18,7 +18,7 @@ defmodule GrupoServer do
   end
 
   def handle_call({:get_grupo, nombre_grupo}, _from, state) do
-    case ChatRegistry.lookup_chat(nombre_grupo) do
+    case ChatUnoAUnoRegistry.lookup_chat(nombre_grupo) do
       [{chatPid, _}] -> {:reply, chatPid, state}
       _ -> {:reply, :not_found, state}
     end

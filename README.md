@@ -8,4 +8,4 @@
 - Create a chat with "chat_name = Usuario.iniciar_chat('juan', 'franco')"
 - Send a message with "Usuario.enviar_mensaje('juan', 'franco', 'holus')"
 - Get the user's chats with "Usuario.obtener_chats('juan')"
-- Get the user's chat messages "Chat.get_messages('juan','franco')"
+- Get the user's chat messages "ChatUnoAUno.get_messages('juan','franco')"

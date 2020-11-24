@@ -2,7 +2,7 @@ defmodule ChatSeguro do
   use GenServer
 
   def start_link(mensajes, usuarios, name) do
-    GenServer.start_link(__MODULE__, {mensajes, usuarios}, name: ChatRegistry.build_name(name))
+    GenServer.start_link(__MODULE__, {mensajes, usuarios}, name: ChatUnoAUnoRegistry.build_name(name))
   end
 
   def init({mensajes, usuarios}) do
@@ -67,6 +67,6 @@ defmodule ChatSeguro do
   end
 
   defp get_chat_pid(username1, username2) do
-    ChatServer.get_chat(username1, username2)
+    ChatUnoAUnoServer.get_chat(username1, username2)
   end
 end

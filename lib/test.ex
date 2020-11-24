@@ -17,7 +17,7 @@ defmodule Test do
     Usuario.enviar_mensaje("franco", "juan", "hola Juan, como va?")
     Usuario.obtener_chats("juan")
     Usuario.obtener_chats("franco")
-    Chat.get_messages("juan", "franco")
+    ChatUnoAUno.get_messages("juan", "franco")
     UsuarioServer.register_user("juan")
     Usuario.crear_grupo("juan", "un_grupo")
     Usuario.enviar_mensaje_grupo("juan", "un_grupo", "hola")

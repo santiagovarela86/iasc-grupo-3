@@ -2,7 +2,7 @@ defmodule ChatDeGrupo do
   use GenServer
 
   def start_link(nombre_grupo) do
-    GenServer.start_link(__MODULE__, nombre_grupo, name: ChatRegistry.build_name(nombre_grupo))
+    GenServer.start_link(__MODULE__, nombre_grupo, name: ChatUnoAUnoRegistry.build_name(nombre_grupo))
   end
 
   def init(nombre_grupo) do

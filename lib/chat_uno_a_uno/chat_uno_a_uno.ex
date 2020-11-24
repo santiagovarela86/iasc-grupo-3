@@ -1,8 +1,8 @@
-defmodule Chat do
+defmodule ChatUnoAUno do
   use GenServer
 
   def start_link(chat_name) do
-    GenServer.start_link(__MODULE__, chat_name, name: {:via, Registry, {ChatRegistry, chat_name}})
+    GenServer.start_link(__MODULE__, chat_name, name: {:via, Registry, {ChatUnoAUnoRegistry, chat_name}})
   end
 
   def init(chat_name) do
@@ -65,6 +65,6 @@ defmodule Chat do
   end
 
   defp get_chat_pid(username1, username2) do
-    ChatServer.get_chat(username1, username2)
+    ChatUnoAUnoServer.get_chat(username1, username2)
   end
 end

@@ -69,7 +69,7 @@ defmodule Usuario do
   end
 
   defp obtener_chat_destino(origen, destino) do
-    ChatServer.get_chat(origen, destino)
+    ChatUnoAUnoServer.get_chat(origen, destino)
   end
 
   def handle_call({:crear_grupo, nombre_grupo}, _from, state) do
@@ -81,7 +81,7 @@ defmodule Usuario do
   end
   def handle_call({:crear_chat, destinatario}, _from, state) do
     UsuarioServer.get_user(destinatario)
-    chat_name = ChatServer.register_chat(destinatario, state.nombre)
+    chat_name = ChatUnoAUnoServer.register_chat(destinatario, state.nombre)
     Usuario.informar_chat(chat_name, state.nombre, destinatario)
     mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
     UsuarioAgent.agregar_chat_uno_a_uno(mi_agente, chat_name)
@@ -90,7 +90,7 @@ defmodule Usuario do
   end
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
-    repuestaChat = Chat.enviar_mensaje(state.nombre, destinatario, mensaje)
+    repuestaChat = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
     {:reply, repuestaChat, state}
   end
 
@@ -100,12 +100,12 @@ defmodule Usuario do
   end
 
   def handle_call({:editar_mensaje, destinatario, mensajeNuevo, idMensaje}, _from, state) do
-    repuestaChat = Chat.editar_mensaje(state.nombre, destinatario, mensajeNuevo, idMensaje)
+    repuestaChat = ChatUnoAUno.editar_mensaje(state.nombre, destinatario, mensajeNuevo, idMensaje)
     {:reply, repuestaChat, state}
   end
 
   def handle_call({:eliminar_mensaje, destinatario, mensaje}, _from, state) do
-    repuestaChat = Chat.eliminar_mensaje(state.nombre, destinatario, mensaje)
+    repuestaChat = ChatUnoAUno.eliminar_mensaje(state.nombre, destinatario, mensaje)
     {:reply, repuestaChat, state}
   end
 
