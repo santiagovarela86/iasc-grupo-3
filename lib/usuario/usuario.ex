@@ -1,22 +1,19 @@
 defmodule Usuario do
   use GenServer
 
-  def start_link(name, chats) do
-    GenServer.start_link(__MODULE__, {name, chats}, name: UsuarioRegistry.build_name(name))
+  def start_link(name) do
+    GenServer.start_link(__MODULE__, name, name: UsuarioRegistry.build_name(name))
   end
 
-  def init({name, chats}) do
-    state = %{
-      name: name,
-      chats: chats
-    }
+  def init(name) do
+    state = name
     {:ok, state}
   end
 
-  def child_spec(name) do
+  def child_spec({name}) do
     %{
       id: name,
-      start: {__MODULE__, :start_link, [name, []]},
+      start: {__MODULE__, :start_link, [name]},
       type: :worker,
       restart: :transient
     }
@@ -56,46 +53,39 @@ defmodule Usuario do
     GenServer.call(pid, {:obtener_chats})
   end
 
-  def get_historial(:group_chat, group) do
-
-  end
-
-  defp obtener_chat_destino(origen, destino) do
-    ChatServer.get_chat(origen, destino)
-  end
-
   def handle_call({:crear_chat, destinatario}, _from, state) do
     UsuarioServer.get_user(destinatario)
-    chat_name = ChatServer.register_chat(destinatario, state.name)
-    Usuario.informar_chat(chat_name, state.name, destinatario)
+    chat_name = ChatServer.register_chat(destinatario, state)
+    Usuario.informar_chat(chat_name, state, destinatario)
     nuevoState = Map.update!(state, :chats, fn(chats) -> chats ++ [{chat_name, destinatario}] end)
-
     {:reply, chat_name, nuevoState}
-
   end
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
-    repuestaChat = Chat.enviar_mensaje(state.name, destinatario, mensaje)
+    repuestaChat = Chat.enviar_mensaje(state, destinatario, mensaje)
     {:reply, repuestaChat, state}
   end
 
   def handle_call({:editar_mensaje, destinatario, mensajeNuevo, idMensaje}, _from, state) do
-    repuestaChat = Chat.editar_mensaje(state.name, destinatario, mensajeNuevo, idMensaje)
+    repuestaChat = Chat.editar_mensaje(state, destinatario, mensajeNuevo, idMensaje)
     {:reply, repuestaChat, state}
   end
 
   def handle_call({:eliminar_mensaje, destinatario, mensaje}, _from, state) do
-    repuestaChat = Chat.eliminar_mensaje(state.name, destinatario, mensaje)
+    repuestaChat = Chat.eliminar_mensaje(state, destinatario, mensaje)
     {:reply, repuestaChat, state}
   end
 
   def handle_call({:obtener_chats}, _from, state) do
-    {:reply, state.chats, state}
+    mi_agente = UsuarioAgentRegistry.lookup(state)
+    chats = UsuarioAgent.get_chats_uno_a_uno(mi_agente)
+    {:reply, chats, state}
   end
 
-  def handle_cast({:informar_chat, chat_name, destinatario}, state) do
-    nuevoState = Map.update!(state, :chats, fn(chats) -> chats ++ [{chat_name, destinatario}] end)
-    {:noreply, nuevoState}
+  def handle_cast({:informar_chat, chat_name}, state) do
+    mi_agente = UsuarioAgentRegistry.lookup(state)
+    UsuarioAgent.agregar_chat_uno_a_uno(mi_agente,chat_name)
+    {:noreply, state}
   end
 
 end

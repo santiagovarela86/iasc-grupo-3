@@ -10,7 +10,7 @@ defmodule UsuarioSupervisor do
   end
 
   def start_child(username) do
-    spec = {Usuario, username}
+    spec = {Usuario, {username}}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 end
