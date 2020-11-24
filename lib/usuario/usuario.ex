@@ -6,7 +6,7 @@ defmodule Usuario do
   end
 
   def init(name) do
-    state = name
+    state = %{nombre: name}
     {:ok, state}
   end
 
@@ -73,56 +73,56 @@ defmodule Usuario do
   end
 
   def handle_call({:crear_grupo, nombre_grupo}, _from, state) do
-    case GrupoServer.crear_grupo(nombre_grupo, state) do
-      :already_exists -> {:reply, :already_exists, state}
-      _ -> informar_grupo(nombre_grupo, state)
+    case GrupoServer.crear_grupo(nombre_grupo, state.nombre) do
+      :already_exists -> {:reply, :already_exists, state.nombre}
+      _ -> informar_grupo(nombre_grupo, state.nombre)
       {:reply, :ok, state}
     end
   end
   def handle_call({:crear_chat, destinatario}, _from, state) do
     UsuarioServer.get_user(destinatario)
-    chat_name = ChatServer.register_chat(destinatario, state)
-    Usuario.informar_chat(chat_name, state, destinatario)
-    mi_agente = UsuarioAgentRegistry.lookup(state)
+    chat_name = ChatServer.register_chat(destinatario, state.nombre)
+    Usuario.informar_chat(chat_name, state.nombre, destinatario)
+    mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
     UsuarioAgent.agregar_chat_uno_a_uno(mi_agente, chat_name)
     {:reply, chat_name, state}
 
   end
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
-    repuestaChat = Chat.enviar_mensaje(state, destinatario, mensaje)
+    repuestaChat = Chat.enviar_mensaje(state.nombre, destinatario, mensaje)
     {:reply, repuestaChat, state}
   end
 
   def handle_call({:enviar_mensaje_grupo, destinatario, mensaje}, _from, state) do
-    repuestaChat = ChatDeGrupo.enviar_mensaje(state, destinatario, mensaje)
+    repuestaChat = ChatDeGrupo.enviar_mensaje(state.nombre, destinatario, mensaje)
     {:reply, repuestaChat, state}
   end
 
   def handle_call({:editar_mensaje, destinatario, mensajeNuevo, idMensaje}, _from, state) do
-    repuestaChat = Chat.editar_mensaje(state, destinatario, mensajeNuevo, idMensaje)
+    repuestaChat = Chat.editar_mensaje(state.nombre, destinatario, mensajeNuevo, idMensaje)
     {:reply, repuestaChat, state}
   end
 
   def handle_call({:eliminar_mensaje, destinatario, mensaje}, _from, state) do
-    repuestaChat = Chat.eliminar_mensaje(state, destinatario, mensaje)
+    repuestaChat = Chat.eliminar_mensaje(state.nombre, destinatario, mensaje)
     {:reply, repuestaChat, state}
   end
 
   def handle_call({:obtener_chats}, _from, state) do
-    mi_agente = UsuarioAgentRegistry.lookup(state)
+    mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
     chats = UsuarioAgent.get_chats_uno_a_uno(mi_agente)
     {:reply, chats, state}
   end
 
   def handle_cast({:informar_chat, chat_name}, state) do
-    mi_agente = UsuarioAgentRegistry.lookup(state)
+    mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
     UsuarioAgent.agregar_chat_uno_a_uno(mi_agente, chat_name)
     {:noreply, state}
   end
 
   def handle_cast({:informar_grupo, nombre_grupo}, state) do
-    mi_agente = UsuarioAgentRegistry.lookup(state)
+    mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
     UsuarioAgent.agregar_chat_de_grupo(mi_agente, nombre_grupo)
     {:noreply, state}
   end

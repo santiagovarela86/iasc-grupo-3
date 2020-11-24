@@ -6,7 +6,7 @@ defmodule Chat do
   end
 
   def init(chat_name) do
-    state = chat_name
+    state = %{chat_name: chat_name}
     {:ok, state}
   end
 
@@ -39,27 +39,27 @@ defmodule Chat do
 
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
-    my_agent = ChatUnoAUnoAgentRegistry.lookup(state)
+    my_agent = ChatUnoAUnoAgentRegistry.lookup(state.chat_name)
     ChatUnoAUnoAgent.registrar_mensaje(my_agent, mensaje, sender)
     {:reply, state, state}
   end
 
 
   def handle_call({:editar_mensaje, mensajeNuevo, idMensaje, idOrigen}, _from, state) do
-    my_agent = ChatUnoAUnoAgentRegistry.lookup(state)
+    my_agent = ChatUnoAUnoAgentRegistry.lookup(state.chat_name)
     ChatUnoAUnoAgent.modificar_mensaje(my_agent, idOrigen , mensajeNuevo, idMensaje)
     {:reply, state, state}
   end
 
 
   def handle_call({:eliminar_mensaje, idMensaje, _idOrigen}, _from, state) do
-    my_agent = ChatUnoAUnoAgentRegistry.lookup(state)
+    my_agent = ChatUnoAUnoAgentRegistry.lookup(state.chat_name)
     ChatUnoAUnoAgent.eliminar_mensaje(my_agent,idMensaje)
     {:reply, state, state}
   end
 
   def handle_call({:get_messages}, _from, state) do
-    my_agent = ChatUnoAUnoAgentRegistry.lookup(state)
+    my_agent = ChatUnoAUnoAgentRegistry.lookup(state.chat_name)
     mensajes = ChatUnoAUnoAgent.get_mensajes(my_agent)
     {:reply, mensajes, state}
   end

@@ -21,9 +21,4 @@ defmodule ChatDeGrupoAgentRegistry do
     name = :crypto.hash(:md5, nombre_grupo <> to_string(DateTime.utc_now)) |> Base.encode16()
     {:via, :swarm, name}
   end
-
-  def build_name(nombreGrupo) do
-    name = :crypto.hash(:md5, nombreGrupo <> to_string(DateTime.utc_now)) |> Base.encode16()
-    {:via, :swarm, name}
-  end
 end
