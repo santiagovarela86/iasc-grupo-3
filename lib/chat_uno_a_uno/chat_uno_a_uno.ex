@@ -1,23 +1,19 @@
 defmodule Chat do
   use GenServer
 
-  def start_link(mensajes, usuarios, name) do
-    GenServer.start_link(__MODULE__, {mensajes, usuarios}, name: ChatRegistry.build_name(name))
+  def start_link(chat_name) do
+    GenServer.start_link(__MODULE__, chat_name, {:via, Registry, {ChatRegistry, chat_name}})
   end
 
-  def init({mensajes, usuarios}) do
-    state = %{
-      mensajes: mensajes,
-      usuarios: usuarios
-    }
-
+  def init(chat_name) do
+    state = chat_name
     {:ok, state}
   end
 
-  def child_spec({mensajes, users, chat_name}) do
+  def child_spec({chat_name}) do
     %{
       id: chat_name,
-      start: {__MODULE__, :start_link, [mensajes, users, chat_name]},
+      start: {__MODULE__, :start_link, [chat_name]},
       type: :worker,
       restart: :transient
     }
@@ -33,42 +29,38 @@ defmodule Chat do
     GenServer.call(pid, {:get_messages})
   end
 
-  #def editar_mensaje(idChatDestino, mensajeNuevo, idMensaje ,idOrigen) do
-  def editar_mensaje(sender, reciever, mensajeNuevo , idMensaje) do
-    pid = get_chat_pid(sender, reciever)
-    GenServer.call(pid, {:editar_mensaje, sender, reciever, mensajeNuevo, idMensaje})
+  def editar_mensaje(idChatDestino, mensajeNuevo, idMensaje ,idOrigen) do
+    GenServer.call(idChatDestino, {:editar_mensaje, mensajeNuevo, idMensaje, idOrigen})
   end
 
-  def eliminar_mensaje(sender, reciever, idMensaje) do
-    pid = get_chat_pid(sender, reciever)
-    GenServer.call(pid, {:eliminar_mensaje, idMensaje})
+  def eliminar_mensaje(idChatDestino, idMensaje ,idOrigen) do
+    GenServer.call(idChatDestino, {:eliminar_mensaje, idMensaje, idOrigen})
   end
 
-
-  def getHash(mensaje) do
-    :crypto.hash(:md5, mensaje <> to_string(DateTime.utc_now)) |> Base.encode16()
-  end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
-    # (existing_value :: value ->    updated_value :: value))
-    idMensaje = getHash(mensaje)
-    newState = Map.update!(state, :mensajes, fn mensajes -> mensajes ++ [{idMensaje, sender, mensaje}] end)
-    {:reply, idMensaje, newState}
+    {my_agent,_} = List.first(ChatUnoAUnoAgentRegistry.lookup(state))
+    ChatUnoAUnoAgent.registrar_mensaje(my_agent, mensaje, sender)
+    {:reply, state, state}
   end
 
 
-  def handle_call({:editar_mensaje, sender, _, mensajeNuevo ,idMensaje}, _from, state) do
-    newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, idMensaje, 0, {idMensaje, sender, mensajeNuevo})  end)
-    {:reply, newState, newState}
+  def handle_call({:editar_mensaje, mensajeNuevo, idMensaje, idOrigen}, _from, state) do
+    {my_agent,_} = List.first(ChatUnoAUnoAgentRegistry.lookup(state))
+    ChatUnoAUnoAgent.modificar_mensaje(my_agent, idOrigen , mensajeNuevo, idMensaje)
+    {:reply, state, state}
   end
 
-  def handle_call({:eliminar_mensaje, idMensaje}, _from, state) do
-    newState = Map.update!(state, :mensajes, fn mensajes -> List.keydelete(mensajes, idMensaje, 0) end )
-    {:reply, newState, newState}
+
+  def handle_call({:eliminar_mensaje, idMensaje, _idOrigen}, _from, state) do
+    {my_agent,_} = List.first(ChatUnoAUnoAgentRegistry.lookup(state))
+    ChatUnoAUnoAgent.eliminar_mensaje(my_agent,idMensaje)
+    {:reply, state, state}
   end
 
   def handle_call({:get_messages}, _from, state) do
-    {:reply, state.mensajes, state}
+    {my_agent,_} = List.first(ChatUnoAUnoAgentRegistry.lookup(state))
+    ChatUnoAUnoAgent.get_mensajes(my_agent)
   end
 
   defp get_chat_pid(username1, username2) do
