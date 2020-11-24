@@ -63,7 +63,6 @@ defmodule Usuario do
     GenServer.call(pid, {:obtener_chats})
   end
 
-<<<<<<< HEAD
   def informar_grupo(nombre_grupo, username) do
     pid = UsuarioServer.get_user(username)
     GenServer.cast(pid, {:informar_grupo, nombre_grupo})
@@ -73,22 +72,13 @@ defmodule Usuario do
     ChatServer.get_chat(origen, destino)
   end
 
-  def handle_call({:crear_chat, destinatario}, _from, state) do
-    UsuarioServer.get_user(destinatario)
-    chat_name = ChatServer.register_chat(destinatario, state.name)
-    Usuario.informar_chat(chat_name, state.name, destinatario)
-    nuevoState = Map.update!(state, :chats, fn chats -> chats ++ [{chat_name, destinatario}] end)
-
-    {:reply, chat_name, nuevoState}
-  end
-
   def handle_call({:crear_grupo, nombre_grupo}, _from, state) do
-    case GrupoServer.crear_grupo(nombre_grupo, state.name) do
+    case GrupoServer.crear_grupo(nombre_grupo, state) do
       :already_exists -> {:reply, :already_exists, state}
-      _ -> informar_grupo(nombre_grupo, state.name)
+      _ -> informar_grupo(nombre_grupo, state)
       {:reply, :ok, state}
     end
-=======
+  end
   def handle_call({:crear_chat, destinatario}, _from, state) do
     UsuarioServer.get_user(destinatario)
     chat_name = ChatServer.register_chat(destinatario, state)
@@ -96,7 +86,7 @@ defmodule Usuario do
     mi_agente = UsuarioAgentRegistry.lookup(state)
     UsuarioAgent.agregar_chat_uno_a_uno(mi_agente, chat_name)
     {:reply, chat_name, state}
->>>>>>> master
+
   end
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
@@ -105,7 +95,7 @@ defmodule Usuario do
   end
 
   def handle_call({:enviar_mensaje_grupo, destinatario, mensaje}, _from, state) do
-    repuestaChat = ChatDeGrupo.enviar_mensaje(state.name, destinatario, mensaje)
+    repuestaChat = ChatDeGrupo.enviar_mensaje(state, destinatario, mensaje)
     {:reply, repuestaChat, state}
   end
 
@@ -125,20 +115,15 @@ defmodule Usuario do
     {:reply, chats, state}
   end
 
-<<<<<<< HEAD
-  def handle_cast({:informar_chat, chat_name, destinatario}, state) do
-    nuevoState = Map.update!(state, :chats, fn chats -> chats ++ [{chat_name, destinatario}] end)
-    {:noreply, nuevoState}
-=======
   def handle_cast({:informar_chat, chat_name}, state) do
     mi_agente = UsuarioAgentRegistry.lookup(state)
     UsuarioAgent.agregar_chat_uno_a_uno(mi_agente, chat_name)
     {:noreply, state}
->>>>>>> master
   end
 
   def handle_cast({:informar_grupo, nombre_grupo}, state) do
-    #mandar a agent
+    mi_agente = UsuarioAgentRegistry.lookup(state)
+    UsuarioAgent.agregar_chat_de_grupo(mi_agente, nombre_grupo)
     {:noreply, state}
   end
 end

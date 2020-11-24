@@ -1,6 +1,6 @@
 defmodule ChatDeGrupoAgentRegistry do
 
-  def start_link(_) do
+  def start_link() do
     Swarm.Registry.start_link()
   end
 
