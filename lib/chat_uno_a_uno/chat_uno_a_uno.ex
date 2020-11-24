@@ -2,7 +2,7 @@ defmodule Chat do
   use GenServer
 
   def start_link(chat_name) do
-    GenServer.start_link(__MODULE__, chat_name, {:via, Registry, {ChatRegistry, chat_name}})
+    GenServer.start_link(__MODULE__, chat_name, name: {:via, Registry, {ChatRegistry, chat_name}})
   end
 
   def init(chat_name) do
