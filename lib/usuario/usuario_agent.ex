@@ -8,7 +8,7 @@ defmodule UsuarioAgent do
       chats_seguros: MapSet.new(),
       chats_de_grupo: MapSet.new()
     } end,
-    name: Enum.at(UsuarioAgentRegistry.register(nombre), 0, nil)
+    name: ChatUnoAUnoAgentRegistry.build_name(nombre)
     )
   end
   def get_nombre(agente) do

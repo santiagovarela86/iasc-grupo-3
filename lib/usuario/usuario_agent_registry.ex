@@ -1,23 +1,24 @@
 defmodule UsuarioAgentRegistry do
 
   def start_link(_) do
-    Registry.start_link(keys: :duplicate, name: UsuarioRegistry)
+    Swarm.Registry.start_link()
   end
 
-  def child_spec(opts) do
+  def child_spec(_opts) do
     %{
       id: __MODULE__,
-      start: {__MODULE__, :start_link, [opts]},
+      start: {__MODULE__, :start_link, []},
       type: :worker,
       restart: :transient
     }
   end
 
-  def lookup(username) do
-    Registry.lookup(UsuarioAgentRegistry, username)
+  def lookup(chat_id) do
+    Swarm.members(chat_id)
   end
 
-  def register(username) do
-    Registry.register(UsuarioAgentRegistry, username, [])
+  def build_name(nombre) do
+    name = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now)) |> Base.encode16()
+    {:via, :swarm, name}
   end
 end

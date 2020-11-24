@@ -9,7 +9,7 @@ defmodule ChatDeGrupoAgent do
         mensajes: Map.new,
         nombre_grupo: nombre_grupo
       } end,
-      name: ChatDeGrupoAgentRegistry.build_name(nombre_grupo))
+      name: ChatDeGrupoAgentRegistry.build_name(nombre_grupo)
     )
   end
 
