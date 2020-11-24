@@ -24,10 +24,15 @@ defmodule GrupoServer do
     end
   end
 
-  def handle_call({:crear_grupo, nombre_grupo, _usuario_admin}, _from, state) do
+  def handle_call({:crear_grupo, nombre_grupo, usuario_admin}, _from, state) do
     case GrupoSupervisor.start_child(nombre_grupo) do
-      {:ok, _} -> {:reply, nombre_grupo, state}
-      {:error, {:already_started, _}} -> {:reply, :already_exists, state}
+      {:ok, _} ->
+        {:ok, pid} = ChatDeGrupoAgent.start_link(usuario_admin, nombre_grupo)
+        Swarm.join(nombre_grupo, pid)
+        {:reply, nombre_grupo, state}
+
+      {:error, {:already_started, _}} ->
+        {:reply, :already_exists, state}
     end
   end
 end

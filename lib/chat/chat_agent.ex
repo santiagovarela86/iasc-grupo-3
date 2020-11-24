@@ -11,7 +11,7 @@ defmodule ChatAgent do
 
   def registrar_mensaje(agente, mensaje, origen) do
     mensaje_id = :crypto.hash(:md5, mensaje <> to_string(DateTime.utc_now)) |> Base.encode16()
-    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn mensajes -> mensajes ++ [{mensaje_id, origen, mensaje}] end) end )
+    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn mensajes -> Map.put(mensajes, mensaje_id, {origen, mensaje}) end ) end)
   end
 
   def eliminar_mensaje(agente, mensaje_id) do

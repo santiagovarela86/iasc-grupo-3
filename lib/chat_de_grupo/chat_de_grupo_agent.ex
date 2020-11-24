@@ -9,7 +9,7 @@ defmodule ChatDeGrupoAgent do
         mensajes: Map.new,
         nombre_grupo: nombre_grupo
       } end,
-      name: register(nombre_grupo))
+      name: ChatDeGrupoAgentRegistry.build_name(nombre_grupo))
   end
 
   def get_nombre(agente) do
@@ -54,11 +54,6 @@ defmodule ChatDeGrupoAgent do
 
   def modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id) do
     ChatAgent.modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id)
-  end
-
-  defp register(nombre_grupo) do
-    {:ok, pid} = ChatDeGrupoAgentRegistry.register(nombre_grupo)
-    :grupo
   end
 
 end

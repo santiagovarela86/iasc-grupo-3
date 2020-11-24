@@ -18,14 +18,11 @@ defmodule UsuarioServer do
   end
 
   def handle_call({:get_user, username}, _from, state) do
-    IO.puts("buscar a " <> username)
     lookup = UsuarioRegistry.lookup_user(username)
-    IO.inspect(lookup)
     result = case lookup do
       [{userPid, _}] -> {:reply, userPid, state}
       _ -> {:reply, :not_found, state}
     end
-    IO.inspect(result)
     result
   end
 

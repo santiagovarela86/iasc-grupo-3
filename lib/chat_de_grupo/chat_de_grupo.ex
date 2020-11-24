@@ -2,7 +2,7 @@ defmodule ChatDeGrupo do
   use GenServer
 
   def start_link(nombre_grupo) do
-    GenServer.start_link(__MODULE__, [nombre_grupo], name: ChatRegistry.build_name(nombre_grupo))
+    GenServer.start_link(__MODULE__, nombre_grupo, name: ChatRegistry.build_name(nombre_grupo))
   end
 
   def init(nombre_grupo) do
@@ -56,14 +56,6 @@ defmodule ChatDeGrupo do
     agent = obtener_agent(state.nombre_grupo)
     ChatDeGrupoAgent.registrar_mensaje(agent, mensaje, sender)
     {:reply, :ok, state}
-  end
-
-
-  def handle_call({:editar_mensaje, _, _, _, _}, _from, state) do
-    IO.inspect(state)
-    newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.delete_at(mensajes, 0)  end)
-    IO.inspect(newState)
-    {:reply, newState, newState}
   end
 
   def handle_call({:ascender_usuario, usuario_origen, usuario_ascendido}, _from, state) do
@@ -122,7 +114,8 @@ defmodule ChatDeGrupo do
   end
 
   def handle_call({:get_messages}, _from, state) do
-    {:reply, state.mensajes, state}
+    [agent] = Swarm.members(state.nombre_grupo)
+    {:reply, ChatDeGrupoAgent.get_mensajes(agent), state}
   end
 
 
@@ -171,8 +164,8 @@ defmodule ChatDeGrupo do
   end
 
   defp obtener_agent(nombre_grupo) do
-    [{agent, _} | _] = ChatDeGrupoAgentRegistry.lookup(nombre_grupo)
-    agent
+    [pid | _] = Swarm.members(nombre_grupo)
+    pid
   end
 
   defp puede_borrar(nombre_grupo, mensaje, origen) do

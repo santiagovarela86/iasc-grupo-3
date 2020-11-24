@@ -6,8 +6,7 @@ defmodule ChatUnoAUnoAgent do
       usuarios: MapSet.new([usuario1, usuario2]),
       mensajes: Map.new
     } end,
-    name: Enum.at(ChatUnoAUnoAgentRegistry.register(Enum.sort([usuario1, usuario2])), 0, nil)
-    )
+    name: ChatUnoAUnoAgentRegistry.build_name(usuario1, usuario2))
   end
   def get_usuarios(agente) do
     ChatAgent.get_usuarios(agente)

@@ -68,16 +68,8 @@ defmodule Usuario do
   end
 
   def informar_grupo(nombre_grupo, username) do
-    IO.puts("Informar grupo")
     pid = UsuarioServer.get_user(username)
-    IO.inspect("pid es" <> pid)
     GenServer.cast(pid, {:informar_grupo, nombre_grupo})
-
-  end
-
-  def obtener_chats(username) do
-    pid = UsuarioServer.get_user(username)
-    GenServer.call(pid, {:obtener_chats})
   end
 
   defp obtener_chat_destino(origen, destino) do
@@ -96,7 +88,7 @@ defmodule Usuario do
   def handle_call({:crear_grupo, nombre_grupo}, _from, state) do
     case GrupoServer.crear_grupo(nombre_grupo, state.name) do
       :already_exists -> {:reply, :already_exists, state}
-      _ -> {} #informar_grupo(nombre_grupo, state.name)
+      _ -> informar_grupo(nombre_grupo, state.name)
       {:reply, :ok, state}
     end
   end
@@ -132,8 +124,7 @@ defmodule Usuario do
 
   def handle_cast({:informar_grupo, nombre_grupo}, state) do
     #mandar a agent
-    nuevoState = Map.update!(state, :grupos, fn grupos -> grupos ++ [{nombre_grupo}] end)
-    {:noreply, nuevoState}
+    {:noreply, state}
   end
 end
 
