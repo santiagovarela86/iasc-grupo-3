@@ -26,10 +26,10 @@ defmodule Chat do
   def enviar_mensaje(sender, reciever, mensaje) do
     pid = get_chat_pid(sender, reciever)
     GenServer.call(pid, {:enviar_mensaje, sender, mensaje})
-    IO.puts("Sending Message to.. ->"<>reciever)
-    host = String.to_atom(reciever<>"@"<>"iaschost")
-    Node.connect(host)
-    send { String.to_atom(reciever) , host }, mensaje
+    #IO.puts("Sending Message to.. ->"<>reciever)
+    #host = String.to_atom(reciever<>"@"<>"iaschost")
+    #Node.connect(host)
+    #send { String.to_atom(reciever) , host }, mensaje
 
   end
 
@@ -60,7 +60,6 @@ defmodule Chat do
     newState = Map.update!(state, :mensajes, fn mensajes -> mensajes ++ [{idMensaje, sender, mensaje}] end)
     {:reply, idMensaje, newState}
   end
-
 
   def handle_call({:editar_mensaje, sender, _, mensajeNuevo ,idMensaje}, _from, state) do
     newState = Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, idMensaje, 0, {idMensaje, sender, mensajeNuevo})  end)

@@ -5,32 +5,39 @@ defmodule Cliente do
     @user_server :userServer@iaschost
 
     def start_link(userName) do
-        {:ok, pid} = GenServer.start_link(__MODULE__, userName, name: __MODULE__)
+        {:ok, pid} = GenServer.start_link(__MODULE__, userName, name: build_name(userName))
     end    
 
-    def init(name) do
+    def init(userName) do
         state = %{
-          userName: name,
+          userName: userName,
           pid: nil
         }
+        Swarm.join(userName, self)
         {:ok, state}
     end
 
-    def registrar() do
-        GenServer.call(__MODULE__,{:registrar, pid})
+    def registrar(pid) do
+        GenServer.call(pid,{:registrar})
     end
 
-    def enviar_mensaje(receiver, mensaje) do 
-        GenServer.call(__MODULE__,{:enviar_mensaje, receiver, mensaje})
+    def enviar_mensaje(receiver, mensaje, pid) do 
+        GenServer.call(pid,{:enviar_mensaje, receiver, mensaje})
     end    
+
+
+    def build_name(nombre) do
+        name = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now)) |> Base.encode16()
+        {:via, :swarm, name}
+      end
 
 
 ######################################
 
 
-    def handle_call({:registrar, pid}, _from, state) do
+    def handle_call({:registrar}, _from, state) do
         Node.connect(@user_server)
-        :rpc.call(@user_server, UsuarioServer, :register_user, [state.userName, pid])
+        :rpc.call(@user_server, UsuarioServer, :register_user, [state.userName])
 
         {:reply, state, state}
     end    
@@ -42,15 +49,13 @@ defmodule Cliente do
     end   
 
     def handle_info(mensaje, state) do
-        IO.puts("BBBBBBBBBBBBBBBBBBBBBBBBBB")
-        IO.puts("CCCCCCCCCCCCCCCCCCCCCCCCC"<>state)
-
-        {:reply, state, state}
+        IO.puts(mensaje)
+        {:noreply, state}
     end   
 
     def handle_info(_msg, state) do
-        IO.puts("ZZZZZZZZZZZZZZ")
-        {:reply, state, state}
+        IO.puts(state)
+        {:noreply, state}
     end   
 
 
