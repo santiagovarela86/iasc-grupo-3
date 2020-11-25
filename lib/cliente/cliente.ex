@@ -13,7 +13,7 @@ defmodule Cliente do
           userName: userName,
           pid: nil
         }
-        Swarm.join(userName, self)
+        Swarm.join({:cliente, userName}, self)
         {:ok, state}
     end
 

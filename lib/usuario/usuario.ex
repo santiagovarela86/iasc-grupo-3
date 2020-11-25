@@ -95,7 +95,7 @@ defmodule Usuario do
     IO.puts("Sending Message to.. -> "<>destinatario)
     host = String.to_atom(destinatario<>"@"<>"iaschost")
     Node.connect(host)
-    send List.first(Swarm.members(destinatario)), mensaje
+    send List.first(Swarm.members({:cliente, destinatario})), mensaje
 
     {:reply, repuestaChat, state}
   end
