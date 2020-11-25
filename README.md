@@ -1,17 +1,5 @@
 # Pigeon
 
-## Con Nodos
-
-- iex --sname userServer -S mix
-- iex --sname juan -S mix 
-- iex --sname pepe -S mix
-- en cada nodo de los clientes ejecutar: 
-    - {:ok, pid} = Cliente.start_link("nombre_del_usuario")
-    - Cliente.registrar(pid)
-- Cliente.enviar_mensaje({UserName Destino}, " { mensaje }" , pid)
-
-<br>
-
 ## How to install the dependencies
 
 - Run "mix deps.get" in the project root folder.
@@ -24,7 +12,7 @@
 
 <br>
 
-## How to test it with nodes
+## How to test the application using nodes
 
 - Go to the project root folder and open three different command lines there.
 
@@ -48,7 +36,7 @@
 
 <br>
 
-## How to test it without nodes
+## How to test the application without using nodes
 
 - Run **iex -S mix** in the project folder
 - Register a user with "UsuarioServer.register_user("juan")"
