@@ -2,18 +2,18 @@ defmodule Cliente do
 
     use GenServer
 
-    @user_server :userServer@iaschost
+    @user_server "userServer"
 
     def start_link(userName) do
-        {:ok, pid} = GenServer.start_link(__MODULE__, userName, name: build_name(userName))
-    end    
+        GenServer.start_link(__MODULE__, userName, name: build_name(userName))
+    end
 
     def init(userName) do
         state = %{
           userName: userName,
           pid: nil
         }
-        Swarm.join({:cliente, userName}, self)
+        Swarm.join({:cliente, userName}, self())
         {:ok, state}
     end
 
@@ -21,9 +21,9 @@ defmodule Cliente do
         GenServer.call(pid,{:registrar})
     end
 
-    def enviar_mensaje(receiver, mensaje, pid) do 
+    def enviar_mensaje(receiver, mensaje, pid) do
         GenServer.call(pid,{:enviar_mensaje, receiver, mensaje})
-    end    
+    end
 
 
     def build_name(nombre) do
@@ -36,28 +36,36 @@ defmodule Cliente do
 
 
     def handle_call({:registrar}, _from, state) do
-        Node.connect(@user_server)
-        :rpc.call(@user_server, UsuarioServer, :register_user, [state.userName])
 
+        Node.connect(local_name(@user_server))
+        :rpc.call(local_name(@user_server), UsuarioServer, :register_user, [state.userName])
         {:reply, state, state}
-    end    
+    end
 
     def handle_call({:enviar_mensaje, receiver, mensaje}, _from, state) do
-        :rpc.call(@user_server, Usuario, :iniciar_chat, [state.userName, receiver])
-        :rpc.call(@user_server, Usuario, :enviar_mensaje, [state.userName, receiver, mensaje])
+        :rpc.call(local_name(@user_server), Usuario, :iniciar_chat, [state.userName, receiver])
+        :rpc.call(local_name(@user_server), Usuario, :enviar_mensaje, [state.userName, receiver, mensaje])
         {:reply, state, state}
-    end   
+    end
 
     def handle_info(mensaje, state) do
         IO.puts(mensaje)
         {:noreply, state}
-    end   
+    end
 
-    def handle_info(_msg, state) do
-        IO.puts(state)
-        {:noreply, state}
-    end   
+
+    defp local_name(name) do
+        {:ok, hostname} = :inet.gethostname()
+        String.to_atom(name <> "@#{hostname}")
+      end
+
+
+    #def handle_info(_msg, state) do
+    #    IO.puts(state)
+    #    {:noreply, state}
+    #end
+
+
 
 
   end
-  
