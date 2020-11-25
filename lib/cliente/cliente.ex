@@ -2,7 +2,7 @@ defmodule Cliente do
 
     use GenServer
 
-    @user_server "userServer"
+    @user_server "userServer1"
     @timeout 10000
 
     def start_link(userName) do
@@ -18,12 +18,17 @@ defmodule Cliente do
         {:ok, state}
     end
 
+
     def registrar(pid) do
-        GenServer.call(pid,{:registrar})
+        response = GenServer.call(pid,{:registrar})
     end
 
     def enviar_mensaje(receiver, mensaje, pid) do
         GenServer.call(pid,{:enviar_mensaje, receiver, mensaje}, @timeout)
+    end
+
+    def crear_chat(receiver, pid) do
+        GenServer.call(pid,{:crear_chat, receiver})
     end
 
     def crear_chat_seguro(receiver, tiempo_limite, pid) do
@@ -43,14 +48,21 @@ defmodule Cliente do
 
     def handle_call({:registrar}, _from, state) do
         Node.connect(local_name(@user_server))
-        :rpc.call(local_name(@user_server), UsuarioServer, :register_user, [state.userName])
+        response = :rpc.call(local_name(@user_server), UsuarioServer, :register_user, [state.userName])
+        {:reply, response, state}
+    end
+
+    def handle_call({:crear_chat, receiver}, _from, state) do
+        :rpc.call(local_name(@user_server), Usuario, :iniciar_chat, [state.userName, receiver])
         {:reply, state, state}
     end
 
     def handle_call({:enviar_mensaje, receiver, mensaje}, _from, state) do
-        :rpc.call(local_name(@user_server), Usuario, :iniciar_chat, [state.userName, receiver])
-        :rpc.call(local_name(@user_server), Usuario, :enviar_mensaje, [state.userName, receiver, mensaje])
-        {:reply, state, state}
+        #:rpc.call(local_name(@user_server), Usuario, :iniciar_chat, [state.userName, receiver])
+        response = :rpc.call(local_name(@user_server), Usuario, :enviar_mensaje, [state.userName, receiver, mensaje])
+        #IO.puts("MMMMMMMMMMMMMMMMMMMMMMMMMMMM")
+        #IO.inspect(response)
+        {:reply, response, state}
     end
 
     def handle_call({:crear_chat_seguro, receiver, tiempo_limite}, _from, state) do
@@ -63,14 +75,15 @@ defmodule Cliente do
         {:reply, state, state}
     end
 
-    def handle_info(mensaje, state) do
-        IO.puts(mensaje)
+    def handle_info({destinatario, mensaje}, state) do
+        IO.puts("["<>destinatario<>"]: "<>mensaje)
         {:noreply, state}
     end
 
     defp local_name(name) do
         {:ok, hostname} = :inet.gethostname()
-        String.to_atom(name <> "@#{hostname}")
+        String.to_atom(name <> "@127.0.0.1")
+        #String.to_atom(name <> "@#{hostname}")
     end
 
 end

@@ -21,7 +21,9 @@ defmodule ChatUnoAUno do
 
   def enviar_mensaje(sender, reciever, mensaje) do
     pid = get_chat_pid(sender, reciever)
-    GenServer.call(pid, {:enviar_mensaje, sender, mensaje})
+    response = GenServer.call(pid, {:enviar_mensaje, sender, mensaje})
+    #IO.puts("AAAAAAAAAAAAA")
+    #IO.inspect(response)
   end
 
   def get_messages(username1, username2) do
@@ -38,8 +40,8 @@ defmodule ChatUnoAUno do
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
-    ChatUnoAUnoEntity.registrar_mensaje(state.chat_name, mensaje, sender)
-    {:reply, state, state}
+    {:ok, mensaje_id} = ChatUnoAUnoEntity.registrar_mensaje(state.chat_name, mensaje, sender)
+    {:reply, {:ok, mensaje_id}, state}
   end
 
 

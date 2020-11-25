@@ -40,7 +40,7 @@ defmodule Usuario do
 
   def enviar_mensaje(origen, destinatario, mensaje) do
     pid = get_pid(origen)
-    GenServer.call(pid, {:enviar_mensaje, destinatario, mensaje})
+    {:ok, id_mensaje} = GenServer.call(pid, {:enviar_mensaje, destinatario, mensaje})
   end
 
   def enviar_mensaje_grupo(origen, nombre_grupo, mensaje) do
@@ -109,14 +109,14 @@ defmodule Usuario do
   end
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
-    repuestaChat = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
+    {:ok, id_mensaje} = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
 
     IO.puts("Sending Message to.. -> "<>destinatario)
-    host = String.to_atom(destinatario<>"@"<>"iaschost")
-    Node.connect(host)
-    send List.first(Swarm.members({:cliente, destinatario})), mensaje
+    #host = String.to_atom(destinatario<>"@"<>"iaschost")
+    #Node.connect(host)
+    send List.first(Swarm.members({:cliente, destinatario})), {destinatario, mensaje}
 
-    {:reply, repuestaChat, state}
+    {:reply, {:ok, id_mensaje}, state}
   end
 
   def handle_call({:enviar_mensaje_grupo, destinatario, mensaje}, _from, state) do
@@ -128,8 +128,8 @@ defmodule Usuario do
     repuestaChatSeguro = ChatSeguro.enviar_mensaje(state.nombre, destinatario, mensaje_seguro)
 
     IO.puts("Sending Secure Message to.. -> "<>destinatario)
-    host = String.to_atom(destinatario<>"@"<>"iaschost")
-    Node.connect(host)
+    #host = String.to_atom(destinatario<>"@"<>"iaschost")
+    #Node.connect(host)
     send List.first(Swarm.members({:cliente, destinatario})), mensaje_seguro
 
     {:reply, repuestaChatSeguro, state}

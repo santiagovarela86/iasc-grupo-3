@@ -12,7 +12,10 @@ defmodule ChatUnoAUnoEntity do
 
   def registrar_mensaje(chat, mensaje, origen) do
     chat_id = Enum.sort(chat)
-    Entity.aplicar_cambio({:chat_uno_a_uno_agent, chat_id}, &ChatUnoAUnoAgent.registrar_mensaje(&1, mensaje, origen))
+    [ok: {:ok, mensaje_id}] = Entity.aplicar_cambio({:chat_uno_a_uno_agent, chat_id}, &ChatUnoAUnoAgent.registrar_mensaje(&1, mensaje, origen))
+    #IO.puts("JJJJJJJJJJJJJJJJJJJJJJJ")
+    #IO.inspect(response)
+    {:ok, mensaje_id}
   end
 
   def eliminar_mensaje(chat, mensaje_id) do

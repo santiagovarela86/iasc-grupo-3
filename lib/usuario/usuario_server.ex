@@ -14,7 +14,8 @@ defmodule UsuarioServer do
   end
 
   def register_user(username) do
-    GenServer.call(UsuarioServer, {:register_user, username})
+    response = GenServer.call(UsuarioServer, {:register_user, username})
+  
   end
 
   def handle_call({:get_user, username}, _from, state) do
@@ -33,7 +34,7 @@ defmodule UsuarioServer do
     #tendria que usar un case, o el case ya hecho para cuando ya existe, o cuando no existe el grupo, etc?
     case UsuarioSupervisor.start_child(username) do
       {:ok, pid} -> Swarm.join({:usuario, username}, pid)
-      {:reply, pid, state}
+      {:reply, {:ok, pid}, state}
       {:error, {:already_started, pid}} -> {:reply, pid, state}
     end
   end

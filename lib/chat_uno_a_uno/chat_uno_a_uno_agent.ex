@@ -19,7 +19,7 @@ defmodule ChatUnoAUnoAgent do
   end
 
   def registrar_mensaje(agente, mensaje, origen) do
-    ChatAgent.registrar_mensaje(agente, mensaje, origen)
+    {:ok, id_mensaje} = ChatAgent.registrar_mensaje(agente, mensaje, origen)
   end
 
   def eliminar_mensaje(agente, mensaje_id) do
