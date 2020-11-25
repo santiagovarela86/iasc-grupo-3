@@ -55,7 +55,7 @@ defmodule Usuario do
 
   def editar_mensaje(origen, destinatario, mensajeNuevo, idMensaje) do
     pid = get_pid(origen)
-    GenServer.call(pid, {:editar_mensaje, destinatario, mensajeNuevo, idMensaje})
+    GenServer.call(pid, {:editar_mensaje, origen, destinatario, mensajeNuevo, idMensaje})
   end
 
   def eliminar_mensaje(origen, destinatario, mensaje) do
@@ -135,8 +135,8 @@ defmodule Usuario do
     {:reply, repuestaChatSeguro, state}
   end
 
-  def handle_call({:editar_mensaje, destinatario, mensajeNuevo, idMensaje}, _from, state) do
-    repuestaChat = ChatUnoAUno.editar_mensaje(state.nombre, destinatario, mensajeNuevo, idMensaje)
+  def handle_call({:editar_mensaje, origen,  destinatario, mensajeNuevo, idMensaje}, _from, state) do
+    repuestaChat = ChatUnoAUno.editar_mensaje(origen, destinatario, mensajeNuevo, idMensaje)
     {:reply, repuestaChat, state}
   end
 

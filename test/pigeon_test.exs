@@ -60,7 +60,8 @@ defmodule PigeonTest do
 
 #  end
 
-  test "algooo" do
+  test "envio mensajes con nodos" do
+    
     LocalCluster.start()
 
     Application.ensure_all_started(:pigeon)
@@ -68,9 +69,8 @@ defmodule PigeonTest do
     ExUnit.start()
 
     [userServer] = LocalCluster.start_nodes("userServer",1)
-    [nodeJuan] = LocalCluster.start_nodes("juan",1)
-    [nodeFede] = LocalCluster.start_nodes("fede",1)
-
+    [nodeJuan] = LocalCluster.start_nodes("user1",1)
+    [nodeFede] = LocalCluster.start_nodes("user2",1)
 
     assert Node.ping(nodeJuan) == :pong
     assert Node.ping(nodeFede) == :pong
@@ -86,14 +86,21 @@ defmodule PigeonTest do
     {:ok, pidJuan} = :rpc.call(nodeJuan, Cliente, :start_link, ["juan"])
     {:ok, pidFede} = :rpc.call(nodeFede, Cliente, :start_link, ["fede"])
 
-    {:ok, _} = :rpc.call(nodeJuan, Cliente, :registrar, [pidJuan])
-    {:ok, _} = :rpc.call(nodeFede, Cliente, :registrar, [pidFede])
+    
+    {respuesta1, _} = :rpc.call(nodeJuan, Cliente, :registrar, [pidJuan])
+    assert :ok == respuesta1
+    assert {:ok, _} = :rpc.call(nodeFede, Cliente, :registrar, [pidFede])
 
     :rpc.call(nodeJuan, Cliente, :crear_chat, ["fede", pidJuan])
     
     {:ok, id_mensaje} = :rpc.call(nodeJuan, Cliente, :enviar_mensaje, ["fede", "holaaa", pidJuan])
-    IO.puts(id_mensaje)
+    :rpc.call(nodeJuan, Cliente, :enviar_mensaje, ["fede", "como estas", pidJuan])
     #:rpc.call(nodeFede, Cliente, :enviar_mensaje, ["juan", "como estas?", pidFede])
+    #IO.puts(id_mensaje)
+
+    algo = :rpc.call(nodeJuan, Cliente, :editar_mensaje, ["fede", "chaaauuuu", id_mensaje, pidJuan])
+    IO.inspect(algo)
+
 
   end  
 

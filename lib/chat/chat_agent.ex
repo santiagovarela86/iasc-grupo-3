@@ -23,7 +23,11 @@ defmodule ChatAgent do
   end
 
   def modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id) do
-    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, mensaje_id, 0, {mensaje_id, origen, mensaje_nuevo})  end) end )
+    response = Agent.update(agente, fn(state) -> 
+      Map.update!(state, :mensajes, fn (mensajes) -> 
+        {_, _, _, fecha} = Map.get(mensajes, mensaje_id)
+        Map.replace!(mensajes, mensaje_id, {mensaje_id, origen, mensaje_nuevo, fecha}) end ) end )
+        #IO.inspect(Agent.get(agente, &Map.get(&1, :mensajes)))
   end
 
 end
