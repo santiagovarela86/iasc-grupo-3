@@ -33,6 +33,11 @@ defmodule Usuario do
     GenServer.call(pid, {:crear_grupo, nombre_grupo})
   end
 
+  def iniciar_chat_seguro(username, destinatario, tiempo_limite) do
+    pid = get_pid(username)
+    GenServer.call(pid, {:crear_chat_seguro, destinatario, tiempo_limite})
+  end
+
   def enviar_mensaje(origen, destinatario, mensaje) do
     pid = get_pid(origen)
     GenServer.call(pid, {:enviar_mensaje, destinatario, mensaje})
@@ -79,6 +84,7 @@ defmodule Usuario do
       {:reply, :ok, state}
     end
   end
+
   def handle_call({:crear_chat, destinatario}, _from, state) do
     UsuarioServer.get_user(destinatario)
     chat_name = ChatUnoAUnoServer.register_chat(destinatario, state.nombre)
@@ -89,9 +95,19 @@ defmodule Usuario do
 
   end
 
+  def handle_call({:crear_chat_seguro, destinatario, tiempo_limite}, _from, state) do
+    UsuarioServer.get_user(destinatario)
+    chat_name = ChatSeguroServer.register_chat_seguro(destinatario, state.nombre, tiempo_limite)
+    Usuario.informar_chat(chat_name, state.nombre, destinatario)
+    mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
+    UsuarioAgent.agregar_chat_seguros(mi_agente, chat_name)
+    {:reply, chat_name, state}
+
+  end
+
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
     repuestaChat = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
-    
+
     IO.puts("Sending Message to.. -> "<>destinatario)
     host = String.to_atom(destinatario<>"@"<>"iaschost")
     Node.connect(host)

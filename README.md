@@ -20,7 +20,7 @@
 - iex --sname juan -S mix 
 - iex --sname pepe -S mix
 - en cada nodo de los clientes ejecutar: 
-    - {:ok, pid} = Cliente.start_link({nombre_del_usuario})
+    - {:ok, pid} = Cliente.start_link("nombre_del_usuario")
     - Cliente.registrar(pid)
 - Cliente.enviar_mensaje({UserName Destino}, " { mensaje }" , pid)
 
