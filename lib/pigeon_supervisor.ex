@@ -14,7 +14,10 @@ defmodule ApplicationSupervisor do
       ChatUnoAUnoServer,
       GrupoServer,
       ChatUnoAUnoSupervisor,
-      GrupoSupervisor
+      GrupoSupervisor,
+      ChatSeguroRegistry,
+      ChatSeguroSupervisor,
+      ChatSeguroServer
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
