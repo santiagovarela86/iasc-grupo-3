@@ -48,6 +48,11 @@ defmodule Usuario do
     GenServer.call(pid, {:enviar_mensaje_grupo, nombre_grupo, mensaje})
   end
 
+  def enviar_mensaje_seguro(origen, destinatario, mensaje) do
+    pid = get_pid(origen)
+    GenServer.call(pid, {:enviar_mensaje_seguro, destinatario, mensaje})
+  end
+
   def editar_mensaje(origen, destinatario, mensajeNuevo, idMensaje) do
     pid = get_pid(origen)
     GenServer.call(pid, {:editar_mensaje, destinatario, mensajeNuevo, idMensaje})
@@ -97,11 +102,11 @@ defmodule Usuario do
 
   def handle_call({:crear_chat_seguro, destinatario, tiempo_limite}, _from, state) do
     UsuarioServer.get_user(destinatario)
-    chat_name = ChatSeguroServer.register_chat_seguro(destinatario, state.nombre, tiempo_limite)
-    Usuario.informar_chat(chat_name, state.nombre, destinatario)
+    chat_seguro_name = ChatSeguroServer.register_chat_seguro(destinatario, state.nombre, tiempo_limite)
+    Usuario.informar_chat(chat_seguro_name, state.nombre, destinatario)
     mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
-    UsuarioAgent.agregar_chat_seguros(mi_agente, chat_name)
-    {:reply, chat_name, state}
+    UsuarioAgent.agregar_chat_seguros(mi_agente, chat_seguro_name)
+    {:reply, chat_seguro_name, state}
 
   end
 
@@ -119,6 +124,17 @@ defmodule Usuario do
   def handle_call({:enviar_mensaje_grupo, destinatario, mensaje}, _from, state) do
     repuestaChat = ChatDeGrupo.enviar_mensaje(state.nombre, destinatario, mensaje)
     {:reply, repuestaChat, state}
+  end
+
+  def handle_call({:enviar_mensaje_seguro, destinatario, mensaje_seguro}, _from, state) do
+    repuestaChatSeguro = ChatSeguro.enviar_mensaje(state.nombre, destinatario, mensaje_seguro)
+
+    IO.puts("Sending Secure Message to.. -> "<>destinatario)
+    host = String.to_atom(destinatario<>"@"<>"iaschost")
+    Node.connect(host)
+    send List.first(Swarm.members({:cliente, destinatario})), mensaje_seguro
+
+    {:reply, repuestaChatSeguro, state}
   end
 
   def handle_call({:editar_mensaje, destinatario, mensajeNuevo, idMensaje}, _from, state) do

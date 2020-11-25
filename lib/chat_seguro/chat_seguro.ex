@@ -19,10 +19,9 @@ defmodule ChatSeguro do
     }
   end
 
-  def enviar_mensaje(sender, reciever, mensaje) do
-    pid = get_chat_pid(sender, reciever)
+  def enviar_mensaje(sender, receiver, mensaje) do
+    pid = get_chat_pid(sender, receiver)
     GenServer.call(pid, {:enviar_mensaje, sender, mensaje})
-
   end
 
   def get_messages(username1, username2) do
@@ -38,20 +37,17 @@ defmodule ChatSeguro do
     GenServer.call(idChatDestino, {:eliminar_mensaje, idMensaje, idOrigen})
   end
 
-
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
     my_agent = ChatSeguroAgentRegistry.lookup(state.chat_name)
     ChatSeguroAgent.registrar_mensaje(my_agent, mensaje, sender)
     {:reply, state, state}
   end
 
-
   def handle_call({:editar_mensaje, mensajeNuevo, idMensaje, idOrigen}, _from, state) do
     my_agent = ChatSeguroAgentRegistry.lookup(state.chat_name)
     ChatSeguroAgent.modificar_mensaje(my_agent, idOrigen , mensajeNuevo, idMensaje)
     {:reply, state, state}
   end
-
 
   def handle_call({:eliminar_mensaje, idMensaje, _idOrigen}, _from, state) do
     my_agent = ChatSeguroAgentRegistry.lookup(state.chat_name)

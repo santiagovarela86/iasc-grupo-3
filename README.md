@@ -54,13 +54,11 @@
 - Register a user with "UsuarioServer.register_user("juan")"
 - Register another user with "UsuarioServer.register_user("franco")"
 - Get Juan's PID with "pidJuan = UsuarioServer.get_user("juan")"
-- Get Franco's PID with "pidJuan = UsuarioServer.get_user("franco")"
+- Get Franco's PID with "pidFranco = UsuarioServer.get_user("franco")"
 - Create a chat with "chat_name = Usuario.iniciar_chat("juan", "franco")"
 - Create a secure chat with "secure_chat_name = Usuario.iniciar_chat_seguro("juan", "franco", 10)"
 <br>(Time in which messages should be deleted automatically should be specified in seconds).
-
-
-
 - Send a message with "Usuario.enviar_mensaje("juan", "franco", "holus")"
+- Send a secure message with "Usuario.enviar_mensaje_seguro("juan", "franco", "holus seguro")"
 - Get the user's chats with "Usuario.obtener_chats("juan")"
 - Get the user's chat messages "ChatUnoAUno.get_messages("juan","franco")"
