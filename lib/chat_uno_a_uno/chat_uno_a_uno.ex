@@ -22,6 +22,7 @@ defmodule ChatUnoAUno do
   def enviar_mensaje(sender, reciever, mensaje) do
     pid = get_chat_pid(sender, reciever)
     GenServer.call(pid, {:enviar_mensaje, sender, mensaje})
+
   end
 
   def get_messages(username1, username2) do

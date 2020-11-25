@@ -91,6 +91,12 @@ defmodule Usuario do
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
     repuestaChat = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
+    
+    IO.puts("Sending Message to.. -> "<>destinatario)
+    host = String.to_atom(destinatario<>"@"<>"iaschost")
+    Node.connect(host)
+    send List.first(Swarm.members(destinatario)), mensaje
+
     {:reply, repuestaChat, state}
   end
 
