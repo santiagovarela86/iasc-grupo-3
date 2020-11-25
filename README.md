@@ -1,5 +1,9 @@
 # Pigeon
 
+## How to install the dependencies
+
+- Run "mix deps.get" in the project root folder.
+
 ## How to test it
 
 - Run **iex -S mix** in the project folder
@@ -19,3 +23,7 @@
     - {:ok, pid} = Cliente.start_link({nombre_del_usuario})
     - Cliente.registrar(pid)
 - Cliente.enviar_mensaje({UserName Destino}, " { mensaje }" , pid)
+
+## How to run the tests
+
+- Run "mix test" in the project root folder.
