@@ -1,6 +1,8 @@
 defmodule ChatSeguroServer do
   use GenServer
 
+  @secure_suffix "~~~~~~SECURE"
+
   def start_link(_) do
     GenServer.start_link(__MODULE__, [], name: ChatSeguroServer)
   end
@@ -37,7 +39,8 @@ defmodule ChatSeguroServer do
   end
 
   def build_secure_chat_name(username1, username2) do
-    Enum.sort([username1, username2])
+    #Enum.sort([username1, username2])
+    Enum.sort([username1, username2, @secure_suffix])
   end
 
 end
