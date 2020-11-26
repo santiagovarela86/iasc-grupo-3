@@ -3,6 +3,7 @@ defmodule Cliente do
     use GenServer
 
     @user_server "userServer"
+    @timeout 10000
 
     def start_link(userName) do
         GenServer.start_link(__MODULE__, userName, name: build_name(userName))
@@ -22,7 +23,7 @@ defmodule Cliente do
     end
 
     def enviar_mensaje(receiver, mensaje, pid) do
-        GenServer.call(pid,{:enviar_mensaje, receiver, mensaje})
+        GenServer.call(pid,{:enviar_mensaje, receiver, mensaje}, @timeout)
     end
 
     def crear_chat_seguro(receiver, tiempo_limite, pid) do
