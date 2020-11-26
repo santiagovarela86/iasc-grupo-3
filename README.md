@@ -17,28 +17,31 @@
 - Go to the project root folder and open three different command lines there.
 
 - In the first one run: 
-    - iex --sname userServer -S mix
+    - iex --sname userServer -S mix (Linux)
+    - iex.bat --sname userServer --werl -S mix (Windows)
 
 - In the second one run:
-    - iex --sname usuario1 -S mix
+    - iex --sname usuario1 -S mix (Linux)
+    - iex.bat --sname usuario1 --werl -S mix (Windows)
     - {:ok, pid} = Cliente.start_link("usuario1")
     - Cliente.registrar(pid)
 
 - In the third one run:
-    - iex --sname usuario2 -S mix
+    - iex --sname usuario2 -S mix (Linux)
+    - iex.bat --sname usuario2 --werl -S mix (Windows)
     - {:ok, pid} = Cliente.start_link("usuario2")
     - Cliente.registrar(pid)
 
 - You can create as many users as you want.
 
-- Then you can start sending messages to other users in each client using:
-    - Cliente.enviar_mensaje("anotherUser", "message", pid)
+- Then you can start sending messages to other users, for instance, from "usuario1":
+    - Cliente.enviar_mensaje("usuario2", "message", pid)
 
-- Or you can create a secure chat:
-    - Cliente.crear_chat_seguro("anotherUser", tiempo_limite, pid)
+- Or you can create a secure chat, specifying after which the message will be deleted, in this case, 60 seconds:
+    - Cliente.crear_chat_seguro("usuario2", 60, pid)
 
 - And then, send secure messages:
-    - Cliente.enviar_mensaje_seguro("anotherUser", "message", pid)
+    - Cliente.enviar_mensaje_seguro("usuario2", "a secure message", pid)
 
 <br>
 

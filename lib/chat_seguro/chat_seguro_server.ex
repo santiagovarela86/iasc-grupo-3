@@ -37,7 +37,7 @@ defmodule ChatSeguroServer do
   end
 
   def build_secure_chat_name(username1, username2) do
-    ["SECURE" | Enum.sort([username1, username2])]
+    Enum.sort([username1, username2])
   end
 
 end
