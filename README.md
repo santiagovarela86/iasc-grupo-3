@@ -29,10 +29,16 @@
     - {:ok, pid} = Cliente.start_link("usuario2")
     - Cliente.registrar(pid)
 
-- You can add as many users as you want.
+- You can create as many users as you want.
 
 - Then you can start sending messages to other users in each client using:
-    - Cliente.enviar_mensaje("anotherUser", "message" , pid)
+    - Cliente.enviar_mensaje("anotherUser", "message", pid)
+
+- Or you can create a secure chat:
+    - Cliente.crear_chat_seguro("anotherUser", tiempo_limite, pid)
+
+- And then, send secure messages:
+    - Cliente.enviar_mensaje_seguro("anotherUser", "message", pid)
 
 <br>
 

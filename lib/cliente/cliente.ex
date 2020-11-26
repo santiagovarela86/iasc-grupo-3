@@ -25,6 +25,10 @@ defmodule Cliente do
         GenServer.call(pid,{:enviar_mensaje, receiver, mensaje})
     end
 
+    def crear_chat_seguro(receiver, tiempo_limite, pid) do
+        GenServer.call(pid,{:crear_chat_seguro, receiver, tiempo_limite})
+    end
+
     def enviar_mensaje_seguro(receiver, mensaje, pid) do
         GenServer.call(pid,{:enviar_mensaje_seguro, receiver, mensaje})
     end
@@ -48,8 +52,12 @@ defmodule Cliente do
         {:reply, state, state}
     end
 
+    def handle_call({:crear_chat_seguro, receiver, tiempo_limite}, _from, state) do
+        :rpc.call(local_name(@user_server), Usuario, :iniciar_chat_seguro, [state.userName, receiver, tiempo_limite])
+        {:reply, state, state}
+    end
+
     def handle_call({:enviar_mensaje_seguro, receiver, mensaje_seguro}, _from, state) do
-        :rpc.call(local_name(@user_server), Usuario, :iniciar_chat_seguro, [state.userName, receiver])
         :rpc.call(local_name(@user_server), Usuario, :enviar_mensaje_seguro, [state.userName, receiver, mensaje_seguro])
         {:reply, state, state}
     end
