@@ -20,4 +20,5 @@ defmodule ChatUnoAUnoRegistry do
   def build_name(chat_name) do
     {:via, Registry, {ChatUnoAUnoRegistry, chat_name}}
   end
+
 end

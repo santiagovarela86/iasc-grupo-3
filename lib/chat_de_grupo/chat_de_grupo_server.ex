@@ -28,11 +28,12 @@ defmodule GrupoServer do
     case GrupoSupervisor.start_child(nombre_grupo) do
       {:ok, _} ->
         {:ok, pid} = ChatDeGrupoAgent.start_link(usuario_admin, nombre_grupo)
-        Swarm.join(nombre_grupo, pid)
+        Swarm.join({:chat_grupo, nombre_grupo}, pid)
         {:reply, nombre_grupo, state}
 
       {:error, {:already_started, _}} ->
         {:reply, :already_exists, state}
     end
   end
+
 end

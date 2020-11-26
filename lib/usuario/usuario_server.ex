@@ -28,11 +28,11 @@ defmodule UsuarioServer do
 
   def handle_call({:register_user, username}, _from, state) do
     {:ok, agent} = UsuarioAgent.start_link(username)
-    Swarm.join(username, agent)
+    Swarm.join({:usuario, username}, agent)
     #tendria que usar un supervisor para crear al agent
     #tendria que usar un case, o el case ya hecho para cuando ya existe, o cuando no existe el grupo, etc?
     case UsuarioSupervisor.start_child(username) do
-      {:ok, pid} ->  {:reply, pid, state}           
+      {:ok, pid} ->  {:reply, pid, state}
       {:error, {:already_started, pid}} -> {:reply, pid, state}
     end
   end

@@ -25,5 +25,4 @@ defmodule Test do
     Usuario.enviar_mensaje_grupo("juan", "un_grupo", "hola")
   end
 
-
 end

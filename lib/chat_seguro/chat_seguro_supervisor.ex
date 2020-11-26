@@ -13,4 +13,5 @@ defmodule ChatSeguroSupervisor do
     spec = {ChatSeguro, chat_name}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
+
 end

@@ -29,7 +29,7 @@ defmodule ChatSeguroServer do
   def handle_call({:register_chat_seguro, username1, username2, tiempo_limite}, _from, state) do
     secure_chat_name = build_secure_chat_name(username1, username2)
     {:ok, agent} = ChatSeguroAgent.start_link(username1, username2, tiempo_limite)
-    Swarm.join([username1, username2], agent)
+    Swarm.join({:chat_seguro, secure_chat_name}, agent)
     #tendria que usar un supervisor para crear al agent
     #tendria que usar un case, o el case ya hecho para cuando ya existe, o cuando no existe el grupo, etc?
     case ChatSeguroSupervisor.start_child(secure_chat_name) do

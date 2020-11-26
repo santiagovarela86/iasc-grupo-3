@@ -64,4 +64,5 @@ defmodule ChatSeguro do
   defp get_chat_pid(username1, username2) do
     ChatSeguroServer.get_chat(username1, username2)
   end
+
 end

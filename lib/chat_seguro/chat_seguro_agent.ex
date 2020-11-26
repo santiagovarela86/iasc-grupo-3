@@ -10,9 +10,11 @@ defmodule ChatSeguroAgent do
     name: ChatSeguroAgentRegistry.build_name(usuario1, usuario2)
     )
   end
+
   def get_usuarios(agente) do
     ChatAgent.get_usuarios(agente)
   end
+
   def get_mensajes(agente) do
     ChatAgent.get_mensajes(agente)
   end

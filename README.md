@@ -45,6 +45,7 @@
 
 <br>
 
+## DEPRECATED
 ## How to test the application without using nodes
 
 - Run **iex -S mix** in the project folder

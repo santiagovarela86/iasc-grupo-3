@@ -27,7 +27,7 @@ defmodule ChatUnoAUnoServer do
   def handle_call({:register_chat, username1, username2}, _from, state) do
     chat_name = build_chat_name(username1, username2)
     {:ok, agent} = ChatUnoAUnoAgent.start_link(username1, username2)
-    Swarm.join([username1, username2], agent)
+    Swarm.join({:chat_uno_a_uno, chat_name}, agent)
     #tendria que usar un supervisor para crear al agent
     #tendria que usar un case, o el case ya hecho para cuando ya existe, o cuando no existe el grupo, etc?
     case ChatUnoAUnoSupervisor.start_child(chat_name) do

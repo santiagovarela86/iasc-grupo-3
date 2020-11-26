@@ -165,7 +165,3 @@ defmodule Usuario do
     {:noreply, state}
   end
 end
-
-# {:ok, pidUsuario} = Usuario.start_link(:usuario1, [])
-# chatCreado = Usuario.iniciar_chat(pidUsuario, :usuario2)
-# respuestaChat = Usuario.enviar_mensaje(pidUsuario, :usuario2, "holaa")

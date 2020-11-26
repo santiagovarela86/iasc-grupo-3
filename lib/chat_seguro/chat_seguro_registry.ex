@@ -20,4 +20,5 @@ defmodule ChatSeguroRegistry do
   def build_name(chat_name) do
     {:via, Registry, {ChatSeguroRegistry, chat_name}}
   end
+
 end

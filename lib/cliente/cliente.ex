@@ -31,7 +31,7 @@ defmodule Cliente do
     end
 
     def enviar_mensaje_seguro(receiver, mensaje, pid) do
-        GenServer.call(pid,{:enviar_mensaje_seguro, receiver, mensaje})
+        GenServer.call(pid,{:enviar_mensaje_seguro, receiver, mensaje}, @timeout)
     end
 
     def build_name(nombre) do
@@ -72,10 +72,5 @@ defmodule Cliente do
         {:ok, hostname} = :inet.gethostname()
         String.to_atom(name <> "@#{hostname}")
     end
-
-    #def handle_info(_msg, state) do
-    #    IO.puts(state)
-    #    {:noreply, state}
-    #end
 
 end
