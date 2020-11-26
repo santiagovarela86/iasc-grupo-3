@@ -35,6 +35,10 @@ defmodule Cliente do
         GenServer.call(pid,{:editar_mensaje, receiver, mensaje_nuevo, id_mensaje})
     end
 
+    def eliminar_mensaje(receiver, id_mensaje, pid) do
+        GenServer.call(pid,{:eliminar_mensaje, receiver, id_mensaje})
+    end
+
     def crear_chat_seguro(receiver, tiempo_limite, pid) do
         GenServer.call(pid,{:crear_chat_seguro, receiver, tiempo_limite})
     end
@@ -62,18 +66,19 @@ defmodule Cliente do
     end
 
     def handle_call({:enviar_mensaje, receiver, mensaje}, _from, state) do
-        #:rpc.call(local_name(@user_server), Usuario, :iniciar_chat, [state.userName, receiver])
         response = :rpc.call(local_name(@user_server), Usuario, :enviar_mensaje, [state.userName, receiver, mensaje])
-        #IO.puts("MMMMMMMMMMMMMMMMMMMMMMMMMMMM")
-        #IO.inspect(response)
         {:reply, response, state}
     end
 
     def handle_call({:editar_mensaje, receiver, mensaje_nuevo, id_mensaje}, _from, state) do
-        #:rpc.call(local_name(@user_server), Usuario, :iniciar_chat, [state.userName, receiver])
         response = :rpc.call(local_name(@user_server), Usuario, :editar_mensaje, [state.userName, receiver, mensaje_nuevo, id_mensaje])
         {:reply, response, state}
     end
+
+    def handle_call({:eliminar_mensaje, receiver, id_mensaje}, _from, state) do
+        response = :rpc.call(local_name(@user_server), Usuario, :eliminar_mensaje, [state.userName, receiver, id_mensaje])
+        {:reply, response, state}
+    end    
 
     def handle_call({:crear_chat_seguro, receiver, tiempo_limite}, _from, state) do
         :rpc.call(local_name(@user_server), Usuario, :iniciar_chat_seguro, [state.userName, receiver, tiempo_limite])
@@ -84,7 +89,6 @@ defmodule Cliente do
         :rpc.call(local_name(@user_server), Usuario, :enviar_mensaje_seguro, [state.userName, receiver, mensaje_seguro])
         {:reply, state, state}
     end
-
 
 
     def handle_info({destinatario, mensaje}, state) do

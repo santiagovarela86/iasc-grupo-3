@@ -23,9 +23,9 @@ defmodule ChatUnoAUnoEntity do
     Entity.aplicar_cambio({:chat_uno_a_uno_agent, chat_id}, &ChatUnoAUnoAgent.eliminar_mensaje(&1, mensaje_id))
   end
 
-  def modificar_mensaje(chat, origen, mensaje_nuevo, mensaje_id) do
+  def modificar_mensaje(chat, mensaje_nuevo, mensaje_id) do
     chat_id = Enum.sort(chat)
-    Entity.aplicar_cambio({:chat_uno_a_uno_agent, chat_id}, &ChatUnoAUnoAgent.modificar_mensaje(&1, origen, mensaje_nuevo, mensaje_id))
+    Entity.aplicar_cambio({:chat_uno_a_uno_agent, chat_id}, &ChatUnoAUnoAgent.modificar_mensaje(&1, mensaje_nuevo, mensaje_id))
   end
 
   def actualizar(grupo_swarm) do

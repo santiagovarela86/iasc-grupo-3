@@ -53,14 +53,14 @@ defmodule Usuario do
     GenServer.call(pid, {:enviar_mensaje_seguro, destinatario, mensaje})
   end
 
-  def editar_mensaje(origen, destinatario, mensajeNuevo, idMensaje) do
+  def editar_mensaje(origen, destinatario, mensajeNuevo, id_mensaje) do
     pid = get_pid(origen)
-    GenServer.call(pid, {:editar_mensaje, origen, destinatario, mensajeNuevo, idMensaje})
+    GenServer.call(pid, {:editar_mensaje, destinatario, mensajeNuevo, id_mensaje})
   end
 
-  def eliminar_mensaje(origen, destinatario, mensaje) do
+  def eliminar_mensaje(origen, destinatario, id_mensaje) do
     pid = get_pid(origen)
-    GenServer.call(pid, {:eliminar_mensaje, destinatario, mensaje})
+    GenServer.call(pid, {:eliminar_mensaje, destinatario, id_mensaje})
   end
 
   def informar_chat(chat_name, _origen, destino) do
@@ -112,8 +112,6 @@ defmodule Usuario do
     {:ok, id_mensaje} = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
 
     IO.puts("Sending Message to.. -> "<>destinatario)
-    #host = String.to_atom(destinatario<>"@"<>"iaschost")
-    #Node.connect(host)
     send List.first(Swarm.members({:cliente, destinatario})), {destinatario, mensaje}
 
     {:reply, {:ok, id_mensaje}, state}
@@ -128,20 +126,18 @@ defmodule Usuario do
     repuestaChatSeguro = ChatSeguro.enviar_mensaje(state.nombre, destinatario, mensaje_seguro)
 
     IO.puts("Sending Secure Message to.. -> "<>destinatario)
-    #host = String.to_atom(destinatario<>"@"<>"iaschost")
-    #Node.connect(host)
     send List.first(Swarm.members({:cliente, destinatario})), mensaje_seguro
 
     {:reply, repuestaChatSeguro, state}
   end
 
-  def handle_call({:editar_mensaje, origen,  destinatario, mensajeNuevo, idMensaje}, _from, state) do
-    repuestaChat = ChatUnoAUno.editar_mensaje(origen, destinatario, mensajeNuevo, idMensaje)
+  def handle_call({:editar_mensaje, destinatario, mensajeNuevo, idMensaje}, _from, state) do
+    repuestaChat = ChatUnoAUno.editar_mensaje(state.nombre, destinatario, mensajeNuevo, idMensaje)
     {:reply, repuestaChat, state}
   end
 
-  def handle_call({:eliminar_mensaje, destinatario, mensaje}, _from, state) do
-    repuestaChat = ChatUnoAUno.eliminar_mensaje(state.nombre, destinatario, mensaje)
+  def handle_call({:eliminar_mensaje, destinatario, id_mensaje}, _from, state) do
+    repuestaChat = ChatUnoAUno.eliminar_mensaje(state.nombre, destinatario, id_mensaje)
     {:reply, repuestaChat, state}
   end
 

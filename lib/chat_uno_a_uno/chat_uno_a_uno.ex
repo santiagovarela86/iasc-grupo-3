@@ -22,8 +22,6 @@ defmodule ChatUnoAUno do
   def enviar_mensaje(sender, reciever, mensaje) do
     pid = get_chat_pid(sender, reciever)
     response = GenServer.call(pid, {:enviar_mensaje, sender, mensaje})
-    #IO.puts("AAAAAAAAAAAAA")
-    #IO.inspect(response)
   end
 
   def get_messages(username1, username2) do
@@ -33,11 +31,12 @@ defmodule ChatUnoAUno do
 
   def editar_mensaje(sender, reciever, mensajeNuevo, id_mensaje) do
     pid = get_chat_pid(sender, reciever)
-    GenServer.call(pid, {:editar_mensaje, sender, mensajeNuevo, id_mensaje})
+    GenServer.call(pid, {:editar_mensaje, mensajeNuevo, id_mensaje})
   end
 
-  def eliminar_mensaje(idChatDestino, idMensaje ,idOrigen) do
-    GenServer.call(idChatDestino, {:eliminar_mensaje, idMensaje, idOrigen})
+  def eliminar_mensaje(sender, reciever, id_mensaje) do
+    pid = get_chat_pid(sender, reciever)
+    GenServer.call(pid, {:eliminar_mensaje, id_mensaje})
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
@@ -46,14 +45,14 @@ defmodule ChatUnoAUno do
   end
 
 
-  def handle_call({:editar_mensaje,sender, mensajeNuevo, id_mensaje}, _from, state) do
-    ChatUnoAUnoEntity.modificar_mensaje(state.chat_name, sender , mensajeNuevo, id_mensaje)
+  def handle_call({:editar_mensaje, mensajeNuevo, id_mensaje}, _from, state) do
+    ChatUnoAUnoEntity.modificar_mensaje(state.chat_name, mensajeNuevo, id_mensaje)
     {:reply, state, state}
   end
 
 
-  def handle_call({:eliminar_mensaje, idMensaje, _idOrigen}, _from, state) do
-    ChatUnoAUnoEntity.eliminar_mensaje(state.chat_name ,idMensaje)
+  def handle_call({:eliminar_mensaje, id_mensaje}, _from, state) do
+    ChatUnoAUnoEntity.eliminar_mensaje(state.chat_name ,id_mensaje)
     {:reply, state, state}
   end
 

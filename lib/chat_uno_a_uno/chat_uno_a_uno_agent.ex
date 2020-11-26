@@ -26,8 +26,8 @@ defmodule ChatUnoAUnoAgent do
     ChatAgent.eliminar_mensaje(agente, mensaje_id)
   end
 
-  def modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id) do
-    ChatAgent.modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id)
+  def modificar_mensaje(agente, mensaje_nuevo, mensaje_id) do
+    ChatAgent.modificar_mensaje(agente, mensaje_nuevo, mensaje_id)
   end
 
 end

@@ -13,21 +13,23 @@ defmodule ChatAgent do
     fecha = to_string(DateTime.utc_now)
     mensaje_id = :crypto.hash(:md5, mensaje <> fecha) |> Base.encode16()
     response = Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn(mensajes) -> Map.put(mensajes, mensaje_id, {mensaje_id, origen, mensaje, fecha}) end) end)
-    #IO.puts("HHHHHHHHHHHHHH")
-    #IO.inspect(response)
+
     {response, mensaje_id}
   end
 
   def eliminar_mensaje(agente, mensaje_id) do
-    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn mensajes -> List.keydelete(mensajes, mensaje_id, 0) end ) end )
+     response = Agent.update(agente, fn(state) -> 
+       Map.update!(state, :mensajes, fn (mensajes) -> 
+         {_, origen, _, fecha} = Map.get(mensajes, mensaje_id)
+         Map.replace!(mensajes, mensaje_id, {mensaje_id, origen, " ", fecha}) end ) end )
   end
 
-  def modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id) do
+  def modificar_mensaje(agente, mensaje_nuevo, mensaje_id) do
+    #IO.inspect(Agent.get(agente, &Map.get(&1, :mensajes)))
     response = Agent.update(agente, fn(state) -> 
       Map.update!(state, :mensajes, fn (mensajes) -> 
-        {_, _, _, fecha} = Map.get(mensajes, mensaje_id)
+        {_, origen, _, fecha} = Map.get(mensajes, mensaje_id)
         Map.replace!(mensajes, mensaje_id, {mensaje_id, origen, mensaje_nuevo, fecha}) end ) end )
-        #IO.inspect(Agent.get(agente, &Map.get(&1, :mensajes)))
   end
 
 end

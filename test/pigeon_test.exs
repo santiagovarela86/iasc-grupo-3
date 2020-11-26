@@ -98,8 +98,11 @@ defmodule PigeonTest do
     #:rpc.call(nodeFede, Cliente, :enviar_mensaje, ["juan", "como estas?", pidFede])
     #IO.puts(id_mensaje)
 
+
     algo = :rpc.call(nodeJuan, Cliente, :editar_mensaje, ["fede", "chaaauuuu", id_mensaje, pidJuan])
     IO.inspect(algo)
+
+    :rpc.call(nodeJuan, Cliente, :eliminar_mensaje, ["fede", id_mensaje, pidJuan])
 
 
   end  
