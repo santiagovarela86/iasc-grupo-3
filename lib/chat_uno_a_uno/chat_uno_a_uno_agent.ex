@@ -9,6 +9,7 @@ defmodule ChatUnoAUnoAgent do
     name: ChatUnoAUnoAgentRegistry.build_name(usuario1, usuario2)
     )
   end
+
   def get_usuarios(agente) do
     ChatAgent.get_usuarios(agente)
   end

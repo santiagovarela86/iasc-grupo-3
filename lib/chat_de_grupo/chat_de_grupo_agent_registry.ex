@@ -14,11 +14,13 @@ defmodule ChatDeGrupoAgentRegistry do
   end
 
   def lookup(chat_id) do
-    Swarm.members(chat_id)
+    # Swarm.members(chat_id)
+    List.first(Swarm.members({:chat_grupo_agent, chat_id}))
   end
 
   def build_name(nombre_grupo) do
     name = :crypto.hash(:md5, nombre_grupo <> to_string(DateTime.utc_now)) |> Base.encode16()
     {:via, :swarm, name}
   end
+
 end

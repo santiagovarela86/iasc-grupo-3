@@ -33,6 +33,11 @@ defmodule Usuario do
     GenServer.call(pid, {:crear_grupo, nombre_grupo})
   end
 
+  def iniciar_chat_seguro(username, destinatario, tiempo_limite) do
+    pid = get_pid(username)
+    GenServer.call(pid, {:crear_chat_seguro, destinatario, tiempo_limite})
+  end
+
   def enviar_mensaje(origen, destinatario, mensaje) do
     pid = get_pid(origen)
     GenServer.call(pid, {:enviar_mensaje, destinatario, mensaje})
@@ -41,6 +46,11 @@ defmodule Usuario do
   def enviar_mensaje_grupo(origen, nombre_grupo, mensaje) do
     pid = UsuarioServer.get_user(origen)
     GenServer.call(pid, {:enviar_mensaje_grupo, nombre_grupo, mensaje})
+  end
+
+  def enviar_mensaje_seguro(origen, destinatario, mensaje) do
+    pid = get_pid(origen)
+    GenServer.call(pid, {:enviar_mensaje_seguro, destinatario, mensaje})
   end
 
   def editar_mensaje(origen, destinatario, mensajeNuevo, idMensaje) do
@@ -79,6 +89,7 @@ defmodule Usuario do
       {:reply, :ok, state}
     end
   end
+
   def handle_call({:crear_chat, destinatario}, _from, state) do
     UsuarioServer.get_user(destinatario)
     chat_name = ChatUnoAUnoServer.register_chat(destinatario, state.nombre)
@@ -89,9 +100,19 @@ defmodule Usuario do
 
   end
 
+  def handle_call({:crear_chat_seguro, destinatario, tiempo_limite}, _from, state) do
+    UsuarioServer.get_user(destinatario)
+    chat_seguro_name = ChatSeguroServer.register_chat_seguro(destinatario, state.nombre, tiempo_limite)
+    Usuario.informar_chat(chat_seguro_name, state.nombre, destinatario)
+    mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
+    UsuarioAgent.agregar_chat_seguros(mi_agente, chat_seguro_name)
+    {:reply, chat_seguro_name, state}
+
+  end
+
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
     repuestaChat = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
-    
+
     IO.puts("Sending Message to.. -> "<>destinatario)
     host = String.to_atom(destinatario<>"@"<>"iaschost")
     Node.connect(host)
@@ -103,6 +124,17 @@ defmodule Usuario do
   def handle_call({:enviar_mensaje_grupo, destinatario, mensaje}, _from, state) do
     repuestaChat = ChatDeGrupo.enviar_mensaje(state.nombre, destinatario, mensaje)
     {:reply, repuestaChat, state}
+  end
+
+  def handle_call({:enviar_mensaje_seguro, destinatario, mensaje_seguro}, _from, state) do
+    repuestaChatSeguro = ChatSeguro.enviar_mensaje(state.nombre, destinatario, mensaje_seguro)
+
+    IO.puts("Sending Secure Message to.. -> "<>destinatario)
+    host = String.to_atom(destinatario<>"@"<>"iaschost")
+    Node.connect(host)
+    send List.first(Swarm.members({:cliente, destinatario})), mensaje_seguro
+
+    {:reply, repuestaChatSeguro, state}
   end
 
   def handle_call({:editar_mensaje, destinatario, mensajeNuevo, idMensaje}, _from, state) do
@@ -133,7 +165,3 @@ defmodule Usuario do
     {:noreply, state}
   end
 end
-
-# {:ok, pidUsuario} = Usuario.start_link(:usuario1, [])
-# chatCreado = Usuario.iniciar_chat(pidUsuario, :usuario2)
-# respuestaChat = Usuario.enviar_mensaje(pidUsuario, :usuario2, "holaa")

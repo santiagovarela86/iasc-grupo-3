@@ -8,13 +8,16 @@ defmodule ApplicationSupervisor do
   def init(_init_arg) do
     children = [
       UsuarioRegistry,
-      ChatUnoAUnoRegistry,
       UsuarioSupervisor,
       UsuarioServer,
-      ChatUnoAUnoServer,
-      GrupoServer,
+      ChatUnoAUnoRegistry,
       ChatUnoAUnoSupervisor,
-      GrupoSupervisor
+      ChatUnoAUnoServer,
+      GrupoSupervisor,
+      GrupoServer,
+      ChatSeguroRegistry,
+      ChatSeguroSupervisor,
+      ChatSeguroServer
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

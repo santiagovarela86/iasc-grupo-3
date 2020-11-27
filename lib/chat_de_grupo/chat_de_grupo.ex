@@ -114,7 +114,8 @@ defmodule ChatDeGrupo do
   end
 
   def handle_call({:get_messages}, _from, state) do
-    [agent] = Swarm.members(state.nombre_grupo)
+    # [agent] = Swarm.members(state.nombre_grupo)
+    [agent] = Swarm.members({:chat_grupo_agent, state.nombre_grupo})
     {:reply, ChatDeGrupoAgent.get_mensajes(agent), state}
   end
 
@@ -164,11 +165,13 @@ defmodule ChatDeGrupo do
   end
 
   defp obtener_agent(nombre_grupo) do
-    [pid | _] = Swarm.members(nombre_grupo)
+    # [pid | _] = Swarm.members(nombre_grupo)
+    [pid | _] = Swarm.members({:chat_grupo_agent, nombre_grupo})
     pid
   end
 
   defp puede_borrar(nombre_grupo, mensaje, origen) do
     es_administrador(origen, nombre_grupo) || mensaje.origen == origen
   end
+
 end

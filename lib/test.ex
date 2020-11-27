@@ -5,8 +5,10 @@ defmodule Test do
     GenServer.start_link(__MODULE__, [])
   end
 
-  def init() do
+  def init(init_arg) do
+    {:ok, init_arg}
   end
+
   def test() do
     UsuarioServer.register_user("juan")
     UsuarioServer.register_user("franco")
@@ -22,6 +24,5 @@ defmodule Test do
     Usuario.crear_grupo("juan", "un_grupo")
     Usuario.enviar_mensaje_grupo("juan", "un_grupo", "hola")
   end
-
 
 end

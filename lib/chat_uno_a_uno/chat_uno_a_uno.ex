@@ -22,7 +22,6 @@ defmodule ChatUnoAUno do
   def enviar_mensaje(sender, reciever, mensaje) do
     pid = get_chat_pid(sender, reciever)
     GenServer.call(pid, {:enviar_mensaje, sender, mensaje})
-
   end
 
   def get_messages(username1, username2) do
@@ -37,7 +36,6 @@ defmodule ChatUnoAUno do
   def eliminar_mensaje(idChatDestino, idMensaje ,idOrigen) do
     GenServer.call(idChatDestino, {:eliminar_mensaje, idMensaje, idOrigen})
   end
-
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
     my_agent = ChatUnoAUnoAgentRegistry.lookup(state.chat_name)
@@ -68,4 +66,5 @@ defmodule ChatUnoAUno do
   defp get_chat_pid(username1, username2) do
     ChatUnoAUnoServer.get_chat(username1, username2)
   end
+
 end

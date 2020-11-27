@@ -14,7 +14,8 @@ defmodule UsuarioAgentRegistry do
   end
 
   def lookup(nombre) do
-    List.first(Swarm.members(nombre))
+    # List.first(Swarm.members(nombre))
+    List.first(Swarm.members({:usuario_agent, nombre}))
   end
 
   def build_name(nombre) do
@@ -23,4 +24,5 @@ defmodule UsuarioAgentRegistry do
     pname = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now)) |> Base.encode16()
     {:via, :swarm, pname}
   end
+
 end
