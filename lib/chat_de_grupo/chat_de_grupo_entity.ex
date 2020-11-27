@@ -1,9 +1,7 @@
 defmodule ChatDeGrupoEntity do
 
-
-
   def get_nombre(chat) do
-    primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_nombre/1)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_nombre/1)
   end
   def agregar_usuario(agente, usuario) do
 
@@ -22,16 +20,16 @@ defmodule ChatDeGrupoEntity do
   end
 
   def get_usuarios(chat) do
-    primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_usuarios/1)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_usuarios/1)
     #actualizar todos?
   end
   def get_mensajes(chat) do
-    primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_mensajes/1)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_mensajes/1)
     #actualizar todos?
   end
 
   def get_admins(chat) do
-    primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_admins/1)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_admins/1)
     #actualizar todos?
   end
 
@@ -46,14 +44,5 @@ defmodule ChatDeGrupoEntity do
   def modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id) do
 
   end
-
-  defp primera_respuesta(grupo_swarm, funcion) do
-    Swarm.members(grupo_swarm)
-    |> Task.async_stream(fn(chat) -> funcion.(chat) end, ordered: false)
-    |> Stream.filter(fn({a, _}) -> a == :ok end)
-    |> Enum.take(1)
-  end
-
-
 
 end

@@ -1,11 +1,11 @@
 defmodule ChatSeguroEntity do
 
   def get_usuarios(chat) do
-    primera_respuesta({:chat_seguro_agent, chat}, &ChatSeguroAgent.get_usuarios/1)
+    Entity.primera_respuesta({:chat_seguro_agent, chat}, &ChatSeguroAgent.get_usuarios/1)
     #actualizar todos?
   end
   def get_mensajes(chat) do
-    primera_respuesta({:chat_seguro_agent, chat}, &ChatSeguroAgent.get_mensajes/1)
+    Entity.primera_respuesta({:chat_seguro_agent, chat}, &ChatSeguroAgent.get_mensajes/1)
     #actualizar todos?
   end
 
@@ -19,13 +19,6 @@ defmodule ChatSeguroEntity do
 
   def modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id) do
 
-  end
-
-  defp primera_respuesta(grupo_swarm, funcion) do
-    Swarm.members(grupo_swarm)
-    |> Task.async_stream(fn(chat) -> funcion.(chat) end, ordered: false)
-    |> Stream.filter(fn({a, _}) -> a == :ok end)
-    |> Enum.take(1)
   end
 
 end
