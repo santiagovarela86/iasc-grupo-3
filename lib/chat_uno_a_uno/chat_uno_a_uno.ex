@@ -21,18 +21,6 @@ defmodule ChatUnoAUno do
 
   def enviar_mensaje(sender, reciever, mensaje) do
     pid = get_chat_pid(sender, reciever)
-    IO.puts("DEBUG pid!")
-    IO.puts(inspect(pid))
-    IO.puts("DEBUG pid!")
-    IO.puts("DEBUG sender!")
-    IO.puts(sender)
-    IO.puts("DEBUG sender!")
-    IO.puts("DEBUG reciever!")
-    IO.puts(reciever)
-    IO.puts("DEBUG reciever!")
-    IO.puts("DEBUG mensaje!")
-    IO.puts(mensaje)
-    IO.puts("DEBUG mensaje!")
     GenServer.call(pid, {:enviar_mensaje, sender, mensaje})
   end
 
@@ -51,24 +39,6 @@ defmodule ChatUnoAUno do
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
     my_agent = ChatUnoAUnoAgentRegistry.lookup(state.chat_name)
-
-    IO.puts("DEBUG state!")
-    IO.puts(inspect(state))
-    IO.puts("DEBUG state!")
-
-    IO.puts("DEBUG state.chat_name!")
-    IO.puts(inspect(state.chat_name))
-    IO.puts("DEBUG state.chat_name!")
-
-    IO.puts("DEBUG my_agent!")
-    IO.puts(inspect(my_agent))
-    IO.puts("DEBUG my_agent!")
-    IO.puts("DEBUG mensaje!")
-    IO.puts(mensaje)
-    IO.puts("DEBUG mensaje!")
-    IO.puts("DEBUG sender!")
-    IO.puts(sender)
-    IO.puts("DEBUG sender!")
     ChatUnoAUnoAgent.registrar_mensaje(my_agent, mensaje, sender)
     {:reply, state, state}
   end

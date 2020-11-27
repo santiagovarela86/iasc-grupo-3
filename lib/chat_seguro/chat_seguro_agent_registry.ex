@@ -17,7 +17,7 @@ defmodule ChatSeguroAgentRegistry do
 
   def lookup(chat_id) do
     # List.first(Swarm.members(chat_id))
-    List.first(Swarm.members({:chat_seguro, chat_id}))
+    List.first(Swarm.members({:chat_seguro_agent, chat_id}))
   end
 
   def build_name(usuario1, usuario2) do

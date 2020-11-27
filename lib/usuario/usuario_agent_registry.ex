@@ -15,7 +15,7 @@ defmodule UsuarioAgentRegistry do
 
   def lookup(nombre) do
     # List.first(Swarm.members(nombre))
-    List.first(Swarm.members({:usuario, nombre}))
+    List.first(Swarm.members({:usuario_agent, nombre}))
   end
 
   def build_name(nombre) do

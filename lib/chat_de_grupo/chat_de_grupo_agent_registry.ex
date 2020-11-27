@@ -15,7 +15,7 @@ defmodule ChatDeGrupoAgentRegistry do
 
   def lookup(chat_id) do
     # Swarm.members(chat_id)
-    List.first(Swarm.members({:chat_grupo, chat_id}))
+    List.first(Swarm.members({:chat_grupo_agent, chat_id}))
   end
 
   def build_name(nombre_grupo) do

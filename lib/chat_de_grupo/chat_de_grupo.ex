@@ -115,7 +115,7 @@ defmodule ChatDeGrupo do
 
   def handle_call({:get_messages}, _from, state) do
     # [agent] = Swarm.members(state.nombre_grupo)
-    [agent] = Swarm.members({:chat_grupo, state.nombre_grupo})
+    [agent] = Swarm.members({:chat_grupo_agent, state.nombre_grupo})
     {:reply, ChatDeGrupoAgent.get_mensajes(agent), state}
   end
 
@@ -166,7 +166,7 @@ defmodule ChatDeGrupo do
 
   defp obtener_agent(nombre_grupo) do
     # [pid | _] = Swarm.members(nombre_grupo)
-    [pid | _] = Swarm.members({:chat_grupo, nombre_grupo})
+    [pid | _] = Swarm.members({:chat_grupo_agent, nombre_grupo})
     pid
   end
 
