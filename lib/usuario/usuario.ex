@@ -94,8 +94,7 @@ defmodule Usuario do
     UsuarioServer.get_user(destinatario)
     chat_name = ChatUnoAUnoServer.register_chat(destinatario, state.nombre)
     Usuario.informar_chat(chat_name, state.nombre, destinatario)
-    mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
-    UsuarioAgent.agregar_chat_uno_a_uno(mi_agente, chat_name)
+    UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
     {:reply, chat_name, state}
 
   end
@@ -104,8 +103,7 @@ defmodule Usuario do
     UsuarioServer.get_user(destinatario)
     chat_seguro_name = ChatSeguroServer.register_chat_seguro(destinatario, state.nombre, tiempo_limite)
     Usuario.informar_chat(chat_seguro_name, state.nombre, destinatario)
-    mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
-    UsuarioAgent.agregar_chat_seguros(mi_agente, chat_seguro_name)
+    UsuarioEntity.agregar_chat_seguros(state.nombre, chat_seguro_name)
     {:reply, chat_seguro_name, state}
 
   end
@@ -148,20 +146,17 @@ defmodule Usuario do
   end
 
   def handle_call({:obtener_chats}, _from, state) do
-    mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
-    chats = UsuarioAgent.get_chats_uno_a_uno(mi_agente)
+    chats = UsuarioEntity.get_chats_uno_a_uno(state.nombre)
     {:reply, chats, state}
   end
 
   def handle_cast({:informar_chat, chat_name}, state) do
-    mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
-    UsuarioAgent.agregar_chat_uno_a_uno(mi_agente, chat_name)
+    UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
     {:noreply, state}
   end
 
   def handle_cast({:informar_grupo, nombre_grupo}, state) do
-    mi_agente = UsuarioAgentRegistry.lookup(state.nombre)
-    UsuarioAgent.agregar_chat_de_grupo(mi_agente, nombre_grupo)
+    UsuarioEntity.agregar_chat_de_grupo(state.nombre, nombre_grupo)
     {:noreply, state}
   end
 end

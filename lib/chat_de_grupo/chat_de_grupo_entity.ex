@@ -20,17 +20,17 @@ defmodule ChatDeGrupoEntity do
   end
 
   def get_usuarios(chat) do
-    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_usuarios/1)
     actualizar(chat)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_usuarios/1)
   end
   def get_mensajes(chat) do
-    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_mensajes/1)
     actualizar(chat)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_mensajes/1)
   end
 
   def get_admins(chat) do
-    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_admins/1)
     actualizar(chat)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_admins/1)
   end
 
   def registrar_mensaje(chat, mensaje, origen) do

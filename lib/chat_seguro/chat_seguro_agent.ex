@@ -19,6 +19,10 @@ defmodule ChatSeguroAgent do
     ChatAgent.get_mensajes(agente)
   end
 
+  def get_tiempo_limite(agente) do
+    Agent.get(agente, &Map.get(&1, :tiempo_limite))
+  end
+
   @spec registrar_mensaje(atom | pid | {atom, any} | {:via, atom, any}, any, any) :: :ok
   def registrar_mensaje(agente, mensaje, origen) do
     ChatAgent.registrar_mensaje(agente, mensaje, origen)

@@ -38,26 +38,22 @@ defmodule ChatSeguro do
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
-    my_agent = ChatSeguroAgentRegistry.lookup(state.chat_name)
-    ChatSeguroAgent.registrar_mensaje(my_agent, mensaje, sender)
+    ChatSeguroEntity.registrar_mensaje(state.chat_name, mensaje, sender)
     {:reply, state, state}
   end
 
   def handle_call({:editar_mensaje, mensajeNuevo, idMensaje, idOrigen}, _from, state) do
-    my_agent = ChatSeguroAgentRegistry.lookup(state.chat_name)
-    ChatSeguroAgent.modificar_mensaje(my_agent, idOrigen , mensajeNuevo, idMensaje)
+    ChatSeguroEntity.modificar_mensaje(state.chat_name, idOrigen , mensajeNuevo, idMensaje)
     {:reply, state, state}
   end
 
   def handle_call({:eliminar_mensaje, idMensaje, _idOrigen}, _from, state) do
-    my_agent = ChatSeguroAgentRegistry.lookup(state.chat_name)
-    ChatSeguroAgent.eliminar_mensaje(my_agent,idMensaje)
+    ChatSeguroEntity.eliminar_mensaje(state.chat_name,idMensaje)
     {:reply, state, state}
   end
 
   def handle_call({:get_messages}, _from, state) do
-    my_agent = ChatSeguroAgentRegistry.lookup(state.chat_name)
-    mensajes = ChatSeguroAgent.get_mensajes(my_agent)
+    mensajes = ChatSeguroEntity.get_mensajes(state.chat_name)
     {:reply, mensajes, state}
   end
 

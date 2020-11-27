@@ -53,8 +53,7 @@ defmodule ChatDeGrupo do
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
-    agent = obtener_agent(state.nombre_grupo)
-    ChatDeGrupoAgent.registrar_mensaje(agent, mensaje, sender)
+    ChatDeGrupoEntity.registrar_mensaje(state.nombre_grupo, mensaje, sender)
     {:reply, :ok, state}
   end
 
@@ -73,9 +72,8 @@ defmodule ChatDeGrupo do
   end
 
   def handle_call({:agregar_usuario, usuario_origen, usuario}, _from, state) do
-    agent = obtener_agent(state.nombre_grupo)
     if(es_administrador(usuario_origen, state.nombre_grupo)) do
-        ChatDeGrupoAgent.agregar_usuario(agent, usuario)
+        ChatDeGrupoEntity.agregar_usuario(state.nombre_grupo, usuario)
         {:reply, :ok, state}
     else
       {:reply, :not_admin, state}
@@ -83,10 +81,9 @@ defmodule ChatDeGrupo do
   end
 
   def handle_call({:eliminar_usuario, usuario_origen, usuario_eliminado}, _from, state) do
-    agent = obtener_agent(state.nombre_grupo)
     if(es_administrador(usuario_origen, state.nombre_grupo)) do
       if(es_usuario(usuario_eliminado, state.nombre_grupo)) do
-        ChatDeGrupoAgent.eliminar_usuario(agent, usuario_eliminado)
+        ChatDeGrupoEntity.eliminar_usuario(state.nombre_grupo, usuario_eliminado)
       else
         {:reply, :user_not_found, state}
       end
@@ -99,24 +96,20 @@ defmodule ChatDeGrupo do
   end
 
   def handle_call({:editar_mensaje, mensajeNuevo, idMensaje, idOrigen}, _from, state) do
-    agent = obtener_agent(state.nombre_grupo)
     fn_a_ejecutar = fn ->
-      ChatDeGrupoAgent.modificar_mensaje(agent, idOrigen, mensajeNuevo, idMensaje)
+      ChatDeGrupoEntity.modificar_mensaje(state.nombre_grupo, idOrigen, mensajeNuevo, idMensaje)
     end
 
-    ejecutar_si_tiene_permiso(agent, state.nombre_grupo, idOrigen, idMensaje, fn_a_ejecutar)
+    ejecutar_si_tiene_permiso(state.nombre_grupo, idOrigen, idMensaje, fn_a_ejecutar)
   end
 
   def handle_call({:eliminar_mensaje, idMensaje, idOrigen}, _from, state) do
-    agent = obtener_agent(state.nombre_grupo)
-    fn_a_ejecutar = fn -> ChatDeGrupoAgent.eliminar_mensaje(agent, idMensaje) end
-    ejecutar_si_tiene_permiso(agent, state.nombre_grupo, idOrigen, idMensaje, fn_a_ejecutar)
+    fn_a_ejecutar = fn -> ChatDeGrupoEntity.eliminar_mensaje(state.nombre_grupo, idMensaje) end
+    ejecutar_si_tiene_permiso(state.nombre_grupo, idOrigen, idMensaje, fn_a_ejecutar)
   end
 
   def handle_call({:get_messages}, _from, state) do
-    # [agent] = Swarm.members(state.nombre_grupo)
-    [agent] = Swarm.members({:chat_grupo_agent, state.nombre_grupo})
-    {:reply, ChatDeGrupoAgent.get_mensajes(agent), state}
+    {:reply, ChatDeGrupoEntity.get_mensajes(state.nombre_grupo), state}
   end
 
 
@@ -124,8 +117,8 @@ defmodule ChatDeGrupo do
     :crypto.hash(:md5, mensaje <> to_string(DateTime.utc_now)) |> Base.encode16()
   end
 
-  defp ejecutar_si_tiene_permiso(agent, nombre_grupo, origen, id_mensaje, fn_a_ejecutar) do
-    case Enum.find(ChatDeGrupoAgent.get_mensajes(agent), :not_found, fn m ->
+  def ejecutar_si_tiene_permiso(nombre_grupo, origen, id_mensaje, fn_a_ejecutar) do
+    case Enum.find(ChatDeGrupoEntity.get_mensajes(nombre_grupo), :not_found, fn m ->
            m.mensaje_id == id_mensaje
          end) do
       :not_found ->
@@ -149,7 +142,7 @@ defmodule ChatDeGrupo do
   end
 
   defp obtener_administradores(nombre_grupo) do
-    ChatDeGrupoAgent.get_admins(obtener_agent(nombre_grupo))
+    ChatDeGrupoEntity.get_admins(nombre_grupo)
   end
 
   defp es_usuario(ususario, nombre_grupo) do
@@ -157,17 +150,11 @@ defmodule ChatDeGrupo do
   end
 
   defp obtener_usuarios(nombre_grupo) do
-    ChatDeGrupoAgent.get_usuarios(obtener_agent(nombre_grupo))
+    ChatDeGrupoEntity.get_usuarios(nombre_grupo)
   end
 
   defp agregar_administrador(usuario_ascendido, nombre_grupo) do
-    ChatDeGrupoAgent.agregar_admin(obtener_agent(nombre_grupo), usuario_ascendido)
-  end
-
-  defp obtener_agent(nombre_grupo) do
-    # [pid | _] = Swarm.members(nombre_grupo)
-    [pid | _] = Swarm.members({:chat_grupo_agent, nombre_grupo})
-    pid
+    ChatDeGrupoEntity.agregar_admin(nombre_grupo, usuario_ascendido)
   end
 
   defp puede_borrar(nombre_grupo, mensaje, origen) do

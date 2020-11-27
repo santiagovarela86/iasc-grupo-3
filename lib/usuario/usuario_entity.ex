@@ -1,23 +1,23 @@
 defmodule UsuarioEntity do
 
   def get_nombre(usuario) do
-    Entity.primera_respuesta({:usuario_agent, usuario}, &UsuarioAgent.get_nombre/1)
     actualizar(usuario)
+    Entity.primera_respuesta({:usuario_agent, usuario}, &UsuarioAgent.get_nombre/1)
   end
 
   def get_chats_uno_a_uno(usuario) do
-    Entity.primera_respuesta({:usuario_agent, usuario}, &UsuarioAgent.get_chats_uno_a_uno/1)
     actualizar(usuario)
+    Entity.primera_respuesta({:usuario_agent, usuario}, &UsuarioAgent.get_chats_uno_a_uno/1)
   end
 
   def get_chats_seguros(usuario) do
-    Entity.primera_respuesta({:usuario_agent, usuario}, &UsuarioAgent.get_chats_seguros/1)
     actualizar(usuario)
+    Entity.primera_respuesta({:usuario_agent, usuario}, &UsuarioAgent.get_chats_seguros/1)
   end
 
   def get_chats_de_grupo(usuario) do
-    Entity.primera_respuesta({:usuario_agent, usuario}, &UsuarioAgent.get_chats_de_grupo/1)
     actualizar(usuario)
+    Entity.primera_respuesta({:usuario_agent, usuario}, &UsuarioAgent.get_chats_de_grupo/1)
   end
 
   def agregar_chat_uno_a_uno(usuario, chat) do

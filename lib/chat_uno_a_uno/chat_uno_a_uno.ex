@@ -38,28 +38,24 @@ defmodule ChatUnoAUno do
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
-    my_agent = ChatUnoAUnoAgentRegistry.lookup(state.chat_name)
-    ChatUnoAUnoAgent.registrar_mensaje(my_agent, mensaje, sender)
+    ChatUnoAUnoEntity.registrar_mensaje(state.chat_name, mensaje, sender)
     {:reply, state, state}
   end
 
 
   def handle_call({:editar_mensaje, mensajeNuevo, idMensaje, idOrigen}, _from, state) do
-    my_agent = ChatUnoAUnoAgentRegistry.lookup(state.chat_name)
-    ChatUnoAUnoAgent.modificar_mensaje(my_agent, idOrigen , mensajeNuevo, idMensaje)
+    ChatUnoAUnoEntity.modificar_mensaje(state.chat_name, idOrigen , mensajeNuevo, idMensaje)
     {:reply, state, state}
   end
 
 
   def handle_call({:eliminar_mensaje, idMensaje, _idOrigen}, _from, state) do
-    my_agent = ChatUnoAUnoAgentRegistry.lookup(state.chat_name)
-    ChatUnoAUnoAgent.eliminar_mensaje(my_agent,idMensaje)
+    ChatUnoAUnoEntity.eliminar_mensaje(state.chat_name ,idMensaje)
     {:reply, state, state}
   end
 
   def handle_call({:get_messages}, _from, state) do
-    my_agent = ChatUnoAUnoAgentRegistry.lookup(state.chat_name)
-    mensajes = ChatUnoAUnoAgent.get_mensajes(my_agent)
+    mensajes = ChatUnoAUnoEntity.get_mensajes(state.chat_name)
     {:reply, mensajes, state}
   end
 
