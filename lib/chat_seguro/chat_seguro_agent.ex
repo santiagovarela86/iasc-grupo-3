@@ -7,7 +7,7 @@ defmodule ChatSeguroAgent do
       mensajes: Map.new,
       tiempo_limite: tiempo_limite
     } end,
-    name: ChatSeguroAgentRegistry.build_name(usuario1, usuario2)
+    name: build_name(usuario1, usuario2)
     )
   end
 
@@ -36,4 +36,10 @@ defmodule ChatSeguroAgent do
     ChatAgent.modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id)
   end
 
+  def build_name(usuario1, usuario2) do
+    #usuarios_en_orden = Enum.sort([usuario1, usuario2])
+    usuarios_en_orden = Enum.sort([usuario1, usuario2, @secure_suffix])
+    name = :crypto.hash(:md5, List.first(usuarios_en_orden) <> List.last(usuarios_en_orden) <> to_string(DateTime.utc_now)) |> Base.encode16()
+    {:via, :swarm, name}
+  end
 end

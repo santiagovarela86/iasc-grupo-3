@@ -8,7 +8,7 @@ defmodule UsuarioAgent do
       chats_seguros: MapSet.new(),
       chats_de_grupo: MapSet.new()
     } end,
-    name: UsuarioAgentRegistry.build_name(nombre)
+    name: build_name(nombre)
     )
   end
 
@@ -38,6 +38,13 @@ defmodule UsuarioAgent do
 
   def agregar_chat_de_grupo(agente, chat_id) do
     Agent.update(agente, fn(state) -> Map.update!(state, :chats_de_grupo, fn(chats_de_grupo) -> MapSet.put(chats_de_grupo, chat_id) end) end)
+  end
+
+  def build_name(nombre) do
+    #name = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now)) |> Base.encode16()
+    #creo que el nombre tendria que ser simplemente el nombre del usuario
+    pname = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now)) |> Base.encode16()
+    {:via, :swarm, pname}
   end
 
 end

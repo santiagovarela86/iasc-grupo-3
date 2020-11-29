@@ -9,7 +9,7 @@ defmodule ChatDeGrupoAgent do
         mensajes: Map.new,
         nombre_grupo: nombre_grupo
       } end,
-      name: ChatDeGrupoAgentRegistry.build_name(nombre_grupo))
+      name: build_name(nombre_grupo))
   end
 
   def get_nombre(agente) do
@@ -54,6 +54,11 @@ defmodule ChatDeGrupoAgent do
 
   def modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id) do
     ChatAgent.modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id)
+  end
+
+  def build_name(nombre_grupo) do
+    name = :crypto.hash(:md5, nombre_grupo <> to_string(DateTime.utc_now)) |> Base.encode16()
+    {:via, :swarm, name}
   end
 
 end
