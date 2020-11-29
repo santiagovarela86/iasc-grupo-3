@@ -1,22 +1,22 @@
 defmodule UsuarioEntity do
 
   def get_nombre(usuario) do
-    actualizar(usuario)
+    actualizar_async(usuario)
     Entity.primera_respuesta({:usuario_agent, usuario}, &UsuarioAgent.get_nombre/1)
   end
 
   def get_chats_uno_a_uno(usuario) do
-    actualizar(usuario)
+    actualizar_async(usuario)
     Entity.primera_respuesta({:usuario_agent, usuario}, &UsuarioAgent.get_chats_uno_a_uno/1)
   end
 
   def get_chats_seguros(usuario) do
-    actualizar(usuario)
+    actualizar_async(usuario)
     Entity.primera_respuesta({:usuario_agent, usuario}, &UsuarioAgent.get_chats_seguros/1)
   end
 
   def get_chats_de_grupo(usuario) do
-    actualizar(usuario)
+    actualizar_async(usuario)
     Entity.primera_respuesta({:usuario_agent, usuario}, &UsuarioAgent.get_chats_de_grupo/1)
   end
 
@@ -31,16 +31,22 @@ defmodule UsuarioEntity do
   def agregar_chat_de_grupo(usuario, chat) do
     Entity.aplicar_cambio({:usuario_agent, usuario}, &UsuarioAgent.agregar_chat_de_grupo(&1, chat))
   end
+  def actualizar_async(grupo_swarm) do
+    actualizar(grupo_swarm)
+  end
 
   def actualizar(grupo_swarm) do
-    Entity.actualizar(grupo_swarm)
-    #tiene que ser async
-    #usa Entity.actualizar para comparar checksums en cada campo del grupo del swarm y aplica criterio propio para resolver conflictos si alguno difiere
-    #si difieren listas de chats, las combina
 
-    #si difieren admins o usuarios, toma el primero
-    #si difiere tiempo limite para borrado, toma el menor
-    #si existen mensajes con la misma id, prioritiza texto :borrado, de otra forma, toma el mas nuevo (habria que agregar fecha de modificacion a los mensajes, aparte de fecha de publicacion)
+    chats_seguros_actualizados = Entity.campo_actualizado(grupo_swarm, &UsuarioAgent.get_chats_seguros/1)
+    chats_de_grupo_actualizados = Entity.campo_actualizado(grupo_swarm, &UsuarioAgent.get_chats_de_grupo/1)
+    chats_uno_a_uno_actualizados = Entity.campo_actualizado(grupo_swarm, &UsuarioEntity.get_chats_uno_a_uno/1)
+
+
+    if (!chats_seguros_actualizados || !chats_de_grupo_actualizados || !chats_uno_a_uno_actualizados) do
+      Swarm.members(grupo_swarm)
+      # |> combinar chats de cada tipo
+    end
+
   end
 
 end

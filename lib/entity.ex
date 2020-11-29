@@ -12,9 +12,11 @@ defmodule Entity do
     agente_target = primera_respuesta(grupo_de_agentes, fn(a) -> a end)
     Agent.update(agente_copia, fn(_state) ->  Agent.get(agente_target, fn(state2) -> state2 end) end)
   end
-
-  def actualizar(grupo_swarm) do
-    #compara checksums en cada campo del grupo del swarm y resuelve conflictos si alguno difiere (segun criterios en cada entidad)
+  def campo_actualizado(grupo_swarm, getter) do
+    Swarm.members(grupo_swarm)
+    |> Task.async_stream(fn(agente) -> Entity.checksum_respuesta(agente, getter)end)
+    |> Enum.to_list()
+    |> (&Enum.all?(&1, fn(checksum) -> List.first(&1) == checksum end)).()
   end
 
   def primera_respuesta(grupo_swarm, funcion) do
