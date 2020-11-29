@@ -10,16 +10,24 @@ defmodule ChatAgent do
   end
 
   def registrar_mensaje(agente, mensaje, origen) do
-    mensaje_id = :crypto.hash(:md5, mensaje <> to_string(DateTime.utc_now)) |> Base.encode16()
-    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn(mensajes) -> Map.put(mensajes, mensaje_id, {mensaje_id, origen, mensaje}) end) end)
+    :crypto.hash(:md5, mensaje <> to_string(DateTime.utc_now)) |> Base.encode16()
+    |> (&fn(mensajes) -> Map.put(mensajes, &1, {origen, mensaje, DateTime.utc_now, DateTime.utc_now}) end).()
+    |> (&fn(state) -> Map.update!(state, :mensajes, &1) end).()
+    |> (&Agent.update(agente, &1)).()
   end
 
   def eliminar_mensaje(agente, mensaje_id) do
-    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn mensajes -> List.keydelete(mensajes, mensaje_id, 0) end ) end )
+    fn({origen, _mensaje_viejo, tiempo_original, _tiempo_modificado_viejo}) -> {origen, :borrado, tiempo_original, DateTime.utc_now} end
+    |> (&fn(mensajes) -> Map.update!(mensajes, mensaje_id, &1) end).()
+    |> (&fn(state) -> Map.update!(state, :mensajes, &1) end).()
+    |> (&Agent.update(agente, &1)).()
   end
 
-  def modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id) do
-    Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn (mensajes) ->  List.keyreplace(mensajes, mensaje_id, 0, {mensaje_id, origen, mensaje_nuevo})  end) end )
+  def modificar_mensaje(agente, _origen, mensaje_nuevo, mensaje_id) do
+    fn({origen, _mensaje_viejo, tiempo_original, _tiempo_modificado_viejo}) -> {origen, mensaje_nuevo, tiempo_original, DateTime.utc_now} end
+    |> (&fn(mensajes) -> Map.update!(mensajes, mensaje_id, &1) end).()
+    |> (&fn(state) -> Map.update!(state, :mensajes, &1) end).()
+    |> (&Agent.update(agente, &1)).()
   end
 
 end

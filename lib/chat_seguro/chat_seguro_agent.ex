@@ -5,7 +5,8 @@ defmodule ChatSeguroAgent do
     Agent.start_link(fn -> %{
       usuarios: MapSet.new([usuario1, usuario2]),
       mensajes: Map.new,
-      tiempo_limite: tiempo_limite
+      tiempo_limite: tiempo_limite,
+      modificacion_tiempo_limite: DateTime.utc_now()
     } end,
     name: build_name(usuario1, usuario2)
     )
@@ -21,6 +22,15 @@ defmodule ChatSeguroAgent do
 
   def get_tiempo_limite(agente) do
     Agent.get(agente, &Map.get(&1, :tiempo_limite))
+  end
+
+  def get_modificacion_tiempo_limite(agente) do
+    Agent.get(agente, &Map.get(&1, :modificacion_tiempo_limite))
+  end
+
+  def cambiar_tiempo_limite(agente, tiempo_nuevo) do
+    update_time = fn(map) -> Map.update!(map, :modificacion_tiempo_limite, fn(_time) -> DateTime.utc_now() end) end
+    Agent.update(agente, fn(state) ->  Map.update!(update_time.(state), :tiempo_limite, fn(_tiempo) -> tiempo_nuevo end) end)
   end
 
   @spec registrar_mensaje(atom | pid | {atom, any} | {:via, atom, any}, any, any) :: :ok
