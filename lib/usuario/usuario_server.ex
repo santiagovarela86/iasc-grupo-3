@@ -14,7 +14,8 @@ defmodule UsuarioServer do
   end
 
   def register_user(username) do
-    GenServer.call(UsuarioServer, {:register_user, username})
+    GenServer.multi_call(Router.servers(), UsuarioServer, {:register_user, username})
+    #GenServer.call(UsuarioServer, {:register_user, username})
   end
 
   def handle_call({:get_user, username}, _from, state) do
@@ -27,12 +28,14 @@ defmodule UsuarioServer do
   end
 
   def handle_call({:register_user, username}, _from, state) do
+    IO.puts("registrar user " <> username)
     {:ok, pidAgent} = UsuarioAgent.start_link(username)
     Swarm.join({:usuario_agent, username}, pidAgent)
     #tendria que usar un supervisor para crear al agent
     #tendria que usar un case, o el case ya hecho para cuando ya existe, o cuando no existe el grupo, etc?
     case UsuarioSupervisor.start_child(username) do
-      {:ok, pid} -> Swarm.join({:usuario, username}, pid)
+      {:ok, pid} ->
+      Swarm.join({:usuario, username}, pid)
       {:reply, pid, state}
       {:error, {:already_started, pid}} -> {:reply, pid, state}
     end

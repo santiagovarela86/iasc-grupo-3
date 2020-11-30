@@ -91,10 +91,11 @@ defmodule Usuario do
   end
 
   def handle_call({:crear_chat, destinatario}, _from, state) do
-    UsuarioServer.get_user(destinatario)
+    IO.puts("crear chat")
     chat_name = ChatUnoAUnoServer.register_chat(destinatario, state.nombre)
     Usuario.informar_chat(chat_name, state.nombre, destinatario)
     UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
+    IO.puts("chat creado")
     {:reply, chat_name, state}
 
   end
@@ -109,11 +110,10 @@ defmodule Usuario do
   end
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
+    IO.puts("enviar mensaje")
     repuestaChat = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
 
     IO.puts("Sending Message to.. -> "<>destinatario)
-    host = String.to_atom(destinatario<>"@"<>"iaschost")
-    Node.connect(host)
     send List.first(Swarm.members({:cliente, destinatario})), mensaje
 
     {:reply, repuestaChat, state}
@@ -128,8 +128,6 @@ defmodule Usuario do
     repuestaChatSeguro = ChatSeguro.enviar_mensaje(state.nombre, destinatario, mensaje_seguro)
 
     IO.puts("Sending Secure Message to.. -> "<>destinatario)
-    host = String.to_atom(destinatario<>"@"<>"iaschost")
-    Node.connect(host)
     send List.first(Swarm.members({:cliente, destinatario})), mensaje_seguro
 
     {:reply, repuestaChatSeguro, state}

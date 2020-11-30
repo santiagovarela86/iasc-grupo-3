@@ -36,13 +36,13 @@ defmodule Cliente do
 
     def build_name(nombre) do
         name = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now)) |> Base.encode16()
+        IO.puts(name)
         {:via, :swarm, name}
     end
 
 ######################################
 
     def handle_call({:registrar}, _from, state) do
-        Node.connect(local_name(@user_server))
         :rpc.call(local_name(@user_server), UsuarioServer, :register_user, [state.userName])
         {:reply, state, state}
     end
@@ -68,9 +68,10 @@ defmodule Cliente do
         {:noreply, state}
     end
 
-    defp local_name(name) do
-        {:ok, hostname} = :inet.gethostname()
-        String.to_atom(name <> "@#{hostname}")
+    defp local_name(_name) do
+        nodo = Router.route
+        IO.inspect("routeo a #{nodo}")
+        nodo
     end
 
 end
