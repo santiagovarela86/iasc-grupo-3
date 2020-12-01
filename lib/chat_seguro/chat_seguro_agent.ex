@@ -1,6 +1,8 @@
 defmodule ChatSeguroAgent do
   use Agent
 
+  @secure_suffix "~~~~~~SECURE"
+
   def start_link(usuario1, usuario2, tiempo_limite) do
     Agent.start_link(fn -> %{
       usuarios: MapSet.new([usuario1, usuario2]),
