@@ -61,11 +61,17 @@ defmodule ChatSeguroEntity do
       agentes
       |> Enum.each(fn(agente) -> ChatSeguroAgent.get_mensajes(agente) end)
       |> Enum.reduce([], fn(elem,acc) -> Map.merge(elem, acc, &resolver_conflicto_mensajes/3) end)
+      #TODO: MALA MIA (reemplazando estado stale)
       |> (&Enum.each(agentes, fn(agente) -> Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn(_mensajes) -> &1 end) end)end)).()
     end
 
     if !Entity.campo_actualizado(grupo_swarm, &ChatSeguroAgent.get_tiempo_limite/1) do
-      #TODO: replicar el tiempo menor
+      Swarm.members(grupo_swarm)
+      |> Task.async_stream(fn(agente) -> {agente, ChatSeguroAgent.get_tiempo_limite(agente)} end, ordered: false)
+      |> Stream.filter(fn({ok?, _}) -> ok? == :ok end)
+      |> Enum.min_by(fn({_ok, {_agente, tiempo_limite}}) -> tiempo_limite end)
+      |> case do {agente, _checksum} -> agente end
+      |> Entity.exportar_campo(grupo_swarm, :tiempo_limite)
     end
 
   end
