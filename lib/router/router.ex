@@ -17,9 +17,10 @@ defmodule Router do
     GenServer.call({:global, __MODULE__}, :servers)
   end
 
-
   def handle_call(:route, _from, state) do
-    {:reply, Enum.at(get_servers(), :rand.uniform(Enum.count(get_servers())) - 1), state}
+    nodo = Enum.at(get_servers(), :rand.uniform(Enum.count(get_servers())) - 1)
+    IO.inspect("routeo a #{nodo}")
+    {:reply, nodo, state}
   end
 
   def handle_call(:servers, _from, state) do
@@ -27,6 +28,8 @@ defmodule Router do
   end
 
   def get_servers do
-    Enum.filter(Node.list(), fn nodo -> String.contains?(String.downcase(Atom.to_string(nodo)), "server") end)
+    Enum.filter(Node.list(), fn nodo ->
+      String.contains?(String.downcase(Atom.to_string(nodo)), "server")
+    end)
   end
 end

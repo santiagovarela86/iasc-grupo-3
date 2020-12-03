@@ -1,77 +1,83 @@
 defmodule Cliente do
+  use GenServer
 
-    use GenServer
+  @timeout 10000
 
-    @user_server "userServer"
-    @timeout 10000
+  def start_link(userName) do
+    GenServer.start_link(__MODULE__, userName, name: build_name(userName))
+  end
 
-    def start_link(userName) do
-        GenServer.start_link(__MODULE__, userName, name: build_name(userName))
-    end
+  def init(userName) do
+    state = %{
+      userName: userName,
+      pid: nil
+    }
 
-    def init(userName) do
-        state = %{
-          userName: userName,
-          pid: nil
-        }
-        Swarm.join({:cliente, userName}, self())
-        {:ok, state}
-    end
+    Swarm.join({:cliente, userName}, self())
+    {:ok, state}
+  end
 
-    def registrar(pid) do
-        GenServer.call(pid,{:registrar})
-    end
+  def registrar(pid) do
+    GenServer.call(pid, {:registrar})
+  end
 
-    def enviar_mensaje(receiver, mensaje, pid) do
-        GenServer.call(pid,{:enviar_mensaje, receiver, mensaje}, @timeout)
-    end
+  def enviar_mensaje(receiver, mensaje, pid) do
+    GenServer.call(pid, {:enviar_mensaje, receiver, mensaje}, @timeout)
+  end
 
-    def crear_chat_seguro(receiver, tiempo_limite, pid) do
-        GenServer.call(pid,{:crear_chat_seguro, receiver, tiempo_limite})
-    end
+  def crear_chat_seguro(receiver, tiempo_limite, pid) do
+    GenServer.call(pid, {:crear_chat_seguro, receiver, tiempo_limite})
+  end
 
-    def enviar_mensaje_seguro(receiver, mensaje, pid) do
-        GenServer.call(pid,{:enviar_mensaje_seguro, receiver, mensaje}, @timeout)
-    end
+  def enviar_mensaje_seguro(receiver, mensaje, pid) do
+    GenServer.call(pid, {:enviar_mensaje_seguro, receiver, mensaje}, @timeout)
+  end
 
-    def build_name(nombre) do
-        name = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now)) |> Base.encode16()
-        IO.puts(name)
-        {:via, :swarm, name}
-    end
+  def build_name(nombre) do
+    name = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now())) |> Base.encode16()
+    IO.puts(name)
+    {:via, :swarm, name}
+  end
 
-######################################
+  ######################################
 
-    def handle_call({:registrar}, _from, state) do
-        :rpc.call(local_name(@user_server), UsuarioServer, :register_user, [state.userName])
-        {:reply, state, state}
-    end
+  def handle_call({:registrar}, _from, state) do
+    :rpc.call(routeo_nodo(), UsuarioServer, :register_user, [state.userName])
+    {:reply, state, state}
+  end
 
-    def handle_call({:enviar_mensaje, receiver, mensaje}, _from, state) do
-        :rpc.call(local_name(@user_server), Usuario, :iniciar_chat, [state.userName, receiver])
-        :rpc.call(local_name(@user_server), Usuario, :enviar_mensaje, [state.userName, receiver, mensaje])
-        {:reply, state, state}
-    end
+  def handle_call({:enviar_mensaje, receiver, mensaje}, _from, state) do
+    :rpc.call(routeo_nodo(), Usuario, :iniciar_chat, [state.userName, receiver])
+    :rpc.call(routeo_nodo(), Usuario, :enviar_mensaje, [state.userName, receiver, mensaje])
+    {:reply, state, state}
+  end
 
-    def handle_call({:crear_chat_seguro, receiver, tiempo_limite}, _from, state) do
-        :rpc.call(local_name(@user_server), Usuario, :iniciar_chat_seguro, [state.userName, receiver, tiempo_limite])
-        {:reply, state, state}
-    end
+  def handle_call({:crear_chat_seguro, receiver, tiempo_limite}, _from, state) do
+    :rpc.call(routeo_nodo(), Usuario, :iniciar_chat_seguro, [
+      state.userName,
+      receiver,
+      tiempo_limite
+    ])
 
-    def handle_call({:enviar_mensaje_seguro, receiver, mensaje_seguro}, _from, state) do
-        :rpc.call(local_name(@user_server), Usuario, :enviar_mensaje_seguro, [state.userName, receiver, mensaje_seguro])
-        {:reply, state, state}
-    end
+    {:reply, state, state}
+  end
 
-    def handle_info(mensaje, state) do
-        IO.puts(mensaje)
-        {:noreply, state}
-    end
+  def handle_call({:enviar_mensaje_seguro, receiver, mensaje_seguro}, _from, state) do
+    :rpc.call(routeo_nodo(), Usuario, :enviar_mensaje_seguro, [
+      state.userName,
+      receiver,
+      mensaje_seguro
+    ])
 
-    defp local_name(_name) do
-        nodo = Router.route
-        IO.inspect("routeo a #{nodo}")
-        nodo
-    end
+    {:reply, state, state}
+  end
 
+  def handle_info(mensaje, state) do
+    IO.puts(mensaje)
+    {:noreply, state}
+  end
+
+  defp routeo_nodo() do
+    Router.route()
+  end
 end
