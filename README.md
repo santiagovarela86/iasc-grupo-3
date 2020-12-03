@@ -16,19 +16,31 @@
 
 - Go to the project root folder and open three different command lines there.
 
-- In the first one run: 
-    - iex --sname userServer -S mix (Linux)
-    - iex.bat --sname userServer --werl -S mix (Windows)
+- First the routers: 
+    If you want to use a single router node without fallback:
+      - type=router iex --sname router-1 -S mix (Linux)
+      - type=router iex.bat --sname router --werl  -S mix (Windows, no probado)
 
-- In the second one run:
-    - iex --sname usuario1 -S mix (Linux)
-    - iex.bat --sname usuario1 --werl -S mix (Windows)
+    If you want to use router with fallback nodes, you'll need to create 3 nodes
+      - type=router iex --sname router-1@localhost --erl "-config config/router-1" -S mix
+      - type=router iex --sname router-2@localhost --erl "-config config/router-2" -S mix
+      - type=router iex --sname router-3@localhost --erl "-config config/router-3" -S mix
+
+
+- Then the server nodes. Name then server-n where n is a different number each time
+  - type=server iex --sname server-1 -S mix (Linux)
+  - type=server iex.bat --sname server-1 --werl -S mix (Windows, no probado)
+
+- Then the clients
+    Usuario1
+    - type=client iex --sname usuario1 -S mix (Linux)
+    - type=client iex.bat --sname usuario1 --werl -S mix (Windows, no probado)
     - {:ok, pid} = Cliente.start_link("usuario1")
     - Cliente.registrar(pid)
 
-- In the third one run:
-    - iex --sname usuario2 -S mix (Linux)
-    - iex.bat --sname usuario2 --werl -S mix (Windows)
+    Usuario2
+    - type=client iex --sname usuario2 -S mix (Linux)
+    - type=client iex.bat --sname usuario2 --werl -S mix (Windows, no probado)
     - {:ok, pid} = Cliente.start_link("usuario2")
     - Cliente.registrar(pid)
 
