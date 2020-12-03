@@ -29,8 +29,18 @@ defmodule Usuario do
   end
 
   def crear_grupo(username, nombre_grupo) do
+    IO.puts("AAAAAA")
     pid = UsuarioServer.get_user(username)
     GenServer.call(pid, {:crear_grupo, nombre_grupo})
+  end
+
+  # def agregar_usuario(idChatDestino, usuario_origen, usuario) do
+  #   GenServer.call(idChatDestino, {:agregar_usuario, usuario_origen, usuario})
+  # end
+
+  def agregar_usuario_a_grupo(user_admin, username, nombre_grupo) do
+    pid = UsuarioServer.get_user(user_admin)
+    GenServer.call(pid, {:agregar_usuario_a_grupo, username, nombre_grupo})
   end
 
   def iniciar_chat_seguro(username, destinatario, tiempo_limite) do
@@ -58,9 +68,9 @@ defmodule Usuario do
     GenServer.call(pid, {:editar_mensaje, destinatario, mensajeNuevo, idMensaje})
   end
 
-  def eliminar_mensaje(origen, destinatario, mensaje) do
+  def eliminar_mensaje(origen, destinatario, id_mensaje) do
     pid = get_pid(origen)
-    GenServer.call(pid, {:eliminar_mensaje, destinatario, mensaje})
+    GenServer.call(pid, {:eliminar_mensaje, destinatario, id_mensaje})
   end
 
   def informar_chat(chat_name, _origen, destino) do
@@ -115,10 +125,18 @@ defmodule Usuario do
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
     repuestaChat = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
+    IO.inspect(repuestaChat)
     IO.puts("Sending Message to.. -> " <> destinatario)
     send(List.first(Swarm.members({:cliente, destinatario})), mensaje)
 
     {:reply, repuestaChat, state}
+  end
+
+  def handle_call({:agregar_usuario_a_grupo, username, nombre_grupo}, _from, state) do
+    IO.puts("222222222222")
+    IO.puts(state.nombre)
+    respuestaChat = ChatDeGrupo.agregar_usuario(nombre_grupo, state.nombre, username )
+    {:reply, respuestaChat, state}
   end
 
   def handle_call({:enviar_mensaje_grupo, destinatario, mensaje}, _from, state) do
@@ -140,8 +158,8 @@ defmodule Usuario do
     {:reply, repuestaChat, state}
   end
 
-  def handle_call({:eliminar_mensaje, destinatario, mensaje}, _from, state) do
-    repuestaChat = ChatUnoAUno.eliminar_mensaje(state.nombre, destinatario, mensaje)
+  def handle_call({:eliminar_mensaje, destinatario, id_mensaje}, _from, state) do
+    repuestaChat = ChatUnoAUno.eliminar_mensaje(state.nombre, destinatario, id_mensaje)
     {:reply, repuestaChat, state}
   end
 
@@ -156,6 +174,8 @@ defmodule Usuario do
   end
 
   def handle_cast({:informar_grupo, nombre_grupo}, state) do
+    IO.puts("CCCCCCC")
+    IO.puts(state.nombre)
     UsuarioEntity.agregar_chat_de_grupo(state.nombre, nombre_grupo)
     {:noreply, state}
   end

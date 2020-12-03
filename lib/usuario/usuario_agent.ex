@@ -37,7 +37,9 @@ defmodule UsuarioAgent do
   end
 
   def agregar_chat_de_grupo(agente, chat_id) do
+    IO.inspect(Agent.get(agente, &Map.get(&1, :chats_de_grupo)))
     Agent.update(agente, fn(state) -> Map.update!(state, :chats_de_grupo, fn(chats_de_grupo) -> MapSet.put(chats_de_grupo, chat_id) end) end)
+    IO.inspect(Agent.get(agente, &Map.get(&1, :chats_de_grupo)))
   end
 
   def build_name(nombre) do
