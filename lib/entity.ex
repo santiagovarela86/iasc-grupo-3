@@ -20,11 +20,15 @@ defmodule Entity do
   end
 
   def primera_respuesta(grupo_swarm, funcion) do
+    IO.puts("66666666666666666666")
+    IO.inspect(grupo_swarm)
     Swarm.members(grupo_swarm)
     |> Task.async_stream(fn(agente) -> funcion.(agente) end, ordered: false)
     |> Stream.filter(fn({a, _}) -> a == :ok end)
     |> Enum.take(1)
     |> List.first()
+    IO.puts("77777777777777777777777")
+
   end
 
   def aplicar_cambio(grupo_swarm, funcion) do

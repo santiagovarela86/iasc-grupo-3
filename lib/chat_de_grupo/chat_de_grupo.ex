@@ -40,16 +40,18 @@ defmodule ChatDeGrupo do
     GenServer.call(idChatDestino, {:eliminar_mensaje, idMensaje, idOrigen})
   end
 
-  def ascender_usuario(idChatDestino, usuario_origen, usuario_ascendido) do
-    GenServer.call(idChatDestino, {:ascender_usuario, usuario_origen, usuario_ascendido})
+  def ascender_usuario(nombre_grupo, usuario_origen, usuario_ascendido) do
+    pid = get_grupo_pid(nombre_grupo)
+    GenServer.call(pid, {:ascender_usuario, usuario_origen, usuario_ascendido})
   end
 
   def eliminar_usuario(idChatDestino, usuario_origen, usuario_ascendido) do
     GenServer.call(idChatDestino, {:eliminar_usuario, usuario_origen, usuario_ascendido})
   end
 
-  def agregar_usuario(idChatDestino, usuario_origen, usuario) do
-    GenServer.call(idChatDestino, {:agregar_usuario, usuario_origen, usuario})
+  def agregar_usuario(nombre_grupo, usuario_origen, usuario) do
+    pid = get_grupo_pid(nombre_grupo)
+    GenServer.call(pid, {:agregar_usuario, usuario_origen, usuario})
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
@@ -72,6 +74,9 @@ defmodule ChatDeGrupo do
   end
 
   def handle_call({:agregar_usuario, usuario_origen, usuario}, _from, state) do
+    IO.puts("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
+    IO.puts(state.nombre_grupo)
+    IO.inspect(obtener_administradores(state.nombre_grupo))
     if(es_administrador(usuario_origen, state.nombre_grupo)) do
         ChatDeGrupoEntity.agregar_usuario(state.nombre_grupo, usuario)
         {:reply, :ok, state}
@@ -142,7 +147,9 @@ defmodule ChatDeGrupo do
   end
 
   defp obtener_administradores(nombre_grupo) do
+    IO.puts("44444444444444444444444444444444")
     ChatDeGrupoEntity.get_admins(nombre_grupo)
+    IO.puts("8888888888888888888888888888888")
   end
 
   defp es_usuario(ususario, nombre_grupo) do

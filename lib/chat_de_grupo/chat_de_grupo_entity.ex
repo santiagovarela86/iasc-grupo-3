@@ -29,8 +29,12 @@ defmodule ChatDeGrupoEntity do
   end
 
   def get_admins(chat) do
+    IO.puts("3333333333333333333333333")
+    IO.puts(chat)
     actualizar_async(chat)
-    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_admins/1)
+    IO.puts("444444444444444444444444444")
+    algo = Entity.primera_respuesta({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.get_admins/1)
+    IO.inspect(algo)
   end
 
   def get_modificacion_usuarios(chat) do
@@ -76,7 +80,10 @@ defmodule ChatDeGrupoEntity do
   end
 
   defp actualizar(grupo_swarm) do
-    agentes = Swarm.members(grupo_swarm)
+    agentes = Swarm.members({:chat_grupo_agent,grupo_swarm})
+
+    IO.puts("5555555555555555")
+    IO.inspect(agentes)
 
     if !Entity.campo_actualizado(grupo_swarm, &ChatDeGrupoAgent.get_mensajes/1) do
       agentes

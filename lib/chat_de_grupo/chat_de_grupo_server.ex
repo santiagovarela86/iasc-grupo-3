@@ -14,6 +14,7 @@ defmodule GrupoServer do
   end
 
   def crear_grupo(nombre_grupo, usuario_admin) do
+    IO.puts("CREANDO UN GRUPO")
     GenServer.multi_call(Router.servers(), GrupoServer, {:crear_grupo, nombre_grupo, usuario_admin})
   end
 

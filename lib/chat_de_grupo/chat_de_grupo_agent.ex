@@ -2,6 +2,8 @@ defmodule ChatDeGrupoAgent do
   use Agent
 
   def start_link(creador, nombre_grupo) do
+    IO.puts("INSTANCIO EL CHAT DE GRUPO")
+    IO.puts(creador)
     Agent.start_link(
       fn -> %{
         usuarios: MapSet.new([creador]),
@@ -50,6 +52,9 @@ defmodule ChatDeGrupoAgent do
   end
 
   def get_admins(agente) do
+    IO.puts("AGENTE")
+    IO.inspect(agente)
+    IO.inspect(Agent.get(agente, &Map.get(&1, :admins)))
     Agent.get(agente, &Map.get(&1, :admins))
   end
 
