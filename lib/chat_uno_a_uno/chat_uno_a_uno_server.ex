@@ -15,7 +15,6 @@ defmodule ChatUnoAUnoServer do
 
   def register_chat(username1, username2) do
     GenServer.multi_call(Router.servers(), ChatUnoAUnoServer, {:register_chat, username1, username2})
-    #GenServer.call(ChatUnoAUnoServer, {:register_chat, username1, username2})
   end
 
   def handle_call({:get_chat, chat_name}, _from, state) do
