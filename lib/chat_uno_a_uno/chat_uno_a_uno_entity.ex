@@ -48,11 +48,10 @@ defmodule ChatUnoAUnoEntity do
     agentes = Swarm.members(grupo_swarm)
 
     if !Entity.campo_actualizado(grupo_swarm, &ChatUnoAUnoAgent.get_mensajes/1) do
-      agentes
-      |> Enum.each(fn(agente) -> ChatUnoAUnoAgent.get_mensajes(agente) end)
-      |> Enum.reduce([], fn(elem,acc) -> Map.merge(elem, acc, &resolver_conflicto_mensajes/3) end)
-      #TODO: MALA MIA (reemplazando estado stale)
-      |> (&Enum.each(agentes, fn(agente) -> Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn(_mensajes) -> &1 end) end)end)).()
+      agentes_mensajes =  Enum.map(agentes, fn(agente) -> {agente, ChatUnoAUnoAgent.get_mensajes(agente)} end)
+      mensajes_mergeados = Enum.reduce(agentes_mensajes, [], fn({_agente, mensajes},acc) -> Map.merge(mensajes, acc, &resolver_conflicto_mensajes/3) end)
+      agentes_diffs = Enum.map(agentes_mensajes, fn({agente, mensajes}) -> {agente, Enum.into(Map.to_list(mensajes_mergeados) -- Map.to_list(mensajes), %{})} end)
+      Enum.map(agentes_diffs, fn({agente, diffs}) -> Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn(mensajes) ->  Map.merge(mensajes, diffs) end) end)end)
     end
   end
 end
