@@ -78,43 +78,45 @@ defmodule Usuario do
     GenServer.cast(pid, {:informar_grupo, nombre_grupo})
   end
 
-  defp obtener_chat_destino(origen, destino) do
-    ChatUnoAUnoServer.get_chat(origen, destino)
-  end
-
   def handle_call({:crear_grupo, nombre_grupo}, _from, state) do
     case GrupoServer.crear_grupo(nombre_grupo, state.nombre) do
-      :already_exists -> {:reply, :already_exists, state.nombre}
-      _ -> informar_grupo(nombre_grupo, state.nombre)
-      {:reply, :ok, state}
+      :already_exists ->
+        {:reply, :already_exists, state.nombre}
+
+      _ ->
+        informar_grupo(nombre_grupo, state.nombre)
+        {:reply, :ok, state}
     end
   end
 
   def handle_call({:crear_chat, destinatario}, _from, state) do
-    UsuarioServer.get_user(destinatario)
-    chat_name = ChatUnoAUnoServer.register_chat(destinatario, state.nombre)
-    Usuario.informar_chat(chat_name, state.nombre, destinatario)
-    UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
-    {:reply, chat_name, state}
+    case ChatUnoAUnoServer.get_chat(state.nombre, destinatario) do
+      :not_found ->
+        chat_name = ChatUnoAUnoServer.register_chat(destinatario, state.nombre)
+        Usuario.informar_chat(chat_name, state.nombre, destinatario)
+        UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
+        {:reply, chat_name, state}
 
+      _ ->
+        {:reply, ChatUnoAUnoServer.build_chat_name(state.nombre, destinatario), state}
+    end
   end
 
   def handle_call({:crear_chat_seguro, destinatario, tiempo_limite}, _from, state) do
     UsuarioServer.get_user(destinatario)
-    chat_seguro_name = ChatSeguroServer.register_chat_seguro(destinatario, state.nombre, tiempo_limite)
+
+    chat_seguro_name =
+      ChatSeguroServer.register_chat_seguro(destinatario, state.nombre, tiempo_limite)
+
     Usuario.informar_chat(chat_seguro_name, state.nombre, destinatario)
     UsuarioEntity.agregar_chat_seguros(state.nombre, chat_seguro_name)
     {:reply, chat_seguro_name, state}
-
   end
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
     repuestaChat = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
-
-    IO.puts("Sending Message to.. -> "<>destinatario)
-    host = String.to_atom(destinatario<>"@"<>"iaschost")
-    Node.connect(host)
-    send List.first(Swarm.members({:cliente, destinatario})), mensaje
+    IO.puts("Sending Message to.. -> " <> destinatario)
+    send(List.first(Swarm.members({:cliente, destinatario})), mensaje)
 
     {:reply, repuestaChat, state}
   end
@@ -127,10 +129,8 @@ defmodule Usuario do
   def handle_call({:enviar_mensaje_seguro, destinatario, mensaje_seguro}, _from, state) do
     repuestaChatSeguro = ChatSeguro.enviar_mensaje(state.nombre, destinatario, mensaje_seguro)
 
-    IO.puts("Sending Secure Message to.. -> "<>destinatario)
-    host = String.to_atom(destinatario<>"@"<>"iaschost")
-    Node.connect(host)
-    send List.first(Swarm.members({:cliente, destinatario})), mensaje_seguro
+    IO.puts("Sending Secure Message to.. -> " <> destinatario)
+    send(List.first(Swarm.members({:cliente, destinatario})), mensaje_seguro)
 
     {:reply, repuestaChatSeguro, state}
   end

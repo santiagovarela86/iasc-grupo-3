@@ -16,7 +16,7 @@ defmodule ChatSeguroServer do
   end
 
   def register_chat_seguro(username1, username2, tiempo_limite) do
-    GenServer.call(ChatSeguroServer, {:register_chat_seguro, username1, username2, tiempo_limite})
+    GenServer.multi_call(Router.servers(), ChatSeguroServer, {:register_chat_seguro, username1, username2, tiempo_limite})
   end
 
   def handle_call({:get_chat, secure_chat_name}, _from, state) do
