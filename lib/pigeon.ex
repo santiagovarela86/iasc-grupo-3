@@ -18,6 +18,8 @@ defmodule Pigeon do
         IO.puts("Soy un server")
         connect_to_cluster()
         ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
+
+        _ -> ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
     end
   end
 
