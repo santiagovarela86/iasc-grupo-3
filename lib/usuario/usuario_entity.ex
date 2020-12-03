@@ -45,32 +45,28 @@ defmodule UsuarioEntity do
     if (!chats_seguros_actualizados || !chats_de_grupo_actualizados || !chats_uno_a_uno_actualizados) do
 
       agentes = Swarm.members(grupo_swarm)
-      fn(otro_agente,acc) ->  MapSet.union(UsuarioAgent.get_chats_de_grupo(otro_agente), acc) end
-      |> (&fn(chats) -> Enum.reduce(agentes -- [agente], MapSet.new, &1) end).()
-      |> (&fn(state) -> Map.update!(state, :chats_de_grupo, &1) end).()
-      |> (&Enum.each(agentes, fn(agente) -> Agent.update(agente, &1) end)).()
+      unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(UsuarioAgent.get_chats_de_grupo(otro_agente), acc) end
+      reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end
+      update_chats = fn(state, agente) -> Map.update!(state, :chats_de_grupo, &reducir_otros.(&1, agente)) end
+      Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
 
+      agentes = Swarm.members(grupo_swarm)
+      unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(UsuarioAgent.get_chats_seguros(otro_agente), acc) end
+      reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end
+      update_chats = fn(state, agente) -> Map.update!(state, :chats_seguros, &reducir_otros.(&1, agente)) end
+      Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
 
+      agentes = Swarm.members(grupo_swarm)
+      unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(UsuarioAgent.get_chats_uno_a_uno(otro_agente), acc) end
+      reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end
+      update_chats = fn(state, agente) -> Map.update!(state, :chats_uno_a_uno, &reducir_otros.(&1, agente)) end
+      Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
 
-
-
-
-
-
-      #|> agentes_chats3 =  Enum.map(fn(agente) -> {agente, UsuarioAgent.get_chats_seguros(agente), UsuarioAgent.get_chats_de_grupo(agente), UsuarioAgent.get_chats_uno_a_uno(agente)} end)
-
-
-
-
-
-
-      #agentes_diffs = Enum.map(agentes_mensajes, fn({agente, mensajes}) -> {agente, Enum.into(Map.to_list(mensajes_mergeados) -- Map.to_list(mensajes), %{})} end)
-      #Enum.map(agentes_diffs, fn({agente, diffs}) -> Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn(mensajes) ->  Map.merge(mensajes, diffs) end) end)end)
-
-
-
-      # TODO: combinar chats de cada tipo
     end
+
+  end
+
+  def asd do
 
   end
 
