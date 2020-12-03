@@ -51,6 +51,7 @@ defmodule ChatUnoAUnoEntity do
       agentes
       |> Enum.each(fn(agente) -> ChatUnoAUnoAgent.get_mensajes(agente) end)
       |> Enum.reduce([], fn(elem,acc) -> Map.merge(elem, acc, &resolver_conflicto_mensajes/3) end)
+      #TODO: MALA MIA (reemplazando estado stale)
       |> (&Enum.each(agentes, fn(agente) -> Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn(_mensajes) -> &1 end) end)end)).()
     end
   end
