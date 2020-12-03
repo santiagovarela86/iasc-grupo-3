@@ -56,6 +56,13 @@ defmodule ChatDeGrupo do
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
     ChatDeGrupoEntity.registrar_mensaje(state.nombre_grupo, mensaje, sender)
+
+    {:ok, usuarios} = ChatDeGrupoEntity.get_usuarios(state.nombre_grupo)
+
+    fn(cliente) -> send(cliente, mensaje) end
+    |> (&fn(usuario) -> Task.async_stream(Swarm.members({:cliente, usuario}), &1)end).()
+    |> (&Task.async_stream(MapSet.to_list(usuarios) -- [sender], &1)).()
+
     {:reply, :ok, state}
   end
 
