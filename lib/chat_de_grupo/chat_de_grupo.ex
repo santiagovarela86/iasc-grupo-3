@@ -55,6 +55,7 @@ defmodule ChatDeGrupo do
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
+    IO.puts("111111111111111111")
     ChatDeGrupoEntity.registrar_mensaje(state.nombre_grupo, mensaje, sender)
 
     {:ok, usuarios} = ChatDeGrupoEntity.get_usuarios(state.nombre_grupo)
@@ -62,6 +63,8 @@ defmodule ChatDeGrupo do
     fn(cliente) -> send(cliente, mensaje) end
     |> (&fn(usuario) -> Task.async_stream(Swarm.members({:cliente, usuario}), &1)end).()
     |> (&Task.async_stream(MapSet.to_list(usuarios) -- [sender], &1)).()
+
+    IO.puts("2222222222222")
 
     {:reply, :ok, state}
   end
@@ -151,7 +154,8 @@ defmodule ChatDeGrupo do
   end
 
   defp obtener_administradores(nombre_grupo) do
-    ChatDeGrupoEntity.get_admins(nombre_grupo)
+    {:ok, admins} = ChatDeGrupoEntity.get_admins(nombre_grupo)
+    MapSet.to_list(admins)
   end
 
   defp es_usuario(ususario, nombre_grupo) do
