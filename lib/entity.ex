@@ -12,6 +12,7 @@ defmodule Entity do
     agente_target = primera_respuesta(grupo_de_agentes, fn(a) -> a end)
     Agent.update(agente_copia, fn(_state) ->  Agent.get(agente_target, fn(state2) -> state2 end) end)
   end
+
   def campo_actualizado(grupo_swarm, getter) do
     Swarm.members(grupo_swarm)
     |> Task.async_stream(fn(agente) -> Entity.checksum_respuesta(agente, getter)end)
@@ -22,7 +23,7 @@ defmodule Entity do
   def primera_respuesta(grupo_swarm, funcion) do
     Swarm.members(grupo_swarm)
     |> Task.async_stream(fn(agente) -> funcion.(agente) end, ordered: false)
-    |> Stream.filter(fn({a, _}) -> a == :ok end)
+    |> Stream.filter(fn({ok?, _}) -> ok? == :ok end)
     |> Enum.take(1)
     |> List.first()
   end
@@ -31,5 +32,24 @@ defmodule Entity do
     Swarm.members(grupo_swarm)
     |> Task.async_stream(fn(agente) -> funcion.(agente) end, ordered: false)
     |> Enum.to_list()
+  end
+
+  def consenso(grupo_swarm, getter) do
+    Swarm.members(grupo_swarm)
+    |> Task.async_stream(fn(agente) -> {agente, Entity.checksum_respuesta(agente, getter)}end)
+    |> Enum.to_list()
+    |> Enum.filter(&match?({:ok, _}, &1))
+    |> Enum.map(fn({_ok, response}) -> response end)
+    |> Enum.group_by(fn({_agente,checksum}) -> checksum end)
+    |> Enum.max_by(fn({_checksum, grupo }) -> length(grupo) end)
+    |> case do {_checksum, lista_de_respuestas} -> lista_de_respuestas end
+    |> List.first()
+    |> case do {agente, _checksum} -> agente end
+  end
+  def exportar_campo(de_agent, a_grupo_swarm, campo_atom) do
+      fn(_usuarios) -> Agent.get(de_agent, &Map.get(&1, campo_atom)) end
+      |> (&fn(state) -> Map.update!(state, campo_atom, &1) end).()
+      |> (&fn(agente) -> Agent.update(agente, &1) end).()
+      |> (&Entity.aplicar_cambio(a_grupo_swarm, &1)).()
   end
 end

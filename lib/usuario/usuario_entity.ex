@@ -43,9 +43,30 @@ defmodule UsuarioEntity do
 
 
     if (!chats_seguros_actualizados || !chats_de_grupo_actualizados || !chats_uno_a_uno_actualizados) do
-      Swarm.members(grupo_swarm)
-      # |> combinar chats de cada tipo
+
+      agentes = Swarm.members(grupo_swarm)
+      unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(UsuarioAgent.get_chats_de_grupo(otro_agente), acc) end
+      reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end
+      update_chats = fn(state, agente) -> Map.update!(state, :chats_de_grupo, &reducir_otros.(&1, agente)) end
+      Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
+
+      agentes = Swarm.members(grupo_swarm)
+      unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(UsuarioAgent.get_chats_seguros(otro_agente), acc) end
+      reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end
+      update_chats = fn(state, agente) -> Map.update!(state, :chats_seguros, &reducir_otros.(&1, agente)) end
+      Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
+
+      agentes = Swarm.members(grupo_swarm)
+      unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(UsuarioAgent.get_chats_uno_a_uno(otro_agente), acc) end
+      reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end
+      update_chats = fn(state, agente) -> Map.update!(state, :chats_uno_a_uno, &reducir_otros.(&1, agente)) end
+      Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
+
     end
+
+  end
+
+  def asd do
 
   end
 

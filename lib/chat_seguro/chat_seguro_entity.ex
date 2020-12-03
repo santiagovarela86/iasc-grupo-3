@@ -58,14 +58,19 @@ defmodule ChatSeguroEntity do
     agentes = Swarm.members(grupo_swarm)
 
     if !Entity.campo_actualizado(grupo_swarm, &ChatSeguroAgent.get_mensajes/1) do
-      agentes
-      |> Enum.each(fn(agente) -> ChatSeguroAgent.get_mensajes(agente) end)
-      |> Enum.reduce([], fn(elem,acc) -> Map.merge(elem, acc, &resolver_conflicto_mensajes/3) end)
-      |> (&Enum.each(agentes, fn(agente) -> Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn(_mensajes) -> &1 end) end)end)).()
+      agentes_mensajes =  Enum.map(agentes, fn(agente) -> {agente, ChatSeguroAgent.get_mensajes(agente)} end)
+      mensajes_mergeados = Enum.reduce(agentes_mensajes, [], fn({_agente, mensajes},acc) -> Map.merge(mensajes, acc, &resolver_conflicto_mensajes/3) end)
+      agentes_diffs = Enum.map(agentes_mensajes, fn({agente, mensajes}) -> {agente, Enum.into(Map.to_list(mensajes_mergeados) -- Map.to_list(mensajes), %{})} end)
+      Enum.map(agentes_diffs, fn({agente, diffs}) -> Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn(mensajes) ->  Map.merge(mensajes, diffs) end) end)end)
     end
 
     if !Entity.campo_actualizado(grupo_swarm, &ChatSeguroAgent.get_tiempo_limite/1) do
-      #TODO: replicar el tiempo menor
+      Swarm.members(grupo_swarm)
+      |> Task.async_stream(fn(agente) -> {agente, ChatSeguroAgent.get_tiempo_limite(agente)} end, ordered: false)
+      |> Stream.filter(fn({ok?, _}) -> ok? == :ok end)
+      |> Enum.min_by(fn({_ok, {_agente, tiempo_limite}}) -> tiempo_limite end)
+      |> case do {agente, _checksum} -> agente end
+      |> Entity.exportar_campo(grupo_swarm, :tiempo_limite)
     end
 
   end

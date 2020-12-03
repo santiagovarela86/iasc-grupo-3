@@ -40,20 +40,29 @@ defmodule ChatDeGrupo do
     GenServer.call(idChatDestino, {:eliminar_mensaje, idMensaje, idOrigen})
   end
 
-  def ascender_usuario(idChatDestino, usuario_origen, usuario_ascendido) do
-    GenServer.call(idChatDestino, {:ascender_usuario, usuario_origen, usuario_ascendido})
+  def ascender_usuario(nombre_grupo, usuario_origen, usuario_ascendido) do
+    pid = get_grupo_pid(nombre_grupo)
+    GenServer.call(pid, {:ascender_usuario, usuario_origen, usuario_ascendido})
   end
 
   def eliminar_usuario(idChatDestino, usuario_origen, usuario_ascendido) do
     GenServer.call(idChatDestino, {:eliminar_usuario, usuario_origen, usuario_ascendido})
   end
 
-  def agregar_usuario(idChatDestino, usuario_origen, usuario) do
-    GenServer.call(idChatDestino, {:agregar_usuario, usuario_origen, usuario})
+  def agregar_usuario(nombre_grupo, usuario_origen, usuario) do
+    pid = get_grupo_pid(nombre_grupo)
+    GenServer.call(pid, {:agregar_usuario, usuario_origen, usuario})
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
     ChatDeGrupoEntity.registrar_mensaje(state.nombre_grupo, mensaje, sender)
+
+    {:ok, usuarios} = ChatDeGrupoEntity.get_usuarios(state.nombre_grupo)
+
+    fn(cliente) -> send(cliente, mensaje) end
+    |> (&fn(usuario) -> Task.async_stream(Swarm.members({:cliente, usuario}), &1)end).()
+    |> (&Task.async_stream(MapSet.to_list(usuarios) -- [sender], &1)).()
+
     {:reply, :ok, state}
   end
 
