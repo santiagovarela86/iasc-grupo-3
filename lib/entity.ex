@@ -4,13 +4,24 @@ defmodule Entity do
   end
 
   def copiar_todo() do
+    IO.puts("a copiar")
+    node = Router.route(Node.self)
+    IO.puts("voy a routear a #{node}")
+    if(node != Node.self) do
+    usuarios = :rpc.call(node, UsuarioRegistry, :registered_users, [])
+    IO.puts("Obtuve estos usuarios: #{usuarios}")
+    Enum.map(usuarios, fn usuario -> UsuarioServer.init_user(usuario) end)
+    end
     #obtener todos los grupos (si no existe forma directa, se podrian registrar los nombres de grupos asociados a todos los actores)
     #agrupar por tipo de entidad, crear las entidades con nombre = nombre_grupo, y copiar state de cada agent con copiar/2
   end
 
   def copiar(agente_copia, grupo_de_agentes) do
-    agente_target = primera_respuesta(grupo_de_agentes, fn(a) -> a end)
-    Agent.update(agente_copia, fn(_state) ->  Agent.get(agente_target, fn(state2) -> state2 end) end)
+      case primera_respuesta(grupo_de_agentes, fn(a) -> a end) do
+        {:ok, agente_target} ->
+          Agent.update(agente_copia, fn(_state) ->  Agent.get(agente_target, fn(state2) -> state2 end) end)
+          nil -> {}
+    end
   end
 
   def campo_actualizado(grupo_swarm, getter) do

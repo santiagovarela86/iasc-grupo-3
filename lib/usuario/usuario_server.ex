@@ -18,6 +18,11 @@ defmodule UsuarioServer do
     #GenServer.call(UsuarioServer, {:register_user, username})
   end
 
+  # Registra usuario en este nodo, copiando el estado del resto del cluster
+  def init_user(user) do
+    GenServer.call(UsuarioServer, {:register_user, user})
+  end
+
   def handle_call({:get_user, username}, _from, state) do
     lookup = UsuarioRegistry.lookup_user(username)
     result = case lookup do
@@ -30,6 +35,7 @@ defmodule UsuarioServer do
   def handle_call({:register_user, username}, _from, state) do
     IO.puts("registrar user " <> username)
     {:ok, pidAgent} = UsuarioAgent.start_link(username)
+    Entity.copiar(pidAgent, {:usuario_agent, username})
     Swarm.join({:usuario_agent, username}, pidAgent)
     #tendria que usar un supervisor para crear al agent
     #tendria que usar un case, o el case ya hecho para cuando ya existe, o cuando no existe el grupo, etc?

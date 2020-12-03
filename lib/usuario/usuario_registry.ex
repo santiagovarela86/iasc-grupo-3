@@ -17,6 +17,10 @@ defmodule UsuarioRegistry do
     Registry.lookup(UsuarioRegistry, username)
   end
 
+  def registered_users() do
+    Registry.select(UsuarioRegistry, [{{:"$1", :_, :_}, [], [:"$1"]}])
+  end
+
   def build_name(username) do
     {:via, Registry, {UsuarioRegistry, username}}
   end
