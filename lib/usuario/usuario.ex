@@ -29,7 +29,6 @@ defmodule Usuario do
   end
 
   def crear_grupo(username, nombre_grupo) do
-    IO.puts("AAAAAA")
     pid = UsuarioServer.get_user(username)
     GenServer.call(pid, {:crear_grupo, nombre_grupo})
   end
@@ -133,8 +132,6 @@ defmodule Usuario do
   end
 
   def handle_call({:agregar_usuario_a_grupo, username, nombre_grupo}, _from, state) do
-    IO.puts("222222222222")
-    IO.puts(state.nombre)
     respuestaChat = ChatDeGrupo.agregar_usuario(nombre_grupo, state.nombre, username )
     {:reply, respuestaChat, state}
   end
@@ -174,8 +171,6 @@ defmodule Usuario do
   end
 
   def handle_cast({:informar_grupo, nombre_grupo}, state) do
-    IO.puts("CCCCCCC")
-    IO.puts(state.nombre)
     UsuarioEntity.agregar_chat_de_grupo(state.nombre, nombre_grupo)
     {:noreply, state}
   end

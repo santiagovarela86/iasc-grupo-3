@@ -45,11 +45,11 @@ defmodule Cliente do
 
   def agregar_usuario_a_grupo(usuario, nombre_grupo, pid) do
     GenServer.call(pid, {:agregar_usuario_a_grupo, usuario, nombre_grupo}, @timeout)
-  end  
+  end
 
   def enviar_mensaje_grupo(nombre_grupo, mensaje, pid) do
     GenServer.call(pid, {:enviar_mensaje_grupo, nombre_grupo, mensaje}, @timeout)
-  end  
+  end
 
   ############## CHAT SEGURO ###################
 
@@ -63,7 +63,6 @@ defmodule Cliente do
 
   def build_name(nombre) do
     name = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now())) |> Base.encode16()
-    IO.puts(name)
     {:via, :swarm, name}
   end
 
@@ -97,7 +96,7 @@ defmodule Cliente do
 
 
     ############## GRUPOS ###################
-    
+
     def handle_call({:crear_grupo, nombre_grupo}, _from, state) do
       :rpc.call(routeo_nodo(), GrupoServer, :crear_grupo, [nombre_grupo, state.userName])
       {:reply, state, state}
