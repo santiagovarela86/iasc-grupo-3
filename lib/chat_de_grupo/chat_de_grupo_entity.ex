@@ -80,17 +80,20 @@ defmodule ChatDeGrupoEntity do
 
     if !Entity.campo_actualizado(grupo_swarm, &ChatDeGrupoAgent.get_mensajes/1) do
       agentes
-      |> Enum.each(fn(agente) -> ChatDeGrupoAgent.get_mensajes(agente) end)
+      |> Enum.map(fn(agente) -> ChatDeGrupoAgent.get_mensajes(agente) end)
       |> Enum.reduce([], fn(elem,acc) -> Map.merge(elem, acc, &resolver_conflicto_mensajes/3) end)
-      |> (&Enum.each(agentes, fn(agente) -> Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn(_mensajes) -> &1 end) end)end)).()
+      #TODO: mal, no puedo reemplazar  la lista de mensajes, tengo que hacer un diff y agregar
+      |> (&Enum.map(agentes, fn(agente) -> Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn(_mensajes) -> &1 end) end)end)).()
     end
 
     if !Entity.campo_actualizado(grupo_swarm, &ChatDeGrupoAgent.get_usuarios/1) do
-      #TODO: agrupar por hash y replicar el grupo mas grande
+      agente_consenso = Entity.consenso(grupo_swarm, &ChatDeGrupoEntity.get_usuarios/1)
+      Entity.exportar_campo(agente_consenso, grupo_swarm, :usuarios)
     end
 
     if !Entity.campo_actualizado(grupo_swarm, &ChatDeGrupoAgent.get_admins/1) do
-      #TODO: agrupar por hash y replicar el grupo mas grande
+      agente_consenso = Entity.consenso(grupo_swarm, &ChatDeGrupoEntity.get_admins/1)
+      Entity.exportar_campo(agente_consenso, grupo_swarm, :admins)
     end
 
   end
