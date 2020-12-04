@@ -13,8 +13,9 @@ defmodule ApplicationSupervisor do
       ChatUnoAUnoRegistry,
       ChatUnoAUnoSupervisor,
       ChatUnoAUnoServer,
-      GrupoSupervisor,
-      GrupoServer,
+      ChatDeGrupoSupervisor,
+      ChatDeGrupoServer,
+      ChatDeGrupoRegistry,
       ChatSeguroRegistry,
       ChatSeguroSupervisor,
       ChatSeguroServer

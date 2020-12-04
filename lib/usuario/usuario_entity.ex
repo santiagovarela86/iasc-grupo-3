@@ -32,42 +32,34 @@ defmodule UsuarioEntity do
     Entity.aplicar_cambio({:usuario_agent, usuario}, &UsuarioAgent.agregar_chat_de_grupo(&1, chat))
   end
   def actualizar_async(grupo_swarm) do
-    actualizar(grupo_swarm)
+    Task.async(fn-> actualizar(grupo_swarm) end)
   end
 
-  def actualizar(grupo_swarm) do
+  defp actualizar(grupo_swarm) do
 
-    chats_seguros_actualizados = Entity.campo_actualizado(grupo_swarm, &UsuarioAgent.get_chats_seguros/1)
-    chats_de_grupo_actualizados = Entity.campo_actualizado(grupo_swarm, &UsuarioAgent.get_chats_de_grupo/1)
-    chats_uno_a_uno_actualizados = Entity.campo_actualizado(grupo_swarm, &UsuarioEntity.get_chats_uno_a_uno/1)
-
-
-    if (!chats_seguros_actualizados || !chats_de_grupo_actualizados || !chats_uno_a_uno_actualizados) do
-
+    if !Entity.campo_actualizado(grupo_swarm, &UsuarioAgent.get_chats_de_grupo/1) do
       agentes = Swarm.members(grupo_swarm)
       unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(UsuarioAgent.get_chats_de_grupo(otro_agente), acc) end
       reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end
       update_chats = fn(state, agente) -> Map.update!(state, :chats_de_grupo, &reducir_otros.(&1, agente)) end
       Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
+    end
 
+    if !Entity.campo_actualizado(grupo_swarm, &UsuarioAgent.get_chats_seguros/1) do
       agentes = Swarm.members(grupo_swarm)
       unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(UsuarioAgent.get_chats_seguros(otro_agente), acc) end
       reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end
       update_chats = fn(state, agente) -> Map.update!(state, :chats_seguros, &reducir_otros.(&1, agente)) end
       Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
+    end
 
+    if !Entity.campo_actualizado(grupo_swarm, &UsuarioEntity.get_chats_uno_a_uno/1) do
       agentes = Swarm.members(grupo_swarm)
       unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(UsuarioAgent.get_chats_uno_a_uno(otro_agente), acc) end
       reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end
       update_chats = fn(state, agente) -> Map.update!(state, :chats_uno_a_uno, &reducir_otros.(&1, agente)) end
       Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
-
     end
 
   end
-
-  def asd do
-
-  end
-
 end

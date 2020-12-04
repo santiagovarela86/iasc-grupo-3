@@ -88,7 +88,7 @@ defmodule Usuario do
   end
 
   def handle_call({:crear_grupo, nombre_grupo}, _from, state) do
-    case GrupoServer.crear_grupo(nombre_grupo, state.nombre) do
+    case ChatDeGrupoServer.crear_grupo(nombre_grupo, state.nombre) do
       :already_exists ->
         {:reply, :already_exists, state.nombre}
 
