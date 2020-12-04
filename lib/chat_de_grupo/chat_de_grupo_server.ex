@@ -15,13 +15,23 @@ defmodule ChatDeGrupoServer do
 
   def crear_grupo(nombre_grupo, usuario_admin) do
     IO.puts("CREANDO UN GRUPO")
-    GenServer.multi_call(Router.servers(), ChatDeGrupoServer, {:crear_grupo, nombre_grupo, usuario_admin})
+    GenServer.call(ChatDeGrupoServer, {:crear_grupo, nombre_grupo, usuario_admin})
   end
 
   def handle_call({:get_grupo, nombre_grupo}, _from, state) do
     case ChatDeGrupoRegistry.lookup(nombre_grupo) do
       [{chatPid, _}] -> {:reply, chatPid, state}
-      _ -> {:reply, :not_found, state}
+      _ -> {
+        case Swarm.members({:chat_grupo_agent, nombre_grupo}) do
+          [] -> {:reply, :not_found, state}
+          _ ->
+            {_, agente} = ChatDeGrupoAgent.start_link(nil, nombre_grupo)
+            Entity.copiar(agente, {:chat_grupo_agent, nombre_grupo})
+            Swarm.join({:chat_grupo_agent, nombre_grupo}, agente)
+            chatPid = ChatDeGrupoSupervisor.start_child(nombre_grupo)
+            {:reply, chatPid, state}
+        end
+      }
     end
   end
 
