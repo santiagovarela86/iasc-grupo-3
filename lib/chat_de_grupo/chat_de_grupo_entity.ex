@@ -72,7 +72,7 @@ defmodule ChatDeGrupoEntity do
   end
 
   def actualizar_async(grupo_swarm) do
-    actualizar(grupo_swarm)
+    Task.async(fn-> actualizar(grupo_swarm) end)
   end
 
   defp actualizar(grupo_swarm) do
