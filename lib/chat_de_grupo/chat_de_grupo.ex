@@ -37,8 +37,9 @@ defmodule ChatDeGrupo do
     GenServer.call(pid, {:editar_mensaje, sender, mensaje_nuevo, id_mensaje})
   end
 
-  def eliminar_mensaje(idChatDestino, idMensaje, idOrigen) do
-    GenServer.call(idChatDestino, {:eliminar_mensaje, idMensaje, idOrigen})
+  def eliminar_mensaje(sender, grupo, id_mensaje) do
+    pid = ChatDeGrupoServer.get_grupo(grupo)
+    GenServer.call(pid, {:eliminar_mensaje, sender, id_mensaje})
   end
 
   def ascender_usuario(nombre_grupo, usuario_origen, usuario_ascendido) do
@@ -116,9 +117,9 @@ defmodule ChatDeGrupo do
     ejecutar_si_tiene_permiso(state.nombre_grupo, sender, id_mensaje, fn_a_ejecutar)
   end
 
-  def handle_call({:eliminar_mensaje, idMensaje, idOrigen}, _from, state) do
-    fn_a_ejecutar = fn -> ChatDeGrupoEntity.eliminar_mensaje(state.nombre_grupo, idMensaje) end
-    ejecutar_si_tiene_permiso(state.nombre_grupo, idOrigen, idMensaje, fn_a_ejecutar)
+  def handle_call({:eliminar_mensaje, sender, id_mensaje}, _from, state) do
+    fn_a_ejecutar = fn -> ChatDeGrupoEntity.eliminar_mensaje(state.nombre_grupo, id_mensaje) end
+    ejecutar_si_tiene_permiso(state.nombre_grupo, sender, id_mensaje, fn_a_ejecutar)
     {:reply, :ok, state}
   end
 

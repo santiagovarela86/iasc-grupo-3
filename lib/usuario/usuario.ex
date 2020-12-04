@@ -92,6 +92,10 @@ defmodule Usuario do
     GenServer.call(pid, {:editar_mensaje_grupo, nombre_grupo, mensaje_nuevo, id_mensaje})
   end
 
+  def eliminar_mensaje_grupo(origen, nombre_grupo, id_mensaje) do
+    pid = UsuarioServer.get_user(origen)
+    GenServer.call(pid, {:eliminar_mensaje_grupo, nombre_grupo, id_mensaje})
+  end
 
 #################################################################
 ######################## PRIVATE ################################
@@ -186,9 +190,13 @@ defmodule Usuario do
     {:noreply, state}
   end
 
-
   def handle_call({:editar_mensaje_grupo, nombre_grupo, mensaje_nuevo, id_mensaje}, _from, state) do
     repuestaChat = ChatDeGrupo.editar_mensaje(state.nombre, nombre_grupo, mensaje_nuevo, id_mensaje)
+    {:reply, repuestaChat, state}
+  end
+
+  def handle_call({:eliminar_mensaje_grupo, nombre_grupo, id_mensaje}, _from, state) do
+    repuestaChat = ChatDeGrupo.eliminar_mensaje(state.nombre, nombre_grupo, id_mensaje)
     {:reply, repuestaChat, state}
   end
 
