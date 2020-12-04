@@ -29,6 +29,7 @@ defmodule ChatDeGrupoServer do
     case ChatDeGrupoSupervisor.start_child(nombre_grupo) do
       {:ok, pidGrupo} ->
         {:ok, pidAgent} = ChatDeGrupoAgent.start_link(usuario_admin, nombre_grupo)
+        ServerEntity.agregar_chat_de_grupo(nombre_grupo)
         Swarm.join({:chat_grupo_agent, nombre_grupo}, pidAgent)
         Swarm.join({:chat_grupo, nombre_grupo}, pidGrupo)
         {:reply, nombre_grupo, state}

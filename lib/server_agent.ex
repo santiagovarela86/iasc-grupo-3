@@ -15,7 +15,7 @@ defmodule ServerAgent do
 
 
   def get_usuarios(agente) do
-    Agent.get(agente, &Map.get(&1, :nombre))
+    Agent.get(agente, &Map.get(&1, :usuarios))
   end
 
   def get_chats_uno_a_uno(agente) do

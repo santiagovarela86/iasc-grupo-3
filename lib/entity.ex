@@ -1,6 +1,6 @@
 defmodule Entity do
   def checksum_respuesta(agente, getter) do
-    :crypto.hash(:md5, getter.(agente))
+    :crypto.hash(:md5, inspect(getter.(agente)))
   end
   def campo_actualizado(grupo_swarm, getter) do
     Swarm.members(grupo_swarm)
