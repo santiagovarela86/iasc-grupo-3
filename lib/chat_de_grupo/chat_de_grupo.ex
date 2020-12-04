@@ -47,8 +47,9 @@ defmodule ChatDeGrupo do
     GenServer.call(pid, {:ascender_usuario, usuario_origen, usuario_ascendido})
   end
 
-  def eliminar_usuario(idChatDestino, usuario_origen, usuario_ascendido) do
-    GenServer.call(idChatDestino, {:eliminar_usuario, usuario_origen, usuario_ascendido})
+  def eliminar_usuario(nombre_grupo, usuario_origen, usuario) do
+    pid = ChatDeGrupoServer.get_grupo(nombre_grupo)
+    GenServer.call(pid, {:eliminar_usuario, usuario_origen, usuario})
   end
 
   def agregar_usuario(nombre_grupo, usuario_origen, usuario) do

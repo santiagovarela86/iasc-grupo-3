@@ -42,6 +42,11 @@ defmodule Usuario do
     GenServer.call(pid, {:agregar_usuario_a_grupo, username, nombre_grupo})
   end
 
+  def eliminar_usuario_grupo(user_admin, username, nombre_grupo) do
+    pid = UsuarioServer.get_user(user_admin)
+    GenServer.call(pid, {:eliminar_usuario_grupo, username, nombre_grupo})
+  end
+
   def iniciar_chat_seguro(username, destinatario, tiempo_limite) do
     pid = get_pid(username)
     GenServer.call(pid, {:crear_chat_seguro, destinatario, tiempo_limite})
@@ -163,6 +168,11 @@ defmodule Usuario do
 
   def handle_call({:agregar_usuario_a_grupo, username, nombre_grupo}, _from, state) do
     respuestaChat = ChatDeGrupo.agregar_usuario(nombre_grupo, state.nombre, username )
+    {:reply, respuestaChat, state}
+  end
+
+  def handle_call({:eliminar_usuario_grupo, username, nombre_grupo}, _from, state) do
+    respuestaChat = ChatDeGrupo.eliminar_usuario(nombre_grupo, state.nombre, username )
     {:reply, respuestaChat, state}
   end
 

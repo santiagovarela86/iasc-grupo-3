@@ -50,6 +50,10 @@ defmodule Cliente do
     GenServer.call(pid, {:agregar_usuario_a_grupo, usuario, nombre_grupo}, @timeout)
   end
 
+  def eliminar_usuario_grupo(usuario, nombre_grupo, pid) do
+    GenServer.call(pid, {:eliminar_usuario_grupo, usuario, nombre_grupo}, @timeout)
+  end
+
   def enviar_mensaje_grupo(nombre_grupo, mensaje, pid) do
     GenServer.call(pid, {:enviar_mensaje_grupo, nombre_grupo, mensaje}, @timeout)
   end
@@ -129,6 +133,11 @@ defmodule Cliente do
 
     def handle_call({:agregar_usuario_a_grupo, usuario, nombre_grupo}, _from, state) do
       :rpc.call(routeo_nodo(), Usuario, :agregar_usuario_a_grupo, [state.userName, usuario, nombre_grupo])
+      {:reply, state, state}
+    end
+
+    def handle_call({:eliminar_usuario_grupo, usuario, nombre_grupo}, _from, state) do
+      :rpc.call(routeo_nodo(), Usuario, :eliminar_usuario_grupo, [state.userName, usuario, nombre_grupo])
       {:reply, state, state}
     end
 
