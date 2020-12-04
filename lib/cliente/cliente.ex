@@ -35,6 +35,9 @@ defmodule Cliente do
     GenServer.call(pid,{:eliminar_mensaje, receiver, id_mensaje})
   end
 
+  def obtener_mensajes(receiver, pid) do
+    GenServer.call(pid,{:obtener_mensajes, receiver})
+  end
 
   ############## GRUPOS ###################
 
@@ -59,6 +62,10 @@ defmodule Cliente do
     GenServer.call(pid, {:eliminar_mensaje_grupo, nombre_grupo, id_mensaje}, @timeout)
   end
 
+  def obtener_mensajes_grupo(nombre_grupo, pid) do
+    GenServer.call(pid,{:obtener_mensajes_grupo, nombre_grupo})
+  end
+
   ############## CHAT SEGURO ###################
 
   def crear_chat_seguro(receiver, tiempo_limite, pid) do
@@ -68,6 +75,11 @@ defmodule Cliente do
   def enviar_mensaje_seguro(receiver, mensaje, pid) do
     GenServer.call(pid, {:enviar_mensaje_seguro, receiver, mensaje}, @timeout)
   end
+
+  def obtener_mensajes_seguro(receiver, pid) do
+    GenServer.call(pid,{:obtener_mensajes_seguro, receiver})
+  end
+
 
   def build_name(nombre) do
     name = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now())) |> Base.encode16()
@@ -102,6 +114,11 @@ defmodule Cliente do
     {:reply, response, state}
   end
 
+  def handle_call({:obtener_mensajes, receiver}, _from, state) do
+    response = :rpc.call(routeo_nodo(), Usuario, :obtener_mensajes, [state.userName, receiver])
+    {:reply, response, state}
+  end
+
 
     ############## GRUPOS ###################
 
@@ -130,6 +147,11 @@ defmodule Cliente do
       {:reply, state, state}
     end
 
+    def handle_call({:obtener_mensajes_grupo, nombre_grupo}, _from, state) do
+      response = :rpc.call(routeo_nodo(), Usuario, :obtener_mensajes_grupo, [state.userName, nombre_grupo])
+      {:reply, response, state}
+    end
+
    ############## CHAT SEGURO ###################
 
   def handle_call({:crear_chat_seguro, receiver, tiempo_limite}, _from, state) do
@@ -152,6 +174,11 @@ defmodule Cliente do
     {:reply, state, state}
   end
 
+  def handle_call({:obtener_mensajes_seguro, receiver}, _from, state) do
+    response = :rpc.call(routeo_nodo(), Usuario, :obtener_mensajes_seguro, [state.userName, receiver])
+    {:reply, response, state}
+  end
+
   def handle_info(mensaje, state) do
     IO.puts(mensaje)
     {:noreply, state}
@@ -160,4 +187,5 @@ defmodule Cliente do
   defp routeo_nodo() do
     Router.route()
   end
+
 end
