@@ -2,7 +2,7 @@ defmodule ChatDeGrupo do
   use GenServer
 
   def start_link(nombre_grupo) do
-    GenServer.start_link(__MODULE__, nombre_grupo, name: ChatUnoAUnoRegistry.build_name(nombre_grupo))
+    GenServer.start_link(__MODULE__, nombre_grupo, name: ChatDeGrupoRegistry.build_name(nombre_grupo))
   end
 
   def init(nombre_grupo) do
@@ -23,12 +23,12 @@ defmodule ChatDeGrupo do
   end
 
   def enviar_mensaje(sender, grupo, mensaje) do
-    pid = get_grupo_pid(grupo)
+    pid = ChatDeGrupoServer.get_grupo(grupo)
     GenServer.call(pid, {:enviar_mensaje, sender, mensaje})
   end
 
   def get_messages(grupo) do
-    pid = get_grupo_pid(grupo)
+    pid = ChatDeGrupoServer.get_grupo(grupo)
     GenServer.call(pid, {:get_messages})
   end
 
@@ -41,7 +41,7 @@ defmodule ChatDeGrupo do
   end
 
   def ascender_usuario(nombre_grupo, usuario_origen, usuario_ascendido) do
-    pid = get_grupo_pid(nombre_grupo)
+    pid = ChatDeGrupoServer.get_grupo(nombre_grupo)
     GenServer.call(pid, {:ascender_usuario, usuario_origen, usuario_ascendido})
   end
 
@@ -50,7 +50,7 @@ defmodule ChatDeGrupo do
   end
 
   def agregar_usuario(nombre_grupo, usuario_origen, usuario) do
-    pid = get_grupo_pid(nombre_grupo)
+    pid = ChatDeGrupoServer.get_grupo(nombre_grupo)
     GenServer.call(pid, {:agregar_usuario, usuario_origen, usuario})
   end
 
@@ -142,16 +142,13 @@ defmodule ChatDeGrupo do
     end
   end
 
-  defp get_grupo_pid(nombre_grupo) do
-    GrupoServer.get_grupo(nombre_grupo)
-  end
-
   defp es_administrador(usuario, nombre_grupo) do
     Enum.member?(obtener_administradores(nombre_grupo), usuario)
   end
 
   defp obtener_administradores(nombre_grupo) do
-    ChatDeGrupoEntity.get_admins(nombre_grupo)
+    {_, admins} = ChatDeGrupoEntity.get_admins(nombre_grupo)
+    admins
   end
 
   defp es_usuario(ususario, nombre_grupo) do
@@ -159,7 +156,8 @@ defmodule ChatDeGrupo do
   end
 
   defp obtener_usuarios(nombre_grupo) do
-    ChatDeGrupoEntity.get_usuarios(nombre_grupo)
+    {_, usuarios} = ChatDeGrupoEntity.get_usuarios(nombre_grupo)
+    usuarios
   end
 
   defp agregar_administrador(usuario_ascendido, nombre_grupo) do

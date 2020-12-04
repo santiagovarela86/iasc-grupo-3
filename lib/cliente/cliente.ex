@@ -98,7 +98,7 @@ defmodule Cliente do
     ############## GRUPOS ###################
 
     def handle_call({:crear_grupo, nombre_grupo}, _from, state) do
-      :rpc.call(routeo_nodo(), GrupoServer, :crear_grupo, [nombre_grupo, state.userName])
+      :rpc.call(routeo_nodo(), ChatDeGrupoServer, :crear_grupo, [nombre_grupo, state.userName])
       {:reply, state, state}
     end
 

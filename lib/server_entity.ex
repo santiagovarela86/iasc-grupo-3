@@ -78,7 +78,7 @@ defmodule ServerEntity do
           {_, agente} = ChatDeGrupoAgent.start_link(List.first(Mapset.to_list(chat)), List.last(Mapset.to_list(chat)))
           copiar(agente, {:chat_grupo_agent, chat})
           Swarm.join({:chat_grupo_agent, chat}, agente)
-          GrupoSupervisor.start_child(chat)
+          ChatDeGrupoSupervisor.start_child(chat)
       end
     end)
 
