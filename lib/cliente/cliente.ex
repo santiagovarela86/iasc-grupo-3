@@ -54,6 +54,10 @@ defmodule Cliente do
     GenServer.call(pid, {:eliminar_usuario_grupo, usuario, nombre_grupo}, @timeout)
   end
 
+  def ascender_usuario_grupo(usuario, nombre_grupo, pid) do
+    GenServer.call(pid,{:ascender_usuario_grupo, usuario, nombre_grupo})
+  end  
+
   def enviar_mensaje_grupo(nombre_grupo, mensaje, pid) do
     GenServer.call(pid, {:enviar_mensaje_grupo, nombre_grupo, mensaje}, @timeout)
   end
@@ -69,6 +73,7 @@ defmodule Cliente do
   def obtener_mensajes_grupo(nombre_grupo, pid) do
     GenServer.call(pid,{:obtener_mensajes_grupo, nombre_grupo})
   end
+
 
   ############## CHAT SEGURO ###################
 
@@ -138,6 +143,11 @@ defmodule Cliente do
 
     def handle_call({:eliminar_usuario_grupo, usuario, nombre_grupo}, _from, state) do
       :rpc.call(routeo_nodo(), Usuario, :eliminar_usuario_grupo, [state.userName, usuario, nombre_grupo])
+      {:reply, state, state}
+    end
+
+    def handle_call({:ascender_usuario_grupo, usuario, nombre_grupo}, _from, state) do
+      :rpc.call(routeo_nodo(), Usuario, :ascender_usuario_grupo, [state.userName, usuario, nombre_grupo])
       {:reply, state, state}
     end
 
