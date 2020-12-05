@@ -8,9 +8,24 @@ defmodule Cliente do
   end
 
   def init(_userName) do
+    state = %{
+      userName: name(),
+      pid: nil
+    }
+
+
     Swarm.join({:cliente, name()}, self())
     registrar(self())
-    {:ok, self()}
+    {:ok, state}
+  end
+
+  def child_spec(name) do
+    %{
+      id: name,
+      start: {__MODULE__, :start_link, [name]},
+      type: :worker,
+      restart: :transient
+    }
   end
 
   def registrar(pid) do
