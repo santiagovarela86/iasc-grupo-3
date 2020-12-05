@@ -27,7 +27,7 @@ defmodule ServerEntity do
     Entity.aplicar_cambio(:server_agent, &ServerAgent.agregar_chat_uno_a_uno(&1, chat))
   end
 
-  def agregar_chat_seguros(chat) do
+  def agregar_chat_seguro(chat) do
     Entity.aplicar_cambio(:server_agent, &ServerAgent.agregar_chat_seguros(&1, chat))
   end
 

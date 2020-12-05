@@ -51,6 +51,14 @@ defmodule Cliente do
     GenServer.call(pid, {:enviar_mensaje_grupo, nombre_grupo, mensaje}, @timeout)
   end
 
+  def editar_mensaje_grupo(nombre_grupo, mensaje_nuevo, id_mensaje, pid) do
+    GenServer.call(pid, {:editar_mensaje_grupo, nombre_grupo, mensaje_nuevo, id_mensaje}, @timeout)
+  end
+
+  def eliminar_mensaje_grupo(nombre_grupo, id_mensaje, pid) do
+    GenServer.call(pid, {:eliminar_mensaje_grupo, nombre_grupo, id_mensaje}, @timeout)
+  end
+
   ############## CHAT SEGURO ###################
 
   def crear_chat_seguro(receiver, tiempo_limite, pid) do
@@ -98,7 +106,7 @@ defmodule Cliente do
     ############## GRUPOS ###################
 
     def handle_call({:crear_grupo, nombre_grupo}, _from, state) do
-      :rpc.call(routeo_nodo(), ChatDeGrupoServer, :crear_grupo, [nombre_grupo, state.userName])
+      :rpc.call(routeo_nodo(), Usuario, :crear_grupo, [state.userName, nombre_grupo])
       {:reply, state, state}
     end
 
@@ -108,11 +116,19 @@ defmodule Cliente do
     end
 
     def handle_call({:enviar_mensaje_grupo, nombre_grupo, mensaje}, _from, state) do
-      #:rpc.call(routeo_nodo(), Usuario, :iniciar_chat, [state.userName, receiver])
       :rpc.call(routeo_nodo(), Usuario, :enviar_mensaje_grupo, [state.userName, nombre_grupo, mensaje])
       {:reply, state, state}
     end
 
+    def handle_call({:editar_mensaje_grupo, nombre_grupo, mensaje_nuevo, id_mensaje}, _from, state) do
+      :rpc.call(routeo_nodo(), Usuario, :editar_mensaje_grupo, [state.userName, nombre_grupo, mensaje_nuevo, id_mensaje])
+      {:reply, state, state}
+    end
+
+    def handle_call({:eliminar_mensaje_grupo, nombre_grupo, id_mensaje}, _from, state) do
+      :rpc.call(routeo_nodo(), Usuario, :eliminar_mensaje_grupo, [state.userName, nombre_grupo, id_mensaje])
+      {:reply, state, state}
+    end
 
    ############## CHAT SEGURO ###################
 

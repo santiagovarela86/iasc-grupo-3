@@ -31,6 +31,7 @@ defmodule UsuarioServer do
     IO.puts("registrar user " <> username)
     {:ok, pidAgent} = UsuarioAgent.start_link(username)
     Swarm.join({:usuario_agent, username}, pidAgent)
+    ServerEntity.agregar_usuario(username)
     #tendria que usar un supervisor para crear al agent
     #tendria que usar un case, o el case ya hecho para cuando ya existe, o cuando no existe el grupo, etc?
     case UsuarioSupervisor.start_child(username) do

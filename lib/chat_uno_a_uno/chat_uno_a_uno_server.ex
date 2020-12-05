@@ -29,6 +29,7 @@ defmodule ChatUnoAUnoServer do
     IO.puts("registrar chat #{chat_name}")
     {:ok, pidAgent} = ChatUnoAUnoAgent.start_link(username1, username2)
     Swarm.join({:chat_uno_a_uno_agent, chat_name}, pidAgent)
+    ServerEntity.agregar_chat_uno_a_uno(chat_name)
     #tendria que usar un supervisor para crear al agent
     #tendria que usar un case, o el case ya hecho para cuando ya existe, o cuando no existe el grupo, etc?
     case ChatUnoAUnoSupervisor.start_child(chat_name) do

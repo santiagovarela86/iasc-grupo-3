@@ -1,6 +1,6 @@
 defmodule Entity do
   def checksum_respuesta(agente, getter) do
-    :crypto.hash(:md5, getter.(agente))
+    :crypto.hash(:md5, inspect(getter.(agente)))
   end
   def campo_actualizado(grupo_swarm, getter) do
     Swarm.members(grupo_swarm)
@@ -18,9 +18,8 @@ defmodule Entity do
   end
 
   def aplicar_cambio(grupo_swarm, funcion) do
-    Swarm.members(grupo_swarm)
-    |> Task.async_stream(fn(agente) -> funcion.(agente) end, ordered: false)
-    |> Enum.to_list()
+    Enum.each(Swarm.members(grupo_swarm), fn(agente) -> Task.start(fn -> funcion.(agente) end) end)
+    :ok
   end
 
   def consenso(grupo_swarm, getter) do
