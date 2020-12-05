@@ -2,6 +2,10 @@ defmodule PigeonTest do
   use ExUnit.Case
   doctest Pigeon
 
+  def init(init_arg) do
+    {:ok, init_arg}
+  end
+
   test "Start a Router" do
 
     {:ok, pid} = BuilderHelper.makeARouter()
@@ -27,6 +31,18 @@ defmodule PigeonTest do
     assert(pid, "Not initialize")
   end
 
+  test "Simple Chat" do
+    GenServer.start_link(__MODULE__, PigeonTest)
+    {:ok, routerPid} = BuilderHelper.makeARouter()
+    {:error, {:already_started, serverPid}} = BuilderHelper.makeAServer()
+    {:ok, cPid1} = BuilderHelper.makeAClient()
+    {:ok, cPid2} = BuilderHelper.makeAClient()
+    {:ok, clientPid1} = BuilderHelper.makeAUser("user1")
+    {:ok, clientPid2} = BuilderHelper.makeAUser("user2")
+    assert(clientPid1 != clientPid2)
+
+  end
+
 end
 
 defmodule BuilderHelper do
@@ -46,6 +62,12 @@ defmodule BuilderHelper do
 
     Pigeon.connect_to_cluster()
     {:ok, spawn(fn -> :ok end)}
+
+  end
+
+  def makeAUser(named) do
+
+    Cliente.start_link(named)
   end
 
 end
