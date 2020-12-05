@@ -12,4 +12,10 @@ defmodule PigeonTest do
 
   end
 
+
+  test "Start a Server" do
+    Pigeon.connect_to_cluster()
+    ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
+end
+
 end
