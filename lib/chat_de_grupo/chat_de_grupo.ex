@@ -60,7 +60,7 @@ defmodule ChatDeGrupo do
     {:ok, usuarios} = ChatDeGrupoEntity.get_usuarios(state.nombre_grupo)
 
     fn(cliente) -> send(cliente, mensaje) end
-    |> (&fn(usuario) -> Task.async_stream(Swarm.members({:cliente, usuario}), &1)end).()
+    |> (&fn(usuario) -> Enum.each(Swarm.members({:cliente, usuario}), &1)end).()
     |> (&Task.async_stream(MapSet.to_list(usuarios) -- [sender], &1)).()
 
     {:reply, :ok, state}
