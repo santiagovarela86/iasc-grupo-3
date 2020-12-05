@@ -18,7 +18,7 @@
 
 - First the routers: 
    - If you want to use a single router node without fallback:
-      - type=router iex --sname router-1 -S mix (Linux)
+      - type=router iex --sname router-1@localhost -S mix (Linux)
       - $env:type = 'router'; iex.bat --werl --sname "router-1@localhost" -S mix (Windows)
 
    - If you want to use router with fallback nodes, you'll need to create 3 nodes

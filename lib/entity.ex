@@ -2,6 +2,26 @@ defmodule Entity do
   def checksum_respuesta(agente, getter) do
     :crypto.hash(:md5, inspect(getter.(agente)))
   end
+
+  def copiar_todo() do
+    IO.puts("a copiar")
+    node = Router.route(Node.self)
+    IO.puts("voy a routear a #{node}")
+    usuarios = ServerEntity.get_usuarios()
+    IO.puts("Obtuve estos usuarios: #{usuarios}")
+    Enum.map(usuarios, fn usuario -> UsuarioServer.init_user(usuario) end)
+    #obtener todos los grupos (si no existe forma directa, se podrian registrar los nombres de grupos asociados a todos los actores)
+    #agrupar por tipo de entidad, crear las entidades con nombre = nombre_grupo, y copiar state de cada agent con copiar/2
+  end
+
+  def copiar(agente_copia, grupo_de_agentes) do
+      case primera_respuesta(grupo_de_agentes, fn(a) -> a end) do
+        nil -> {}
+        agente_target ->
+          Agent.update(agente_copia, fn(_state) ->  Agent.get(agente_target, fn(state2) -> state2 end) end)
+    end
+  end
+
   def campo_actualizado(grupo_swarm, getter) do
     Swarm.members(grupo_swarm)
     |> Task.async_stream(fn(agente) -> Entity.checksum_respuesta(agente, getter)end)
@@ -13,6 +33,7 @@ defmodule Entity do
     Swarm.members(grupo_swarm)
     |> Task.async_stream(fn(agente) -> funcion.(agente) end, ordered: false)
     |> Stream.filter(fn({ok?, _}) -> ok? == :ok end)
+    #|> Stream.map(fn {_, value} -> value end)
     |> Enum.take(1)
     |> List.first()
   end

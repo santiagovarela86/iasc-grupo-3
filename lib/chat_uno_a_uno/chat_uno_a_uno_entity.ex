@@ -21,7 +21,7 @@ defmodule ChatUnoAUnoEntity do
   end
 
   def actualizar_async(grupo_swarm) do
-    Task.async(fn-> actualizar(grupo_swarm) end)
+    Task.start(fn-> actualizar(grupo_swarm) end)
   end
 
   defp resolver_conflicto_mensajes(_key, {origen1, mensaje1, publicado1, modificado1}, {origen2, mensaje2, publicado2, modificado2}) do
