@@ -243,11 +243,6 @@ defmodule Usuario do
     {:reply, repuestaChat, state}
   end
 
-  def handle_cast({:informar_chat, chat_name}, state) do
-    UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
-    {:noreply, state}
-  end
-
   def handle_cast({:informar_grupo, nombre_grupo}, state) do
     UsuarioEntity.agregar_chat_de_grupo(state.nombre, nombre_grupo)
     {:noreply, state}
