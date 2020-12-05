@@ -35,7 +35,6 @@ defmodule Cliente do
     GenServer.call(pid,{:eliminar_mensaje, receiver, id_mensaje})
   end
 
-
   ############## GRUPOS ###################
 
 
@@ -69,8 +68,8 @@ defmodule Cliente do
     GenServer.call(pid, {:enviar_mensaje_seguro, receiver, mensaje}, @timeout)
   end
 
-  def obtener_chats_seguros(receiver, pid) do
-    GenServer.call(pid, {:obtener_chats_seguros, receiver})
+  def obtener_chats_seguros(sender, pid) do
+    GenServer.call(pid, {:obtener_chats_seguros, sender})
   end
 
   def build_name(nombre) do
@@ -156,13 +155,9 @@ defmodule Cliente do
     {:reply, state, state}
   end
 
-  def handle_call({:obtener_chats_seguros, receiver}, _from, state) do
-    :rpc.call(routeo_nodo(), Usuario, :obtener_chats_seguros, [
-      state.userName,
-      receiver
-    ])
-
-    {:reply, state, state}
+  def handle_call({:obtener_chats_seguros, sender}, _from, state) do
+    chats_seguros = :rpc.call(routeo_nodo(), Usuario, :obtener_chats_seguros, [sender])
+    {:reply, chats_seguros, state}
   end
 
   def handle_info(mensaje, state) do
