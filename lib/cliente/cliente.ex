@@ -100,7 +100,7 @@ defmodule Cliente do
   #################################################################################
 
   def handle_call({:registrar}, _from, state) do
-    :rpc.call(routeo_nodo(), UsuarioServer, :register_user, [state.userName])
+    :rpc.call(routeo_nodo(), UsuarioServer, :crear, [state.userName])
     {:reply, state, state}
   end
 
