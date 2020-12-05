@@ -15,7 +15,7 @@ defmodule ChatDeGrupoServer do
 
   def crear_grupo(nombre_grupo, usuario_admin) do
     IO.puts("CREANDO UN GRUPO")
-    GenServer.multi_call(Router.servers(), ChatDeGrupoServer, {:crear_grupo, nombre_grupo, usuario_admin})
+    GenServer.call(ChatDeGrupoServer, {:crear_grupo, nombre_grupo, usuario_admin})
   end
 
   def handle_call({:get_grupo, nombre_grupo}, _from, state) do

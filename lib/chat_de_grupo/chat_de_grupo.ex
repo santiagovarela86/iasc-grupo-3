@@ -32,12 +32,14 @@ defmodule ChatDeGrupo do
     GenServer.call(pid, {:get_messages})
   end
 
-  def editar_mensaje(idChatDestino, mensajeNuevo, idMensaje, idOrigen) do
-    GenServer.call(idChatDestino, {:editar_mensaje, mensajeNuevo, idMensaje, idOrigen})
+  def editar_mensaje(sender, grupo, mensaje_nuevo, id_mensaje) do
+    pid = ChatDeGrupoServer.get_grupo(grupo)
+    GenServer.call(pid, {:editar_mensaje, sender, mensaje_nuevo, id_mensaje})
   end
 
-  def eliminar_mensaje(idChatDestino, idMensaje, idOrigen) do
-    GenServer.call(idChatDestino, {:eliminar_mensaje, idMensaje, idOrigen})
+  def eliminar_mensaje(sender, grupo, id_mensaje) do
+    pid = ChatDeGrupoServer.get_grupo(grupo)
+    GenServer.call(pid, {:eliminar_mensaje, sender, id_mensaje})
   end
 
   def ascender_usuario(nombre_grupo, usuario_origen, usuario_ascendido) do
@@ -104,17 +106,20 @@ defmodule ChatDeGrupo do
 
   end
 
-  def handle_call({:editar_mensaje, mensajeNuevo, idMensaje, idOrigen}, _from, state) do
+  def handle_call({:editar_mensaje, sender, mensaje_nuevo, id_mensaje}, _from, state) do
     fn_a_ejecutar = fn ->
-      ChatDeGrupoEntity.modificar_mensaje(state.nombre_grupo, idOrigen, mensajeNuevo, idMensaje)
+      ChatDeGrupoEntity.modificar_mensaje(state.nombre_grupo, sender, mensaje_nuevo, id_mensaje)
+
+    {:reply, :ok, state}
     end
 
-    ejecutar_si_tiene_permiso(state.nombre_grupo, idOrigen, idMensaje, fn_a_ejecutar)
+    ejecutar_si_tiene_permiso(state.nombre_grupo, sender, id_mensaje, fn_a_ejecutar)
   end
 
-  def handle_call({:eliminar_mensaje, idMensaje, idOrigen}, _from, state) do
-    fn_a_ejecutar = fn -> ChatDeGrupoEntity.eliminar_mensaje(state.nombre_grupo, idMensaje) end
-    ejecutar_si_tiene_permiso(state.nombre_grupo, idOrigen, idMensaje, fn_a_ejecutar)
+  def handle_call({:eliminar_mensaje, sender, id_mensaje}, _from, state) do
+    fn_a_ejecutar = fn -> ChatDeGrupoEntity.eliminar_mensaje(state.nombre_grupo, id_mensaje) end
+    ejecutar_si_tiene_permiso(state.nombre_grupo, sender, id_mensaje, fn_a_ejecutar)
+    {:reply, :ok, state}
   end
 
   def handle_call({:get_messages}, _from, state) do
@@ -127,15 +132,15 @@ defmodule ChatDeGrupo do
   end
 
   def ejecutar_si_tiene_permiso(nombre_grupo, origen, id_mensaje, fn_a_ejecutar) do
-    case Enum.find(ChatDeGrupoEntity.get_mensajes(nombre_grupo), :not_found, fn m ->
-           m.mensaje_id == id_mensaje
-         end) do
-      :not_found ->
+    {_, mensajes} = ChatDeGrupoEntity.get_mensajes(nombre_grupo)
+
+    case Map.has_key?(mensajes, id_mensaje) do
+      false ->
         :not_found
-      mensaje ->
-        if(puede_borrar(nombre_grupo, mensaje, origen)) do
+      true ->
+        if(puede_borrar(nombre_grupo, Map.fetch!(mensajes, id_mensaje), origen)) do
           fn_a_ejecutar.()
-          :ok
+          #:ok
         else
           :forbidden
         end
