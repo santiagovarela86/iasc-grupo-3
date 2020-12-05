@@ -35,6 +35,10 @@ defmodule Cliente do
     GenServer.call(pid,{:eliminar_mensaje, receiver, id_mensaje})
   end
 
+  def obtener_mensajes(receiver, pid) do
+    GenServer.call(pid,{:obtener_mensajes, receiver})
+  end
+
   ############## GRUPOS ###################
 
 
@@ -44,6 +48,14 @@ defmodule Cliente do
 
   def agregar_usuario_a_grupo(usuario, nombre_grupo, pid) do
     GenServer.call(pid, {:agregar_usuario_a_grupo, usuario, nombre_grupo}, @timeout)
+  end
+
+  def eliminar_usuario_grupo(usuario, nombre_grupo, pid) do
+    GenServer.call(pid, {:eliminar_usuario_grupo, usuario, nombre_grupo}, @timeout)
+  end
+
+  def ascender_usuario_grupo(usuario, nombre_grupo, pid) do
+    GenServer.call(pid,{:ascender_usuario_grupo, usuario, nombre_grupo})
   end
 
   def enviar_mensaje_grupo(nombre_grupo, mensaje, pid) do
@@ -58,6 +70,11 @@ defmodule Cliente do
     GenServer.call(pid, {:eliminar_mensaje_grupo, nombre_grupo, id_mensaje}, @timeout)
   end
 
+  def obtener_mensajes_grupo(nombre_grupo, pid) do
+    GenServer.call(pid,{:obtener_mensajes_grupo, nombre_grupo})
+  end
+
+
   ############## CHAT SEGURO ###################
 
   def crear_chat_seguro(receiver, tiempo_limite, pid) do
@@ -68,8 +85,8 @@ defmodule Cliente do
     GenServer.call(pid, {:enviar_mensaje_seguro, receiver, mensaje}, @timeout)
   end
 
-  def obtener_chats_seguros(pid) do
-    GenServer.call(pid, {:obtener_chats_seguros})
+  def obtener_mensajes_seguro(receiver, pid) do
+    GenServer.call(pid,{:obtener_mensajes_seguro, receiver})
   end
 
   def build_name(nombre) do
@@ -82,7 +99,7 @@ defmodule Cliente do
   #################################################################################
 
   def handle_call({:registrar}, _from, state) do
-    :rpc.call(routeo_nodo(), UsuarioServer, :register_user, [state.userName])
+    :rpc.call(routeo_nodo(), UsuarioServer, :crear, [state.userName])
     {:reply, state, state}
   end
 
@@ -105,6 +122,11 @@ defmodule Cliente do
     {:reply, response, state}
   end
 
+  def handle_call({:obtener_mensajes, receiver}, _from, state) do
+    response = :rpc.call(routeo_nodo(), Usuario, :obtener_mensajes, [state.userName, receiver])
+    {:reply, response, state}
+  end
+
 
     ############## GRUPOS ###################
 
@@ -115,6 +137,16 @@ defmodule Cliente do
 
     def handle_call({:agregar_usuario_a_grupo, usuario, nombre_grupo}, _from, state) do
       :rpc.call(routeo_nodo(), Usuario, :agregar_usuario_a_grupo, [state.userName, usuario, nombre_grupo])
+      {:reply, state, state}
+    end
+
+    def handle_call({:eliminar_usuario_grupo, usuario, nombre_grupo}, _from, state) do
+      :rpc.call(routeo_nodo(), Usuario, :eliminar_usuario_grupo, [state.userName, usuario, nombre_grupo])
+      {:reply, state, state}
+    end
+
+    def handle_call({:ascender_usuario_grupo, usuario, nombre_grupo}, _from, state) do
+      :rpc.call(routeo_nodo(), Usuario, :ascender_usuario_grupo, [state.userName, usuario, nombre_grupo])
       {:reply, state, state}
     end
 
@@ -131,6 +163,11 @@ defmodule Cliente do
     def handle_call({:eliminar_mensaje_grupo, nombre_grupo, id_mensaje}, _from, state) do
       :rpc.call(routeo_nodo(), Usuario, :eliminar_mensaje_grupo, [state.userName, nombre_grupo, id_mensaje])
       {:reply, state, state}
+    end
+
+    def handle_call({:obtener_mensajes_grupo, nombre_grupo}, _from, state) do
+      response = :rpc.call(routeo_nodo(), Usuario, :obtener_mensajes_grupo, [state.userName, nombre_grupo])
+      {:reply, response, state}
     end
 
    ############## CHAT SEGURO ###################
@@ -155,9 +192,9 @@ defmodule Cliente do
     {:reply, state, state}
   end
 
-  def handle_call({:obtener_chats_seguros}, _from, state) do
-    chats_seguros = :rpc.call(routeo_nodo(), Usuario, :obtener_chats_seguros, [state.userName])
-    {:reply, chats_seguros, state}
+  def handle_call({:obtener_mensajes_seguro, receiver}, _from, state) do
+    response = :rpc.call(routeo_nodo(), Usuario, :obtener_mensajes_seguro, [state.userName, receiver])
+    {:reply, response, state}
   end
 
   def handle_info(mensaje, state) do
@@ -168,4 +205,5 @@ defmodule Cliente do
   defp routeo_nodo() do
     Router.route()
   end
+
 end
