@@ -4,5 +4,5 @@ config :logger, level: :error
 
 config :pigeon, ChatSeguroScheduler,
   jobs: [
-    {{:extended, "*/30 * * * *"}, {IO, :puts, ["Cada 30 segundos corre la limpieza de mensajes."]}}
+    {{:extended, "*/5"}, {IO, :puts, ["Cada cinco segundos (aproximadamente) corre la limpieza de mensajes."]}}
   ]
