@@ -48,14 +48,14 @@
 - Then you can start sending messages to other users, for instance, from "usuario1":
     - Cliente.enviar_mensaje("usuario2", "message", pid)
 
-- Or you can create a secure chat, specifying after which the message will be deleted, in this case, 60 seconds:
+- Or you can create a secure chat with another user, specifying after which the message will be deleted, in this case, 60 seconds:
     - Cliente.crear_chat_seguro("usuario2", 60, pid)
 
-- And then, send secure messages:
+- And then, send the other user secure messages:
     - Cliente.enviar_mensaje_seguro("usuario2", "a secure message", pid)
 
 - You can get all your secure messages this way:
-    - Clienteobtener_mensajes_seguro("usuario2", pid)
+    - Cliente.obtener_mensajes_seguro("usuario2", pid)
 
 <br>
 
