@@ -1,9 +1,0 @@
-{application,pigeon,
-             [{applications,[kernel,stdlib,elixir,logger,crypto,quantum,
-                             swarm]},
-              {description,"pigeon"},
-              {modules,['Elixir.ApplicationSupervisor','Elixir.Pigeon',
-                        'Elixir.Router','Elixir.RouterSupervisor']},
-              {registered,[]},
-              {vsn,"0.1.0"},
-              {mod,{'Elixir.Pigeon',[]}}]}.

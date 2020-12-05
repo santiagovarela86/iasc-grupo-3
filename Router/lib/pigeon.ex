@@ -3,7 +3,7 @@ defmodule Pigeon do
 
   def start(_type, _args) do
         IO.puts("Soy el router")
-        Router.start_link([])
+        ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
   end
 
   def connect_to_cluster() do

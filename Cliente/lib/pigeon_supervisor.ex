@@ -7,8 +7,7 @@ defmodule ApplicationSupervisor do
 
   def init(_init_arg) do
     children = [
-      ClienteSupervisor,
-      ApplicationSupervisor
+      ClienteSupervisor
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

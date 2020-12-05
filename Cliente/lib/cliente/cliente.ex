@@ -15,7 +15,7 @@ defmodule Cliente do
 
 
     Swarm.join({:cliente, name()}, self())
-    registrar(self())
+    registrarme()
     {:ok, state}
   end
 
@@ -30,6 +30,11 @@ defmodule Cliente do
 
   def registrar(pid) do
     GenServer.call(pid, {:registrar})
+  end
+
+  defp registrarme() do
+    :rpc.call(routeo_nodo(), UsuarioServer, :crear, [name()])
+    name()
   end
 
   ############## UNO A UNO ###################

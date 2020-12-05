@@ -4,7 +4,7 @@ defmodule Pigeon do
   def start(_type, _args) do
         IO.puts("Soy un cliente")
         connect_to_cluster()
-        {:ok, spawn(fn -> :ok end)}
+        ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
   end
 
   def connect_to_cluster() do
