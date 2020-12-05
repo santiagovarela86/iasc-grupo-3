@@ -12,7 +12,7 @@ defmodule Pigeon do
       "client" ->
         IO.puts("Soy un cliente")
         connect_to_cluster()
-        {:ok, spawn(fn -> :ok end)}
+        ClienteSupervisor.start_link(Cliente.name)
 
       "server" ->
         IO.puts("Soy un server")
