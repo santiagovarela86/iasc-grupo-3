@@ -7,7 +7,7 @@ defmodule Pigeon do
     case type do
       "router" ->
         IO.puts("Soy el router")
-        Router.start_link([])
+        RouterSupervisor.start_link([])
 
       "client" ->
         IO.puts("Soy un cliente")

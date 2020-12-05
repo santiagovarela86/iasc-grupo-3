@@ -9,6 +9,15 @@ defmodule Router do
     {:ok, init_arg}
   end
 
+  def child_spec(opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts]},
+      type: :worker,
+      restart: :transient
+    }
+  end
+
   def route() do
     GenServer.call({:global, __MODULE__}, :route)
   end
