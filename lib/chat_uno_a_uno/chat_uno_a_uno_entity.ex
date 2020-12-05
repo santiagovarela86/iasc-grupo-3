@@ -1,28 +1,23 @@
 defmodule ChatUnoAUnoEntity do
   def get_usuarios(chat) do
-    chat_id = Enum.sort(chat)
-    actualizar_async(chat_id)
-    Entity.primera_respuesta({:chat_uno_a_uno_agent, chat_id}, &ChatUnoAUnoAgent.get_usuarios/1)
+    actualizar_async(chat)
+    Entity.primera_respuesta({:chat_uno_a_uno_agent, chat}, &ChatUnoAUnoAgent.get_usuarios/1)
   end
   def get_mensajes(chat) do
-    chat_id = Enum.sort(chat)
     actualizar_async(chat)
-    Entity.primera_respuesta({:chat_uno_a_uno_agent, chat_id}, &ChatUnoAUnoAgent.get_mensajes/1)
+    Entity.primera_respuesta({:chat_uno_a_uno_agent, chat}, &ChatUnoAUnoAgent.get_mensajes/1)
   end
 
   def registrar_mensaje(chat, mensaje, origen) do
-    chat_id = Enum.sort(chat)
-    Entity.aplicar_cambio({:chat_uno_a_uno_agent, chat_id}, &ChatUnoAUnoAgent.registrar_mensaje(&1, mensaje, origen))
+    Entity.aplicar_cambio({:chat_uno_a_uno_agent, chat}, &ChatUnoAUnoAgent.registrar_mensaje(&1, mensaje, origen))
   end
 
   def eliminar_mensaje(chat, mensaje_id) do
-    chat_id = Enum.sort(chat)
-    Entity.aplicar_cambio({:chat_uno_a_uno_agent, chat_id}, &ChatUnoAUnoAgent.eliminar_mensaje(&1, mensaje_id))
+    Entity.aplicar_cambio({:chat_uno_a_uno_agent, chat}, &ChatUnoAUnoAgent.eliminar_mensaje(&1, mensaje_id))
   end
 
   def modificar_mensaje(chat, origen, mensaje_nuevo, mensaje_id) do
-    chat_id = Enum.sort(chat)
-    Entity.aplicar_cambio({:chat_uno_a_uno_agent, chat_id}, &ChatUnoAUnoAgent.modificar_mensaje(&1, origen, mensaje_nuevo, mensaje_id))
+    Entity.aplicar_cambio({:chat_uno_a_uno_agent, chat}, &ChatUnoAUnoAgent.modificar_mensaje(&1, origen, mensaje_nuevo, mensaje_id))
   end
 
   def actualizar_async(grupo_swarm) do

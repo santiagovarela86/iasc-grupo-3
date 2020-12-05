@@ -20,10 +20,10 @@ defmodule PigeonTest do
 
 
   test "Test crear chats" do
-    UsuarioServer.register_user("juan")
-    UsuarioServer.register_user("franco")
-    pidJuan = UsuarioServer.get_user("juan")
-    pidFranco = UsuarioServer.get_user("franco")
+    UsuarioServer.crear("juan")
+    UsuarioServer.crear("franco")
+    {_ok?, pidJuan} = UsuarioServer.get("juan")
+    {_ok?, pidFranco} = UsuarioServer.get("franco")
 
     chat_name = Usuario.iniciar_chat("juan", "franco")
 
@@ -42,11 +42,11 @@ defmodule PigeonTest do
 
 
   test "Test editar chats" do
-    UsuarioServer.register_user("fede")
-    UsuarioServer.register_user("guido")
+    UsuarioServer.crear("fede")
+    UsuarioServer.crear("guido")
 
-    pidFede = UsuarioServer.get_user("fede")
-    pidGuido = UsuarioServer.get_user("guido")
+    {_ok?, pidFede} = UsuarioServer.get("fede")
+    {_ok?, pidGuido} = UsuarioServer.get("guido")
 
     chat_name = Usuario.iniciar_chat("fede", "guido")
 

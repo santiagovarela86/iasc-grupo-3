@@ -20,7 +20,8 @@ defmodule Usuario do
   end
 
   defp get_pid(username) do
-    UsuarioServer.get_user(username)
+    {_ok?, pid} = UsuarioServer.get(username)
+    pid
   end
 
   def iniciar_chat(username, destinatario) do
@@ -29,7 +30,7 @@ defmodule Usuario do
   end
 
   def crear_grupo(username, nombre_grupo) do
-    pid = UsuarioServer.get_user(username)
+    pid = get_pid(username)
     GenServer.call(pid, {:crear_grupo, nombre_grupo})
   end
 
@@ -37,8 +38,8 @@ defmodule Usuario do
   #   GenServer.call(idChatDestino, {:agregar_usuario, usuario_origen, usuario})
   # end
 
-  def agregar_usuario_a_grupo(user_admin, username, nombre_grupo) do
-    pid = UsuarioServer.get_user(user_admin)
+  def agregar_usuario_a_grupo(_user_admin, username, nombre_grupo) do
+    pid = get_pid(username)
     GenServer.call(pid, {:agregar_usuario_a_grupo, username, nombre_grupo})
   end
 
@@ -53,7 +54,7 @@ defmodule Usuario do
   end
 
   def enviar_mensaje_grupo(origen, nombre_grupo, mensaje) do
-    pid = UsuarioServer.get_user(origen)
+    pid = get_pid(origen)
     GenServer.call(pid, {:enviar_mensaje_grupo, nombre_grupo, mensaje})
   end
 
@@ -83,17 +84,17 @@ defmodule Usuario do
   end
 
   def informar_grupo(nombre_grupo, username) do
-    pid = UsuarioServer.get_user(username)
+    pid = get_pid(username)
     GenServer.cast(pid, {:informar_grupo, nombre_grupo})
   end
 
   def editar_mensaje_grupo(origen, nombre_grupo, mensaje_nuevo, id_mensaje) do
-    pid = UsuarioServer.get_user(origen)
+    pid = get_pid(origen)
     GenServer.call(pid, {:editar_mensaje_grupo, nombre_grupo, mensaje_nuevo, id_mensaje})
   end
 
   def eliminar_mensaje_grupo(origen, nombre_grupo, id_mensaje) do
-    pid = UsuarioServer.get_user(origen)
+    pid = get_pid(origen)
     GenServer.call(pid, {:eliminar_mensaje_grupo, nombre_grupo, id_mensaje})
   end
 
@@ -103,35 +104,32 @@ defmodule Usuario do
 
 
   def handle_call({:crear_grupo, nombre_grupo}, _from, state) do
-    case ChatDeGrupoServer.crear_grupo(nombre_grupo, state.nombre) do
-      :already_exists ->
-        {:reply, :already_exists, state.nombre}
+    case ChatDeGrupoServer.crear(nombre_grupo, state.nombre) do
+      {:already_exists, _pid} ->
+        {:reply, :already_exists, state}
 
-      _ ->
+      {:ok, _} ->
         informar_grupo(nombre_grupo, state.nombre)
         {:reply, :ok, state}
     end
   end
 
   def handle_call({:crear_chat, destinatario}, _from, state) do
-    case ChatUnoAUnoServer.get_chat(state.nombre, destinatario) do
-      :not_found ->
-        chat_name = ChatUnoAUnoServer.register_chat(destinatario, state.nombre)
-        Usuario.informar_chat(chat_name, state.nombre, destinatario)
+    case ChatUnoAUnoServer.crear(destinatario, state.nombre) do
+      {:ok, _} ->
+        Usuario.informar_chat(MapSet.new([destinatario, state.nombre]), state.nombre, destinatario)
+        chat_name = MapSet.new([state.nombre, destinatario])
         UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
         {:reply, chat_name, state}
 
-      _ ->
-        {:reply, ChatUnoAUnoServer.build_chat_name(state.nombre, destinatario), state}
+      {:alreade_exists, _} ->{:reply, MapSet.new([state.nombre, destinatario]), state}
+      {:error, error} -> {:reply, error, state}
     end
   end
 
   def handle_call({:crear_chat_seguro, destinatario, tiempo_limite}, _from, state) do
-    UsuarioServer.get_user(destinatario)
-
-    chat_seguro_name =
-      ChatSeguroServer.register_chat_seguro(destinatario, state.nombre, tiempo_limite)
-
+    ChatSeguroServer.crear(destinatario, state.nombre, tiempo_limite)
+    chat_seguro_name = MapSet.new([destinatario, state.nombre])
     Usuario.informar_chat(chat_seguro_name, state.nombre, destinatario)
     UsuarioEntity.agregar_chat_seguros(state.nombre, chat_seguro_name)
     {:reply, chat_seguro_name, state}
@@ -180,16 +178,6 @@ defmodule Usuario do
     {:reply, chats, state}
   end
 
-  def handle_cast({:informar_chat, chat_name}, state) do
-    UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
-    {:noreply, state}
-  end
-
-  def handle_cast({:informar_grupo, nombre_grupo}, state) do
-    UsuarioEntity.agregar_chat_de_grupo(state.nombre, nombre_grupo)
-    {:noreply, state}
-  end
-
   def handle_call({:editar_mensaje_grupo, nombre_grupo, mensaje_nuevo, id_mensaje}, _from, state) do
     repuestaChat = ChatDeGrupo.editar_mensaje(state.nombre, nombre_grupo, mensaje_nuevo, id_mensaje)
     {:reply, repuestaChat, state}
@@ -198,6 +186,16 @@ defmodule Usuario do
   def handle_call({:eliminar_mensaje_grupo, nombre_grupo, id_mensaje}, _from, state) do
     repuestaChat = ChatDeGrupo.eliminar_mensaje(state.nombre, nombre_grupo, id_mensaje)
     {:reply, repuestaChat, state}
+  end
+
+  def handle_cast({:informar_chat, chat_name}, state) do
+    UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
+    {:noreply, state}
+  end
+
+  def handle_cast({:informar_grupo, nombre_grupo}, state) do
+    UsuarioEntity.agregar_chat_de_grupo(state.nombre, nombre_grupo)
+    {:noreply, state}
   end
 
 end

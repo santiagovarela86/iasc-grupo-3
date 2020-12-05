@@ -23,27 +23,27 @@ defmodule ChatDeGrupo do
   end
 
   def enviar_mensaje(sender, grupo, mensaje) do
-    pid = ChatDeGrupoServer.get_grupo(grupo)
+    {_ok?, pid} = ChatDeGrupoServer.get(grupo)
     GenServer.call(pid, {:enviar_mensaje, sender, mensaje})
   end
 
   def get_messages(grupo) do
-    pid = ChatDeGrupoServer.get_grupo(grupo)
+    {_ok?, pid} = ChatDeGrupoServer.get(grupo)
     GenServer.call(pid, {:get_messages})
   end
 
   def editar_mensaje(sender, grupo, mensaje_nuevo, id_mensaje) do
-    pid = ChatDeGrupoServer.get_grupo(grupo)
+    {_ok?, pid} = ChatDeGrupoServer.get(grupo)
     GenServer.call(pid, {:editar_mensaje, sender, mensaje_nuevo, id_mensaje})
   end
 
   def eliminar_mensaje(sender, grupo, id_mensaje) do
-    pid = ChatDeGrupoServer.get_grupo(grupo)
+    {_ok?, pid} = ChatDeGrupoServer.get(grupo)
     GenServer.call(pid, {:eliminar_mensaje, sender, id_mensaje})
   end
 
   def ascender_usuario(nombre_grupo, usuario_origen, usuario_ascendido) do
-    pid = ChatDeGrupoServer.get_grupo(nombre_grupo)
+    {_ok?, pid} = ChatDeGrupoServer.get(nombre_grupo)
     GenServer.call(pid, {:ascender_usuario, usuario_origen, usuario_ascendido})
   end
 
@@ -52,7 +52,7 @@ defmodule ChatDeGrupo do
   end
 
   def agregar_usuario(nombre_grupo, usuario_origen, usuario) do
-    pid = ChatDeGrupoServer.get_grupo(nombre_grupo)
+    {_ok?, pid} = ChatDeGrupoServer.get(nombre_grupo)
     GenServer.call(pid, {:agregar_usuario, usuario_origen, usuario})
   end
 

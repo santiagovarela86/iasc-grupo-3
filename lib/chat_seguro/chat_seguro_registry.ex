@@ -13,12 +13,12 @@ defmodule ChatSeguroRegistry do
     }
   end
 
-  def lookup_chat(chat_name) do
+  def lookup(chat_name) do
     Registry.lookup(ChatSeguroRegistry, chat_name)
   end
 
-  def build_name(chat_name) do
-    {:via, Registry, {ChatSeguroRegistry, chat_name}}
+  def build_name(usuario1, usuario2) do
+    {:via, Registry, {ChatSeguroRegistry, MapSet.new([usuario1, usuario2])}}
   end
 
 end

@@ -5,42 +5,49 @@ defmodule ChatUnoAUnoServer do
     GenServer.start_link(__MODULE__, [], name: ChatUnoAUnoServer)
   end
 
-  def init(args) do
-    {:ok, args}
+  def init(init_arg) do
+    {:ok, init_arg}
   end
 
-  def get_chat(username1, username2) do
-    GenServer.call(ChatUnoAUnoServer, {:get_chat, build_chat_name(username1, username2)})
+  def get(usuario1, usuario2) do
+    GenServer.call(ChatUnoAUnoServer, {:get_chat, usuario1, usuario2})
   end
 
-  def register_chat(username1, username2) do
-    GenServer.multi_call(Router.servers(), ChatUnoAUnoServer, {:register_chat, username1, username2})
+  def crear(usuario1, usuario2) do
+    IO.puts("CREANDO UN CHAT UNO A UNO")
+    GenServer.call(ChatUnoAUnoServer, {:register_chat, usuario1, usuario2})
   end
 
-  def handle_call({:get_chat, chat_name}, _from, state) do
-    case ChatUnoAUnoRegistry.lookup_chat(chat_name) do
-      [{chatPid, _}] -> {:reply, chatPid, state}
-      _ -> {:reply, :not_found, state}
+  def handle_call({:get, usuario1, usuario2}, _from, state) do
+    chat_id = MapSet.new([usuario1, usuario2])
+    case ChatUnoAUnoRegistry.lookup(chat_id) do
+      [{chatPid, _}] -> {:reply, {:ok, chatPid}, state}
+      []-> {
+        case Swarm.members({:chat_uno_a_uno_agent, chat_id}) do
+          [] -> {:reply, {:not_found, nil}, state}
+          _ ->
+            {_, agente} = ChatUnoAUnoAgent.start_link(usuario1, usuario2)
+            ServerEntity.copiar(agente, {:chat_uno_a_uno_agent, chat_id})
+            Swarm.join({:chat_uno_a_uno_agent, chat_id}, agente)
+            chatPid = ChatUnoAUnoSupervisor.start_child(chat_id)
+            {:reply, {:ok, chatPid}, state}
+        end
+      }
+      error -> {:reply, {:error, error}, state}
     end
   end
 
-  def handle_call({:register_chat, username1, username2}, _from, state) do
-    chat_name = build_chat_name(username1, username2)
-    IO.puts("registrar chat #{chat_name}")
-    {:ok, pidAgent} = ChatUnoAUnoAgent.start_link(username1, username2)
-    Swarm.join({:chat_uno_a_uno_agent, chat_name}, pidAgent)
-    ServerEntity.agregar_chat_uno_a_uno(chat_name)
-    #tendria que usar un supervisor para crear al agent
-    #tendria que usar un case, o el case ya hecho para cuando ya existe, o cuando no existe el grupo, etc?
-    case ChatUnoAUnoSupervisor.start_child(chat_name) do
-      {:ok, pidUnoAUno} -> Swarm.join({:chat_uno_a_uno, chat_name}, pidUnoAUno)
-      {:reply, chat_name, state}
-      {:error, {:already_started, _}} -> {:reply, chat_name, state}
-    end
+  def handle_call({:crear, usuario1, usuario2}, _from, state) do
+    case get(usuario1, usuario2) do
+    {:ok, pid} -> {:reply, {:already_exists, pid}, state}
+    {:not_found, nil} ->
+      {_, agente} = ChatUnoAUnoAgent.start_link(usuario1, usuario2)
+      chat_id = MapSet.new([usuario1, usuario2])
+      Swarm.join({:chat_uno_a_uno_agent, chat_id}, agente)
+      ServerEntity.agregar_chat_uno_a_uno(chat_id)
+      chatPid = ChatUnoAUnoSupervisor.start_child(chat_id)
+      {:reply, {:ok, chatPid}, state}
+    error -> {:reply, {:error, error}, state}
+   end
   end
-
-  def build_chat_name(username1, username2) do
-    Enum.sort([username1, username2])
-  end
-
 end
