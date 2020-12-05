@@ -63,7 +63,7 @@ defmodule ChatDeGrupo do
 
     fn(cliente) -> send(cliente, mensaje) end
     |> (&fn(usuario) -> Enum.each(Swarm.members({:cliente, usuario}), &1)end).()
-    |> (&Task.async_stream(MapSet.to_list(usuarios) -- [sender], &1)).()
+    |> (&Enum.each(usuarios, fn(usuario) -> Task.start(fn -> &1.(usuario) end) end)).()
 
     {:reply, :ok, state}
   end
