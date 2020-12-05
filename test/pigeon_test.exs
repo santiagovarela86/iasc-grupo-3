@@ -8,6 +8,13 @@ defmodule PigeonTest do
     assert(pid, "Not initialize")
   end
 
+  test "Start Router twice" do
+
+    {:ok, pid1} = BuilderHelper.makeARouter()
+    {:error, {:already_started, pid2}} = BuilderHelper.makeARouter()
+    assert(pid1 == pid2)
+  end
+
 
   test "Start a Server" do
 
