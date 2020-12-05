@@ -1,6 +1,6 @@
 import Config
 
-config :logger, level: :error
+config :logger, :level, :error
 
 config :pigeon, ChatSeguroScheduler,
   jobs: [

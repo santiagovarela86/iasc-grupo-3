@@ -2,19 +2,19 @@
 
 ## How to install the dependencies
 
-- Run "mix deps.get" in the project root folder.
+- Run "mix deps.get" in each project folder.
 
 <br>
 
 ## How to run the tests
 
-- Run "mix test" in the project root folder.
+- Run "mix test" in each project folder.
 
 <br>
 
 ## How to test the application using nodes
 
-- Go to the project root folder and open three different command lines there.
+- Go to the corresponding project folder and open a command line.
 
 - First the routers: 
    - If you want to use a single router node without fallback:
