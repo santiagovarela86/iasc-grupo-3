@@ -25,7 +25,7 @@ defmodule ChatUnoAUnoServer do
   def handle_call({:crear, usuario1, usuario2}, _from, state) do
     case get_private(usuario1, usuario2) do
     {:ok, pid} -> {:reply, {:already_exists, pid}, state}
-    {:not_found, nil} ->
+    {:not_found, _} ->
       {_, agente} = ChatUnoAUnoAgent.start_link(usuario1, usuario2)
       chat_id = MapSet.new([usuario1, usuario2])
       Swarm.join({:chat_uno_a_uno_agent, chat_id}, agente)
@@ -40,7 +40,7 @@ defmodule ChatUnoAUnoServer do
     chat_id = MapSet.new([usuario1, usuario2])
     case ChatUnoAUnoRegistry.lookup(chat_id) do
       [{chatPid, _}] -> {:ok, chatPid}
-      []-> {
+      []->
         case Swarm.members({:chat_uno_a_uno_agent, chat_id}) do
           [] -> {:not_found, nil}
           _ ->
@@ -50,7 +50,6 @@ defmodule ChatUnoAUnoServer do
             chatPid = ChatUnoAUnoSupervisor.start_child(chat_id)
             {:ok, chatPid}
         end
-      }
       error -> {:error, error}
     end
   end

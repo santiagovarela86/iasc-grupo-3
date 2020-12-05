@@ -38,7 +38,7 @@ defmodule UsuarioServer do
   def get_private(nombre) do
     case UsuarioRegistry.lookup(nombre) do
       [{pid, _}] -> {:ok, pid}
-      []-> {
+      []->
         case Swarm.members({:usuario_agent, nombre}) do
           [] -> {:not_found, nil}
           _ ->
@@ -48,7 +48,6 @@ defmodule UsuarioServer do
             pid = UsuarioSupervisor.start_child(nombre)
             {:ok, pid}
         end
-      }
       error -> {:error, error}
     end
   end

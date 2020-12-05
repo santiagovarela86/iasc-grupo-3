@@ -40,7 +40,7 @@ defmodule ChatDeGrupoServer do
   defp get_private(nombre_grupo) do
     case ChatDeGrupoRegistry.lookup(nombre_grupo) do
       [{chatPid, _}] -> {:ok, chatPid}
-      []-> {
+      []->
         case Swarm.members({:chat_grupo_agent, nombre_grupo}) do
           [] -> {:not_found, nil}
           _ ->
@@ -50,7 +50,6 @@ defmodule ChatDeGrupoServer do
             chatPid = ChatDeGrupoSupervisor.start_child(nombre_grupo)
             {:ok, chatPid}
         end
-      }
       error -> {:error, error}
     end
   end

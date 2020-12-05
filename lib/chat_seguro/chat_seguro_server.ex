@@ -40,7 +40,7 @@ defmodule ChatSeguroServer do
     chat_id = MapSet.new([usuario1, usuario2])
     case ChatSeguroRegistry.lookup(chat_id) do
       [{chatPid, _}] -> {:ok, chatPid}
-      []-> {
+      []->
         case Swarm.members({:chat_seguro_agent, chat_id}) do
           [] -> {:not_found, nil}
           _ ->
@@ -50,7 +50,6 @@ defmodule ChatSeguroServer do
             chatPid = ChatSeguroSupervisor.start_child(chat_id)
             {:ok, chatPid}
         end
-      }
       error -> {:error, error}
     end
   end
