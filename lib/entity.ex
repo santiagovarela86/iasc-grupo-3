@@ -16,9 +16,9 @@ defmodule Entity do
 
   def copiar(agente_copia, grupo_de_agentes) do
       case primera_respuesta(grupo_de_agentes, fn(a) -> a end) do
-        {:ok, agente_target} ->
+        nil -> {}
+        agente_target ->
           Agent.update(agente_copia, fn(_state) ->  Agent.get(agente_target, fn(state2) -> state2 end) end)
-          nil -> {}
     end
   end
 
@@ -33,14 +33,14 @@ defmodule Entity do
     Swarm.members(grupo_swarm)
     |> Task.async_stream(fn(agente) -> funcion.(agente) end, ordered: false)
     |> Stream.filter(fn({ok?, _}) -> ok? == :ok end)
+    #|> Stream.map(fn {_, value} -> value end)
     |> Enum.take(1)
     |> List.first()
   end
 
   def aplicar_cambio(grupo_swarm, funcion) do
-    Swarm.members(grupo_swarm)
-    |> Task.async_stream(fn(agente) -> funcion.(agente) end, ordered: false)
-    |> Enum.to_list()
+    Enum.each(Swarm.members(grupo_swarm), fn(agente) -> Task.start(fn -> funcion.(agente) end) end)
+    :ok
   end
 
   def consenso(grupo_swarm, getter) do

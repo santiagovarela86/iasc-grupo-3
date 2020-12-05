@@ -9,33 +9,48 @@ defmodule ChatDeGrupoServer do
     {:ok, init_arg}
   end
 
-  def get_grupo(nombre_grupo) do
-    GenServer.call(ChatDeGrupoServer, {:get_grupo, nombre_grupo})
+  def get(nombre_grupo) do
+    GenServer.call(ChatDeGrupoServer, {:get, nombre_grupo})
   end
 
-  def crear_grupo(nombre_grupo, usuario_admin) do
+  def crear(nombre_grupo, usuario_admin) do
     IO.puts("CREANDO UN GRUPO")
-    GenServer.multi_call(Router.servers(), ChatDeGrupoServer, {:crear_grupo, nombre_grupo, usuario_admin})
+    GenServer.call(ChatDeGrupoServer, {:crear, nombre_grupo, usuario_admin})
   end
 
-  def handle_call({:get_grupo, nombre_grupo}, _from, state) do
+  def handle_call({:get, nombre_grupo}, _from, state) do
+    {:reply, get_private(nombre_grupo), state}
+
+  end
+
+  def handle_call({:crear, nombre_grupo, usuario_admin}, _from, state) do
+   case get_private(nombre_grupo) do
+    {:ok, pid} -> {:reply, {:already_exists, pid}, state}
+    {:not_found, nil} ->
+      {_, agente} = ChatDeGrupoAgent.start_link(usuario_admin, nombre_grupo)
+      Swarm.join({:chat_grupo_agent, nombre_grupo}, agente)
+      ServerEntity.agregar_chat_de_grupo(nombre_grupo)
+      chatPid = ChatDeGrupoSupervisor.start_child(nombre_grupo)
+      {:reply, {:ok, chatPid}, state}
+    error -> {:reply, {:error, error}, state}
+   end
+  end
+
+
+  defp get_private(nombre_grupo) do
     case ChatDeGrupoRegistry.lookup(nombre_grupo) do
-      [{chatPid, _}] -> {:reply, chatPid, state}
-      _ -> {:reply, :not_found, state}
-    end
-  end
-
-  def handle_call({:crear_grupo, nombre_grupo, usuario_admin}, _from, state) do
-    case ChatDeGrupoSupervisor.start_child(nombre_grupo) do
-      {:ok, pidGrupo} ->
-        {:ok, pidAgent} = ChatDeGrupoAgent.start_link(usuario_admin, nombre_grupo)
-        ServerEntity.agregar_chat_de_grupo(nombre_grupo)
-        Swarm.join({:chat_grupo_agent, nombre_grupo}, pidAgent)
-        Swarm.join({:chat_grupo, nombre_grupo}, pidGrupo)
-        {:reply, nombre_grupo, state}
-
-      {:error, {:already_started, _}} ->
-        {:reply, :already_exists, state}
+      [{chatPid, _}] -> {:ok, chatPid}
+      []->
+        case Swarm.members({:chat_grupo_agent, nombre_grupo}) do
+          [] -> {:not_found, nil}
+          _ ->
+            {_, agente} = ChatDeGrupoAgent.start_link(nil, nombre_grupo)
+            ServerEntity.copiar(agente, {:chat_grupo_agent, nombre_grupo})
+            Swarm.join({:chat_grupo_agent, nombre_grupo}, agente)
+            chatPid = ChatDeGrupoSupervisor.start_child(nombre_grupo)
+            {:ok, chatPid}
+        end
+      error -> {:error, error}
     end
   end
 

@@ -13,7 +13,7 @@ defmodule UsuarioRegistry do
     }
   end
 
-  def lookup_user(username) do
+  def lookup(username) do
     Registry.lookup(UsuarioRegistry, username)
   end
 

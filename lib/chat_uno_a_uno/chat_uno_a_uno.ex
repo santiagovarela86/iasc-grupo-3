@@ -51,7 +51,7 @@ defmodule ChatUnoAUno do
   end
 
 
-  def handle_call({:eliminar_mensaje, sender, id_mensaje}, _from, state) do
+  def handle_call({:eliminar_mensaje, _sender, id_mensaje}, _from, state) do
     ChatUnoAUnoEntity.eliminar_mensaje(state.chat_name, id_mensaje)
     {:reply, state, state}
   end
@@ -62,7 +62,8 @@ defmodule ChatUnoAUno do
   end
 
   defp get_chat_pid(username1, username2) do
-    ChatUnoAUnoServer.get_chat(username1, username2)
+    {_ok?, pid} = ChatUnoAUnoServer.get(username1, username2)
+    pid
   end
 
 end

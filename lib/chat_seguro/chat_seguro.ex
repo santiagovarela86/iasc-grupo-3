@@ -58,7 +58,8 @@ defmodule ChatSeguro do
   end
 
   defp get_chat_pid(username1, username2) do
-    ChatSeguroServer.get_chat(username1, username2)
+    {_ok?, id} = ChatSeguroServer.get(username1, username2)
+    id
   end
 
 end

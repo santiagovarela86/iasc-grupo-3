@@ -53,7 +53,7 @@ defmodule ServerEntity do
     MapSet.to_list(chats)
     |> Enum.each(fn chat ->
         if !Enum.any?(Swarm.members(chat),fn(pid) -> is_local(pid) end) do
-          {_, agente} = ChatUnoAUnoAgent.start_link(List.first(Mapset.to_list(chat)), List.last(Mapset.to_list(chat)))
+          {_, agente} = ChatUnoAUnoAgent.start_link(List.first(MapSet.to_list(chat)), List.last(MapSet.to_list(chat)))
           copiar(agente, {:chat_uno_a_uno_agent, chat})
           Swarm.join({:chat_uno_a_uno_agent, chat}, agente)
           ChatUnoAUnoSupervisor.start_child(chat)
@@ -64,7 +64,7 @@ defmodule ServerEntity do
     MapSet.to_list(chats)
     |> Enum.each(fn chat ->
         if !Enum.any?(Swarm.members(chat),fn(pid) -> is_local(pid) end) do
-          {_, agente} = ChatSeguroAgent.start_link(List.first(Mapset.to_list(chat)), List.last(Mapset.to_list(chat)), 0)
+          {_, agente} = ChatSeguroAgent.start_link(List.first(MapSet.to_list(chat)), List.last(MapSet.to_list(chat)), 0)
           copiar(agente, {:chat_seguro_agent, chat})
           Swarm.join({:chat_seguro_agent, chat}, agente)
           ChatSeguroSupervisor.start_child(chat)
@@ -75,7 +75,7 @@ defmodule ServerEntity do
     MapSet.to_list(chats)
     |> Enum.each(fn chat ->
         if !Enum.any?(Swarm.members(chat),fn(pid) -> is_local(pid) end) do
-          {_, agente} = ChatDeGrupoAgent.start_link(List.first(Mapset.to_list(chat)), List.last(Mapset.to_list(chat)))
+          {_, agente} = ChatDeGrupoAgent.start_link(List.first(MapSet.to_list(chat)), List.last(MapSet.to_list(chat)))
           copiar(agente, {:chat_grupo_agent, chat})
           Swarm.join({:chat_grupo_agent, chat}, agente)
           ChatDeGrupoSupervisor.start_child(chat)
@@ -90,7 +90,7 @@ defmodule ServerEntity do
   end
 
   def actualizar_async() do
-    Task.async(fn-> actualizar() end)
+    Task.start(fn-> actualizar() end)
   end
 
   defp actualizar() do
@@ -103,7 +103,7 @@ defmodule ServerEntity do
       Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
     end
 
-    if ! Entity.campo_actualizado(:server_agent, &ServerAgent.get_chats_de_grupo/1) do
+    if !Entity.campo_actualizado(:server_agent, &ServerAgent.get_chats_de_grupo/1) do
       agentes = Swarm.members(:server_agent)
       unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(ServerAgent.get_chats_de_grupo(otro_agente), acc) end
       reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end
@@ -111,7 +111,7 @@ defmodule ServerEntity do
       Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
     end
 
-    if ! Entity.campo_actualizado(:server_agent, &ServerAgent.get_chats_seguros/1) do
+    if !Entity.campo_actualizado(:server_agent, &ServerAgent.get_chats_seguros/1) do
       agentes = Swarm.members(:server_agent)
       unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(ServerAgent.get_chats_seguros(otro_agente), acc) end
       reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end
@@ -119,7 +119,7 @@ defmodule ServerEntity do
       Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
     end
 
-    if !Entity.campo_actualizado(:server_agent, &UsuarioEntity.get_chats_uno_a_uno/1) do
+    if !Entity.campo_actualizado(:server_agent, &ServerAgent.get_chats_uno_a_uno/1) do
       agentes = Swarm.members(:server_agent)
       unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(ServerAgent.get_chats_uno_a_uno(otro_agente), acc) end
       reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end

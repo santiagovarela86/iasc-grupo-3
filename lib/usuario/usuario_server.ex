@@ -5,46 +5,51 @@ defmodule UsuarioServer do
     GenServer.start_link(__MODULE__, [], name: UsuarioServer)
   end
 
-  def init(args) do
-    {:ok, args}
+  def init(init_arg) do
+    {:ok, init_arg}
   end
 
-  def get_user(username) do
-    GenServer.call(UsuarioServer, {:get_user, username})
+  def get(nombre) do
+    GenServer.call(UsuarioServer, {:get, nombre})
   end
 
-  def register_user(username) do
-    GenServer.multi_call(Router.servers(), UsuarioServer, {:register_user, username})
-    #GenServer.call(UsuarioServer, {:register_user, username})
+  def crear(nombre) do
+    IO.puts("CREANDO UN USUARIO")
+    GenServer.multi_call(Router.servers(), UsuarioServer, {:crear, nombre})
   end
 
-  # Registra usuario en este nodo, copiando el estado del resto del cluster
-  def init_user(user) do
-    GenServer.call(UsuarioServer, {:register_user, user})
+  def handle_call({:get, nombre}, _from, state) do
+    {:reply, get_private(nombre), state}
   end
 
-  def handle_call({:get_user, username}, _from, state) do
-    lookup = UsuarioRegistry.lookup_user(username)
-    result = case lookup do
-      [{userPid, _}] -> {:reply, userPid, state}
-      _ -> {:reply, :not_found, state}
+  def handle_call({:crear, nombre}, _from, state) do
+   case get_private(nombre) do
+    {:ok, pid} -> {:reply, {:already_exists, pid}, state}
+    {:not_found, nil} ->
+      {_, agente} = UsuarioAgent.start_link(nombre)
+      Swarm.join({:usuario_agent, nombre}, agente)
+      ServerEntity.agregar_usuario(nombre)
+      pid = UsuarioSupervisor.start_child(nombre)
+      {:reply, {:ok, pid}, state}
+    error -> {:reply, {:error, error}, state}
+   end
+  end
+
+  def get_private(nombre) do
+    case UsuarioRegistry.lookup(nombre) do
+      [{pid, _}] -> {:ok, pid}
+      []->
+        case Swarm.members({:usuario_agent, nombre}) do
+          [] -> {:not_found, nil}
+          _ ->
+            {_, agente} = UsuarioAgent.start_link(nombre)
+            ServerEntity.copiar(agente, {:usuario_agent, nombre})
+            Swarm.join({:usuario_agent, nombre}, agente)
+            pid = UsuarioSupervisor.start_child(nombre)
+            {:ok, pid}
+        end
+      error -> {:error, error}
     end
-    result
   end
 
-  def handle_call({:register_user, username}, _from, state) do
-    IO.puts("registrar user " <> username)
-    {:ok, pidAgent} = UsuarioAgent.start_link(username)
-    Entity.copiar(pidAgent, {:usuario_agent, username})
-    Swarm.join({:usuario_agent, username}, pidAgent)
-    ServerEntity.agregar_usuario(username)
-    #tendria que usar un supervisor para crear al agent
-    #tendria que usar un case, o el case ya hecho para cuando ya existe, o cuando no existe el grupo, etc?
-    case UsuarioSupervisor.start_child(username) do
-      {:ok, pid} ->
-      Swarm.join({:usuario, username}, pid)
-      {:reply, pid, state}
-      {:error, {:already_started, pid}} -> {:reply, pid, state}
-    end
-  end
 end

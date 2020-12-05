@@ -1,8 +1,5 @@
 defmodule ChatSeguroAgent do
   use Agent
-
-  @secure_suffix "~~~~~~SECURE"
-
   def start_link(usuario1, usuario2, tiempo_limite) do
     Agent.start_link(fn -> %{
       usuarios: MapSet.new([usuario1, usuario2]),
@@ -49,9 +46,7 @@ defmodule ChatSeguroAgent do
   end
 
   def build_name(usuario1, usuario2) do
-    #usuarios_en_orden = Enum.sort([usuario1, usuario2])
-    usuarios_en_orden = Enum.sort([usuario1, usuario2, @secure_suffix])
-    name = :crypto.hash(:md5, List.first(usuarios_en_orden) <> List.last(usuarios_en_orden) <> to_string(DateTime.utc_now)) |> Base.encode16()
+    name = :crypto.hash(:md5, usuario1 <> usuario2 <> "SEGURO" <> to_string(DateTime.utc_now)) |> Base.encode16()
     {:via, :swarm, name}
   end
 end
