@@ -82,6 +82,11 @@ defmodule Usuario do
     GenServer.call(pid, {:obtener_chats})
   end
 
+  def obtener_chats_seguros(username) do
+    pid = get_pid(username)
+    GenServer.call(pid, {:obtener_chats_seguros})
+  end
+
   def informar_grupo(nombre_grupo, username) do
     pid = UsuarioServer.get_user(username)
     GenServer.cast(pid, {:informar_grupo, nombre_grupo})
@@ -178,6 +183,11 @@ defmodule Usuario do
   def handle_call({:obtener_chats}, _from, state) do
     chats = UsuarioEntity.get_chats_uno_a_uno(state.nombre)
     {:reply, chats, state}
+  end
+
+  def handle_call({:obtener_chats_seguros}, _from, state) do
+    chats_seguros = UsuarioEntity.get_chats_seguros(state.nombre)
+    {:reply, chats_seguros, state}
   end
 
   def handle_cast({:informar_chat, chat_name}, state) do
