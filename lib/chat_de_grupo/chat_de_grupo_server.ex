@@ -19,25 +19,12 @@ defmodule ChatDeGrupoServer do
   end
 
   def handle_call({:get, nombre_grupo}, _from, state) do
-    case ChatDeGrupoRegistry.lookup(nombre_grupo) do
-      [{chatPid, _}] -> {:reply, {:ok, chatPid}, state}
-      []-> {
-        case Swarm.members({:chat_grupo_agent, nombre_grupo}) do
-          [] -> {:reply, {:not_found, nil}, state}
-          _ ->
-            {_, agente} = ChatDeGrupoAgent.start_link(nil, nombre_grupo)
-            ServerEntity.copiar(agente, {:chat_grupo_agent, nombre_grupo})
-            Swarm.join({:chat_grupo_agent, nombre_grupo}, agente)
-            chatPid = ChatDeGrupoSupervisor.start_child(nombre_grupo)
-            {:reply, {:ok, chatPid}, state}
-        end
-      }
-      error -> {:reply, {:error, error}, state}
-    end
+    {:reply, get_private(nombre_grupo), state}
+
   end
 
   def handle_call({:crear, nombre_grupo, usuario_admin}, _from, state) do
-   case get(nombre_grupo) do
+   case get_private(nombre_grupo) do
     {:ok, pid} -> {:reply, {:already_exists, pid}, state}
     {:not_found, nil} ->
       {_, agente} = ChatDeGrupoAgent.start_link(usuario_admin, nombre_grupo)
@@ -47,6 +34,25 @@ defmodule ChatDeGrupoServer do
       {:reply, {:ok, chatPid}, state}
     error -> {:reply, {:error, error}, state}
    end
+  end
+
+
+  defp get_private(nombre_grupo) do
+    case ChatDeGrupoRegistry.lookup(nombre_grupo) do
+      [{chatPid, _}] -> {:ok, chatPid}
+      []-> {
+        case Swarm.members({:chat_grupo_agent, nombre_grupo}) do
+          [] -> {:not_found, nil}
+          _ ->
+            {_, agente} = ChatDeGrupoAgent.start_link(nil, nombre_grupo)
+            ServerEntity.copiar(agente, {:chat_grupo_agent, nombre_grupo})
+            Swarm.join({:chat_grupo_agent, nombre_grupo}, agente)
+            chatPid = ChatDeGrupoSupervisor.start_child(nombre_grupo)
+            {:ok, chatPid}
+        end
+      }
+      error -> {:error, error}
+    end
   end
 
 end

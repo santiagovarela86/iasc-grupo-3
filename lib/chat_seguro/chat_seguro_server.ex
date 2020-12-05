@@ -10,35 +10,20 @@ defmodule ChatSeguroServer do
   end
 
   def get(usuario1, usuario2) do
-    GenServer.call(ChatSeguroServer, {:get_chat, usuario1, usuario2})
+    GenServer.call(ChatSeguroServer, {:get, usuario1, usuario2})
   end
 
   def crear(usuario1, usuario2, tiempo_limite) do
     IO.puts("CREANDO UN CHAT SEGURO")
-    GenServer.call(ChatSeguroServer, {:register_chat, usuario1, usuario2, tiempo_limite})
+    GenServer.call(ChatSeguroServer, {:crear, usuario1, usuario2, tiempo_limite})
   end
 
   def handle_call({:get, usuario1, usuario2}, _from, state) do
-    chat_id = MapSet.new([usuario1, usuario2])
-    case ChatSeguroRegistry.lookup(chat_id) do
-      [{chatPid, _}] -> {:reply, {:ok, chatPid}, state}
-      []-> {
-        case Swarm.members({:chat_seguro_agent, chat_id}) do
-          [] -> {:reply, {:not_found, nil}, state}
-          _ ->
-            {_, agente} = ChatSeguroAgent.start_link(usuario1, usuario2, 0)
-            ServerEntity.copiar(agente, {:chat_seguro_agent, chat_id})
-            Swarm.join({:chat_seguro_agent, chat_id}, agente)
-            chatPid = ChatSeguroSupervisor.start_child(chat_id)
-            {:reply, {:ok, chatPid}, state}
-        end
-      }
-      error -> {:reply, {:error, error}, state}
-    end
+    {:reply, get_private(usuario1, usuario2), state}
   end
 
   def handle_call({:crear, usuario1, usuario2, tiempo_limite}, _from, state) do
-    case get(usuario1, usuario2) do
+    case get_private(usuario1, usuario2) do
     {:ok, pid} -> {:reply, {:already_exists, pid}, state}
     {:not_found, nil} ->
       {_, agente} = ChatSeguroAgent.start_link(usuario1, usuario2, tiempo_limite)
@@ -49,5 +34,24 @@ defmodule ChatSeguroServer do
       {:reply, {:ok, chatPid}, state}
     error -> {:reply, {:error, error}, state}
    end
+  end
+
+  defp get_private(usuario1, usuario2) do
+    chat_id = MapSet.new([usuario1, usuario2])
+    case ChatSeguroRegistry.lookup(chat_id) do
+      [{chatPid, _}] -> {:ok, chatPid}
+      []-> {
+        case Swarm.members({:chat_seguro_agent, chat_id}) do
+          [] -> {:not_found, nil}
+          _ ->
+            {_, agente} = ChatSeguroAgent.start_link(usuario1, usuario2, 0)
+            ServerEntity.copiar(agente, {:chat_seguro_agent, chat_id})
+            Swarm.join({:chat_seguro_agent, chat_id}, agente)
+            chatPid = ChatSeguroSupervisor.start_child(chat_id)
+            {:ok, chatPid}
+        end
+      }
+      error -> {:error, error}
+    end
   end
 end

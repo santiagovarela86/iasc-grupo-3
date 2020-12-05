@@ -61,8 +61,8 @@
 ## How to test the application without using nodes
 
 - Run **iex -S mix** in the project folder
-- Register a user with "UsuarioServer.register_user("juan")"
-- Register another user with "UsuarioServer.register_user("franco")"
+- Register a user with "UsuarioServer.crear("juan")"
+- Register another user with "UsuarioServer.crear("franco")"
 - Get Juan's PID with "pidJuan = UsuarioServer.get_user("juan")"
 - Get Franco's PID with "pidFranco = UsuarioServer.get_user("franco")"
 - Create a chat with "chat_name = Usuario.iniciar_chat("juan", "franco")"
