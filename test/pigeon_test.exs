@@ -4,29 +4,41 @@ defmodule PigeonTest do
 
   test "Start a Router" do
 
-      case Router.start_link([]) do
-        {:ok, pid} ->  assert(pid, "Not initialize!")
-        {:already_started, pid} -> assert(pid, "Not initialize!")
-        {:error, reason} -> IO.puts "Error: #{reason}"
-      end
-
+    {:ok, pid} = BuilderHelper.makeARouter()
+    assert(pid, "Not initialize")
   end
 
 
   test "Start a Server" do
 
-    Pigeon.connect_to_cluster()
-    ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
-
+    BuilderHelper.makeAServer()
   end
 
   test "Start a Client" do
 
-    Pigeon.connect_to_cluster()
-    pid = spawn(fn -> :ok end)
+    {:ok, pid} = BuilderHelper.makeAClient()
     assert(pid, "Not initialize")
-    {:ok, pid}
+  end
 
+end
+
+defmodule BuilderHelper do
+
+  def makeAServer() do
+
+    Pigeon.connect_to_cluster()
+    ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
+  end
+
+  def makeARouter() do
+
+    Router.start_link([])
+  end
+
+  def makeAClient() do
+
+    Pigeon.connect_to_cluster()
+    {:ok, spawn(fn -> :ok end)}
   end
 
 end
