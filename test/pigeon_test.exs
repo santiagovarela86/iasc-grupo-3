@@ -14,8 +14,19 @@ defmodule PigeonTest do
 
 
   test "Start a Server" do
+
     Pigeon.connect_to_cluster()
     ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
-end
+
+  end
+
+  test "Start a Client" do
+
+    Pigeon.connect_to_cluster()
+    pid = spawn(fn -> :ok end)
+    assert(pid, "Not initialize")
+    {:ok, pid}
+
+  end
 
 end
