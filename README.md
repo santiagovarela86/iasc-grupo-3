@@ -54,6 +54,9 @@
 - And then, send secure messages:
     - Cliente.enviar_mensaje_seguro("usuario2", "a secure message", pid)
 
+- You can list all your secure chats:
+    - Cliente.obtener_chats_seguros(pid)    
+
 <br>
 
 ## DEPRECATED
