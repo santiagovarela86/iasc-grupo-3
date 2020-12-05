@@ -112,7 +112,8 @@ defmodule Cliente do
     GenServer.call(pid, {:enviar_mensaje_seguro, receiver, mensaje}, @timeout)
   end
 
-  def obtener_mensajes_seguro(receiver, pid) do
+  def obtener_mensajes_seguro(receiver) do
+    pid = List.first(Enum.to_list(Enum.filter(clientes_mios(), fn(pid) -> is_local(pid) end)))
     GenServer.call(pid,{:obtener_mensajes_seguro, receiver})
   end
 
