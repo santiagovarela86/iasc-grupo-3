@@ -7,7 +7,7 @@ defmodule ClienteSupervisor do
 
   def init(_init_arg) do
     children = [
-      Cliente
+      {Cliente, Cliente.name()}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

@@ -5,7 +5,6 @@ defmodule Pigeon do
         IO.puts("Soy un cliente")
         connect_to_cluster()
         {:ok, spawn(fn -> :ok end)}
-    end
   end
 
   def connect_to_cluster() do

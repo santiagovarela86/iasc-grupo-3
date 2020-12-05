@@ -12,8 +12,8 @@ defmodule Cliente do
       userName: userName,
       pid: nil
     }
-
     Swarm.join({:cliente, userName}, self())
+    registrar(self)
     {:ok, state}
   end
 
@@ -160,4 +160,10 @@ defmodule Cliente do
   defp routeo_nodo() do
     Router.route()
   end
+
+  def name() do
+    List.first(String.split(to_string(Node.self),"@"))
+  end
+
+
 end
