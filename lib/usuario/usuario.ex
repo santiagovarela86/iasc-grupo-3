@@ -147,7 +147,7 @@ defmodule Usuario do
         UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
         {:reply, chat_name, state}
 
-      {:alreade_exists, _} ->{:reply, MapSet.new([state.nombre, destinatario]), state}
+      {:already_exists, _} ->{:reply, MapSet.new([state.nombre, destinatario]), state}
       {:error, error} -> {:reply, error, state}
     end
   end

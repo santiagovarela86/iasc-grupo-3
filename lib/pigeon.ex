@@ -7,7 +7,7 @@ defmodule Pigeon do
     case type do
       "router" ->
         IO.puts("Soy el router")
-        Router.start_link([])
+        RouterSupervisor.start_link([])
 
       "client" ->
         IO.puts("Soy un cliente")
@@ -17,7 +17,10 @@ defmodule Pigeon do
       "server" ->
         IO.puts("Soy un server")
         connect_to_cluster()
-        ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
+        init = ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
+        ServerAgentSupervisor.start_server_agent()
+        ServerEntity.copiar_faltantes()
+        init
 
         _ -> ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
     end

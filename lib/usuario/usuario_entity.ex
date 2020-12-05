@@ -32,7 +32,7 @@ defmodule UsuarioEntity do
     Entity.aplicar_cambio({:usuario_agent, usuario}, &UsuarioAgent.agregar_chat_de_grupo(&1, chat))
   end
   def actualizar_async(grupo_swarm) do
-    Task.async(fn-> actualizar(grupo_swarm) end)
+    Task.start(fn-> actualizar(grupo_swarm) end)
   end
 
   defp actualizar(grupo_swarm) do
