@@ -18,7 +18,8 @@ defmodule ApplicationSupervisor do
       ChatDeGrupoRegistry,
       ChatSeguroRegistry,
       ChatSeguroSupervisor,
-      ChatSeguroServer
+      ChatSeguroServer,
+      ChatSeguroScheduler
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
