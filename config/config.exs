@@ -1,8 +1,8 @@
 import Config
 
-config :logger, :level, :error
+config :logger, level: :error
 
 config :pigeon, ChatSeguroScheduler,
   jobs: [
-    {"* * * * *", {IO, :puts, ["HOLA"]}}
+    {{:extended, "*/30 * * * *"}, {IO, :puts, ["Cada 30 segundos corre la limpieza de mensajes."]}}
   ]
