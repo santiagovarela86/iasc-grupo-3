@@ -30,7 +30,8 @@ defmodule ChatDeGrupoServer do
       {_, agente} = ChatDeGrupoAgent.start_link(usuario_admin, nombre_grupo)
       Swarm.join({:chat_grupo_agent, nombre_grupo}, agente)
       ServerEntity.agregar_chat_de_grupo(nombre_grupo)
-      chatPid = ChatDeGrupoSupervisor.start_child(nombre_grupo)
+      {:ok, chatPid} = ChatDeGrupoSupervisor.start_child(nombre_grupo)
+      Swarm.join({:chat_de_grupo, nombre_grupo}, chatPid)
       {:reply, {:ok, chatPid}, state}
     error -> {:reply, {:error, error}, state}
    end
@@ -47,7 +48,8 @@ defmodule ChatDeGrupoServer do
             {_, agente} = ChatDeGrupoAgent.start_link(nil, nombre_grupo)
             ServerEntity.copiar(agente, {:chat_grupo_agent, nombre_grupo})
             Swarm.join({:chat_grupo_agent, nombre_grupo}, agente)
-            chatPid = ChatDeGrupoSupervisor.start_child(nombre_grupo)
+            {:ok, chatPid} = ChatDeGrupoSupervisor.start_child(nombre_grupo)
+            Swarm.join({:chat_de_grupo, nombre_grupo}, chatPid)
             {:ok, chatPid}
         end
       error -> {:error, error}

@@ -29,7 +29,8 @@ defmodule ChatUnoAUnoServer do
       chat_id = MapSet.new([usuario1, usuario2])
       Swarm.join({:chat_uno_a_uno_agent, chat_id}, agente)
       ServerEntity.agregar_chat_uno_a_uno(chat_id)
-      chatPid = ChatUnoAUnoSupervisor.start_child(chat_id)
+      {:ok, chatPid} = ChatUnoAUnoSupervisor.start_child(chat_id)
+      Swarm.join({:chat_uno_a_uno, chat_id}, chatPid)
       {:reply, {:ok, chatPid}, state}
     error -> {:reply, {:error, error}, state}
    end
@@ -46,7 +47,8 @@ defmodule ChatUnoAUnoServer do
             {_, agente} = ChatUnoAUnoAgent.start_link(usuario1, usuario2)
             ServerEntity.copiar(agente, {:chat_uno_a_uno_agent, chat_id})
             Swarm.join({:chat_uno_a_uno_agent, chat_id}, agente)
-            chatPid = ChatUnoAUnoSupervisor.start_child(chat_id)
+            {:ok, chatPid} = ChatUnoAUnoSupervisor.start_child(chat_id)
+            Swarm.join({:chat_uno_a_uno, chat_id}, chatPid)
             {:ok, chatPid}
         end
       error -> {:error, error}

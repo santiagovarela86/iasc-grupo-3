@@ -30,7 +30,8 @@ defmodule ChatSeguroServer do
       chat_id = MapSet.new([usuario1, usuario2])
       Swarm.join({:chat_seguro_agent, chat_id}, agente)
       ServerEntity.agregar_chat_seguro(chat_id)
-      chatPid = ChatSeguroSupervisor.start_child(chat_id)
+      {:ok, chatPid} = ChatSeguroSupervisor.start_child(chat_id)
+      Swarm.join({:chat_seguro, chat_id}, chatPid)
       {:reply, {:ok, chatPid}, state}
     error -> {:reply, {:error, error}, state}
    end
@@ -47,7 +48,8 @@ defmodule ChatSeguroServer do
             {_, agente} = ChatSeguroAgent.start_link(usuario1, usuario2, 0)
             ServerEntity.copiar(agente, {:chat_seguro_agent, chat_id})
             Swarm.join({:chat_seguro_agent, chat_id}, agente)
-            chatPid = ChatSeguroSupervisor.start_child(chat_id)
+            {:ok, chatPid} = ChatSeguroSupervisor.start_child(chat_id)
+            Swarm.join({:chat_seguro, chat_id}, chatPid)
             {:ok, chatPid}
         end
       error -> {:error, error}

@@ -29,7 +29,8 @@ defmodule UsuarioServer do
       {_, agente} = UsuarioAgent.start_link(nombre)
       Swarm.join({:usuario_agent, nombre}, agente)
       ServerEntity.agregar_usuario(nombre)
-      pid = UsuarioSupervisor.start_child(nombre)
+      {:ok, pid} = UsuarioSupervisor.start_child(nombre)
+      Swarm.join({:usuario, nombre}, pid)
       {:reply, {:ok, pid}, state}
     error -> {:reply, {:error, error}, state}
    end
@@ -45,7 +46,8 @@ defmodule UsuarioServer do
             {_, agente} = UsuarioAgent.start_link(nombre)
             ServerEntity.copiar(agente, {:usuario_agent, nombre})
             Swarm.join({:usuario_agent, nombre}, agente)
-            pid = UsuarioSupervisor.start_child(nombre)
+            {:ok, pid} = UsuarioSupervisor.start_child(nombre)
+            Swarm.join({:usuario, nombre}, pid)
             {:ok, pid}
         end
       error -> {:error, error}
