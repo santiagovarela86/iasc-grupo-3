@@ -114,6 +114,16 @@ defmodule Cliente do
     GenServer.call(pid, {:enviar_mensaje_seguro, receiver, mensaje}, @timeout)
   end
 
+  def editar_mensaje_seguro(receiver, mensaje_nuevo, id_mensaje) do
+    pid = List.first(Enum.to_list(Enum.filter(clientes_mios(), fn(pid) -> is_local(pid) end)))
+    GenServer.call(pid, {:editar_mensaje_seguro, receiver, mensaje_nuevo, id_mensaje}, @timeout)
+  end
+
+  def eliminar_mensaje_seguro(receiver, id_mensaje) do
+    pid = List.first(Enum.to_list(Enum.filter(clientes_mios(), fn(pid) -> is_local(pid) end)))
+    GenServer.call(pid, {:eliminar_mensaje_seguro, receiver, id_mensaje}, @timeout)
+  end
+
   def obtener_mensajes_seguro(receiver) do
     pid = List.first(Enum.to_list(Enum.filter(clientes_mios(), fn(pid) -> is_local(pid) end)))
     GenServer.call(pid,{:obtener_mensajes_seguro, receiver})
@@ -219,6 +229,17 @@ defmodule Cliente do
       mensaje_seguro
     ])
 
+    {:reply, state, state}
+  end
+
+
+  def handle_call({:editar_mensaje_seguro, receiver, mensaje_nuevo, id_mensaje}, _from, state) do
+    :rpc.call(routeo_nodo(), Usuario, :editar_mensaje_seguro, [name(), receiver, mensaje_nuevo, id_mensaje])
+    {:reply, state, state}
+  end
+
+  def handle_call({:eliminar_mensaje_seguro, receiver, id_mensaje}, _from, state) do
+    :rpc.call(routeo_nodo(), Usuario, :eliminar_mensaje_seguro, [name(), receiver, id_mensaje])
     {:reply, state, state}
   end
 

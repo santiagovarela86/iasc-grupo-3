@@ -123,6 +123,17 @@ defmodule Usuario do
     GenServer.call(pid, {:eliminar_mensaje_grupo, nombre_grupo, id_mensaje})
   end
 
+  def editar_mensaje_seguro(origen, destinatario, mensaje_nuevo, id_mensaje) do
+    pid = get_pid(origen)
+    GenServer.call(pid, {:editar_mensaje_seguro, destinatario, mensaje_nuevo, id_mensaje})
+  end
+
+  def eliminar_mensaje_seguro(origen, destinatario, id_mensaje) do
+    pid = get_pid(origen)
+    GenServer.call(pid, {:eliminar_mensaje_seguro, destinatario, id_mensaje})
+  end
+
+
 #################################################################
 ######################## PRIVATE ################################
 #################################################################
@@ -238,9 +249,24 @@ defmodule Usuario do
     {:reply, repuestaChat, state}
   end
 
+  def handle_call({:editar_mensaje_seguro, destinatario, mensaje_nuevo, id_mensaje}, _from, state) do
+    repuestaChat = ChatSeguro.editar_mensaje(state.nombre, destinatario, mensaje_nuevo, id_mensaje)
+    {:reply, repuestaChat, state}
+  end
+
   def handle_call({:eliminar_mensaje_grupo, nombre_grupo, id_mensaje}, _from, state) do
     repuestaChat = ChatDeGrupo.eliminar_mensaje(state.nombre, nombre_grupo, id_mensaje)
     {:reply, repuestaChat, state}
+  end
+
+  def handle_call({:eliminar_mensaje_seguro, destinatario, id_mensaje}, _from, state) do
+    repuestaChat = ChatSeguro.eliminar_mensaje(state.nombre, destinatario, id_mensaje)
+    {:reply, repuestaChat, state}
+  end
+
+  def handle_cast({:informar_chat, chat_name}, state) do
+    UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
+    {:noreply, state}
   end
 
   def handle_cast({:informar_grupo, nombre_grupo}, state) do
