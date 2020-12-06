@@ -34,14 +34,10 @@
   - Usuario1
     - type=client iex --sname usuario1 -S mix (Linux)
     - $env:type = 'client'; iex.bat --sname usuario1 --werl -S mix (Windows)
-    - {:ok, pid} = Cliente.start_link("usuario1")
-    - Cliente.registrar(pid)
 
   - Usuario2
     - type=client iex --sname usuario2 -S mix (Linux)
     - $env:type = 'client'; iex.bat --sname usuario2 --werl -S mix (Windows)
-    - {:ok, pid} = Cliente.start_link("usuario2")
-    - Cliente.registrar(pid)
 
 - You can create as many users/clients as you want.
 
@@ -55,7 +51,7 @@
     - Cliente.enviar_mensaje_seguro("usuario2", "a secure message")
 
 - You can get all your secure messages this way:
-    - Cliente.obtener_mensajes_seguro("usuario2", pid)
+    - Cliente.obtener_mensajes_seguro("usuario2")
 
 <br>
 
@@ -74,3 +70,12 @@
 - Send a secure message with "Usuario.enviar_mensaje_seguro("juan", "franco", "holus seguro")"
 - Get the user's chats with "Usuario.obtener_chats("juan")"
 - Get the user's chat messages "ChatUnoAUno.get_messages("juan","franco")"
+
+## DEPRECATED
+
+- Then the clients: 
+  - Usuario1
+    - type=client iex --sname usuario1 -S mix (Linux)
+    - $env:type = 'client'; iex.bat --sname usuario1 --werl -S mix (Windows)
+    - {:ok, pid} = Cliente.start_link("usuario1")
+    - Cliente.registrar(pid)

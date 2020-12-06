@@ -54,7 +54,8 @@ defmodule Cliente do
     GenServer.call(pid,{:eliminar_mensaje, receiver, id_mensaje})
   end
 
-  def obtener_mensajes(receiver, pid) do
+  def obtener_mensajes(receiver) do
+    pid = List.first(Enum.to_list(Enum.filter(clientes_mios(), fn(pid) -> is_local(pid) end)))
     GenServer.call(pid,{:obtener_mensajes, receiver})
   end
 
@@ -95,7 +96,8 @@ defmodule Cliente do
     GenServer.call(pid, {:eliminar_mensaje_grupo, nombre_grupo, id_mensaje}, @timeout)
   end
 
-  def obtener_mensajes_grupo(nombre_grupo, pid) do
+  def obtener_mensajes_grupo(nombre_grupo) do
+    pid = List.first(Enum.to_list(Enum.filter(clientes_mios(), fn(pid) -> is_local(pid) end)))
     GenServer.call(pid,{:obtener_mensajes_grupo, nombre_grupo})
   end
 
@@ -112,7 +114,8 @@ defmodule Cliente do
     GenServer.call(pid, {:enviar_mensaje_seguro, receiver, mensaje}, @timeout)
   end
 
-  def obtener_mensajes_seguro(receiver, pid) do
+  def obtener_mensajes_seguro(receiver) do
+    pid = List.first(Enum.to_list(Enum.filter(clientes_mios(), fn(pid) -> is_local(pid) end)))
     GenServer.call(pid,{:obtener_mensajes_seguro, receiver})
   end
 

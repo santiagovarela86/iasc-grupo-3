@@ -1,6 +1,5 @@
 defmodule ChatSeguro do
   use GenServer
-  import Crontab.CronExpression
 
   def start_link(chat_name) do
     GenServer.start_link(__MODULE__, chat_name, name: {:via, Registry, {ChatSeguroRegistry, chat_name}})
@@ -8,7 +7,6 @@ defmodule ChatSeguro do
 
   def init(chat_name) do
     state = %{chat_name: chat_name}
-    ChatSeguroScheduler.add_job(~e[1 * * * *], fn -> IO.puts "tick" end)
     {:ok, state}
   end
 
@@ -39,6 +37,11 @@ defmodule ChatSeguro do
     GenServer.call(idChatDestino, {:eliminar_mensaje, idMensaje, idOrigen})
   end
 
+  def eliminar_mensajes_expirados(sender, receiver) do
+    pid = get_chat_pid(sender, receiver)
+    GenServer.call(pid, {:eliminar_mensajes_expirados})
+  end
+
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
     ChatSeguroEntity.registrar_mensaje(state.chat_name, mensaje, sender)
     {:reply, state, state}
@@ -51,6 +54,11 @@ defmodule ChatSeguro do
 
   def handle_call({:eliminar_mensaje, idMensaje, _idOrigen}, _from, state) do
     ChatSeguroEntity.eliminar_mensaje(state.chat_name,idMensaje)
+    {:reply, state, state}
+  end
+
+  def handle_call({:eliminar_mensajes_expirados}, _from, state) do
+    ChatSeguroEntity.eliminar_mensajes_expirados(state.chat_name)
     {:reply, state, state}
   end
 
