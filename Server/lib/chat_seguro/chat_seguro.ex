@@ -1,5 +1,10 @@
 defmodule ChatSeguro do
   use GenServer
+  import Crontab.CronExpression
+  @every30seconds ~e[*/30]e
+  @every10seconds ~e[*/10]e
+  @every5seconds ~e[*/5]e
+  @everysecond ~e[*/1]e
 
   def start_link(chat_name) do
     GenServer.start_link(__MODULE__, chat_name, name: {:via, Registry, {ChatSeguroRegistry, chat_name}})
@@ -7,6 +12,8 @@ defmodule ChatSeguro do
 
   def init(chat_name) do
     state = %{chat_name: chat_name}
+    [{usuario1,_},{usuario2,_}] = Map.to_list(chat_name.map)
+    create_job(usuario1, usuario2)
     {:ok, state}
   end
 
@@ -73,6 +80,16 @@ defmodule ChatSeguro do
   defp get_chat_pid(username1, username2) do
     {_ok?, id} = ChatSeguroServer.get(username1, username2)
     id
+  end
+
+  defp create_job(usuario1, usuario2) do
+    ChatSeguroScheduler.new_job()
+      |> Quantum.Job.set_schedule(@everysecond)
+      |> Quantum.Job.set_overlap(false)
+      |> Quantum.Job.set_task({ChatSeguro, :eliminar_mensajes_expirados, [usuario1, usuario2]})
+      |> ChatSeguroScheduler.add_job()
+
+    #IO.puts("DEBUG: Se creo el job de eliminado de mensajes.")
   end
 
 end
