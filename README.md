@@ -14,7 +14,9 @@
 
 ## How to test the application using nodes
 
-- Go to the corresponding project folder and open a command line.
+- Quick option (Windows): run ".\1R1S2C.ps1" in a Powershell command line, it will start 4 Elixir Processes in a simple configuration (1 Router, 1 Server, 2 Clients).
+
+- Or, go to the corresponding project folder and open a command line.
 
 - First the routers: 
    - If you want to use a single router node without fallback:
