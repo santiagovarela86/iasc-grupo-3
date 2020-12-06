@@ -33,7 +33,8 @@ defmodule ChatSeguroServer do
       ServerEntity.agregar_chat_seguro(chat_id)
       chatPid = ChatSeguroSupervisor.start_child(chat_id)
       #ChatSeguroScheduler.add_job({"~e[*/30 * * * * *]"}, GenServer.call(chatPid, {:eliminar_mensajes_expirados, usuario1, usuario2}))
-      #ChatSeguroScheduler.add_job("* * * * *", fn -> :ok end)
+      #ChatSeguroScheduler.add_job({"~e[*/30 * * * * *]", fn -> IO.puts "tick" end})
+      #ChatSeguroScheduler.test()
       {:reply, {:ok, chatPid}, state}
     error -> {:reply, {:error, error}, state}
    end
