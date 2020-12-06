@@ -1,6 +1,5 @@
 defmodule Pigeon do
   use Application
-  import Crontab.CronExpression
 
   def start(_type, _args) do
     IO.puts("Soy un server")
@@ -8,7 +7,6 @@ defmodule Pigeon do
     init = ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
     ServerAgentSupervisor.start_server_agent()
     ServerEntity.copiar_faltantes()
-    ChatSeguroScheduler.add_job({~e[* * * * *], {IO, :puts, ["hoola"]}})
     init
   end
 

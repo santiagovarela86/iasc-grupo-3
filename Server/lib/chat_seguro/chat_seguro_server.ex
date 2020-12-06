@@ -1,6 +1,7 @@
 defmodule ChatSeguroServer do
   use GenServer
   import Crontab.CronExpression
+  @every30seconds = ~e[*/30 * * * * *]e
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, [], name: ChatSeguroServer)
@@ -32,9 +33,12 @@ defmodule ChatSeguroServer do
       Swarm.join({:chat_seguro_agent, chat_id}, agente)
       ServerEntity.agregar_chat_seguro(chat_id)
       chatPid = ChatSeguroSupervisor.start_child(chat_id)
-      #ChatSeguroScheduler.add_job({"~e[*/30 * * * * *]"}, GenServer.call(chatPid, {:eliminar_mensajes_expirados, usuario1, usuario2}))
-      #ChatSeguroScheduler.add_job({"~e[*/30 * * * * *]", fn -> IO.puts "tick" end})
-      #ChatSeguroScheduler.test()
+
+      ChatSeguroScheduler.new_job()
+      |> Quantum.Job.set_schedule(@every30seconds)
+      |> Quantum.Job.set_task(fn -> IO.puts("Hello QUANTUM!") end)
+      |> ChatSeguroScheduler.add_job()
+
       {:reply, {:ok, chatPid}, state}
     error -> {:reply, {:error, error}, state}
    end
