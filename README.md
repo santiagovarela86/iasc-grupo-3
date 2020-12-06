@@ -46,13 +46,13 @@
 - You can create as many users/clients as you want.
 
 - Then you can start sending messages to other users, for instance, from "usuario1":
-    - Cliente.enviar_mensaje("usuario2", "message", pid)
+    - Cliente.enviar_mensaje("usuario2", "message")
 
 - Or you can create a secure chat with another user, specifying after which the message will be deleted, in this case, 60 seconds:
-    - Cliente.crear_chat_seguro("usuario2", 60, pid)
+    - Cliente.crear_chat_seguro("usuario2", 60)
 
 - And then, send the other user secure messages:
-    - Cliente.enviar_mensaje_seguro("usuario2", "a secure message", pid)
+    - Cliente.enviar_mensaje_seguro("usuario2", "a secure message")
 
 - You can get all your secure messages this way:
     - Cliente.obtener_mensajes_seguro("usuario2", pid)

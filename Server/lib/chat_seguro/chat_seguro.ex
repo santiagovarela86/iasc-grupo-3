@@ -1,5 +1,6 @@
 defmodule ChatSeguro do
   use GenServer
+  import Crontab.CronExpression
 
   def start_link(chat_name) do
     GenServer.start_link(__MODULE__, chat_name, name: {:via, Registry, {ChatSeguroRegistry, chat_name}})
@@ -7,6 +8,7 @@ defmodule ChatSeguro do
 
   def init(chat_name) do
     state = %{chat_name: chat_name}
+    ChatSeguroScheduler.add_job(~e[1 * * * *], fn -> IO.puts "tick" end)
     {:ok, state}
   end
 
