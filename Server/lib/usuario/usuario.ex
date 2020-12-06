@@ -224,6 +224,11 @@ defmodule Usuario do
     {:reply, chats, state}
   end
 
+  def handle_cast({:informar_chat, chat_name}, state) do
+    UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
+    {:noreply, state}
+  end
+
   def handle_call({:obtener_mensajes, destinatario}, _from, state) do
     mensajes = ChatUnoAUno.get_messages(state.nombre, destinatario)
     {:reply, mensajes, state}

@@ -2,72 +2,63 @@ defmodule PigeonTest do
   use ExUnit.Case
   doctest Pigeon
 
-  def init(init_arg) do
-    {:ok, init_arg}
-  end
 
-  test "Start a Router" do
+  # test "Test -> Crear, Editar y Eliminar mensajes" do
+  #   {:ok, pidUsuario} = Usuario.start_link(:usuario1, [])
+  #   chatCreado = Usuario.iniciar_chat(pidUsuario, :usuario2)
 
-    {:ok, pid} = BuilderHelper.makeARouter()
-    assert(pid, "Not initialize")
-  end
+  #   respuestaChat = Usuario.enviar_mensaje(pidUsuario, :usuario2, "holaaa")
+  #   assert respuestaChat == %{mensajes: [usuario1: "holaaa"], usuarios: [:usuario2 | :usuario1]}
 
-  test "Start Router twice" do
+  #   respuestaUpdate = Usuario.editar_mensaje(pidUsuario, :usuario2, "chau", 0)
+  #   assert respuestaUpdate == %{mensajes: [usuario1: "chau"], usuarios: [:usuario2 | :usuario1]}
 
-    {:ok, pid1} = BuilderHelper.makeARouter()
-    {:error, {:already_started, pid2}} = BuilderHelper.makeARouter()
-    assert(pid1 == pid2)
-  end
+  #   Usuario.enviar_mensaje(pidUsuario, :usuario2, "perro")
+  #   respuestaDelete = Usuario.eliminar_mensaje(:usuario1, :usuario2, "perror")
+  #   assert respuestaDelete == %{mensajes: [usuario1: "perro"], usuarios: [:usuario2 | :usuario1]}
+  # end
 
 
-  test "Start a Server" do
+  test "Test crear chats" do
+    UsuarioServer.crear("juan")
+    UsuarioServer.crear("franco")
+    {_ok?, pidJuan} = UsuarioServer.get("juan")
+    {_ok?, pidFranco} = UsuarioServer.get("franco")
 
-    BuilderHelper.makeAServer()
-  end
+    chat_name = Usuario.iniciar_chat("juan", "franco")
 
-  test "Start a Client" do
+    Usuario.enviar_mensaje("juan", "franco", "holus")
+    Usuario.enviar_mensaje("franco", "juan", "hola Juan, como va?")
 
-    {:ok, pid} = BuilderHelper.makeAClient()
-    assert(pid, "Not initialize")
-  end
+    chats = Usuario.obtener_chats("juan")
+    assert chats == [{["franco", "juan"], "franco"}]
 
-  test "Simple Chat" do
-    GenServer.start_link(__MODULE__, PigeonTest)
-    {:ok, routerPid} = BuilderHelper.makeARouter()
-    {:error, {:already_started, serverPid}} = BuilderHelper.makeAServer()
-    {:ok, cPid1} = BuilderHelper.makeAClient()
-    {:ok, cPid2} = BuilderHelper.makeAClient()
-    {:ok, clientPid1} = BuilderHelper.makeAUser("user1")
-    {:ok, clientPid2} = BuilderHelper.makeAUser("user2")
-    assert(clientPid1 != clientPid2)
+    chats = Usuario.obtener_chats("franco")
+    assert chats == [{["franco", "juan"], "juan"}]
+
+    mensajes = ChatUnoAUno.get_messages("juan", "franco")
 
   end
 
-end
 
-defmodule BuilderHelper do
+  test "Test editar chats" do
+    UsuarioServer.crear("fede")
+    UsuarioServer.crear("guido")
 
-  def makeAServer() do
+    {_ok?, pidFede} = UsuarioServer.get("fede")
+    {_ok?, pidGuido} = UsuarioServer.get("guido")
 
-    Pigeon.connect_to_cluster()
-    ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
-  end
+    chat_name = Usuario.iniciar_chat("fede", "guido")
 
-  def makeARouter() do
+    idChat = Usuario.enviar_mensaje("fede", "guido", "holus")
+    idChat2 = Usuario.enviar_mensaje("guido", "fede", "hola Fede, como va?")
 
-    Router.start_link([])
-  end
+    respuestaUpdate = Usuario.editar_mensaje("fede", "guido" , "chau", idChat)
 
-  def makeAClient() do
+    assert respuestaUpdate == %{mensajes: [{idChat, "fede", "chau"}, {idChat2, "guido", "hola Fede, como va?"}], usuarios: ["guido" , "fede"]}
 
-    Pigeon.connect_to_cluster()
-    {:ok, spawn(fn -> :ok end)}
 
-  end
+ end
 
-  def makeAUser(named) do
-
-    Cliente.start_link(named)
-  end
 
 end

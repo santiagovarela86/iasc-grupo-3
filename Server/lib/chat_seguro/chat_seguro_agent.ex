@@ -41,6 +41,14 @@ defmodule ChatSeguroAgent do
     ChatAgent.eliminar_mensaje(agente, mensaje_id)
   end
 
+  def eliminar_mensajes_expirados(agente) do
+    messages = ChatAgent.get_mensajes(agente)
+    message_list = Map.to_list(messages)
+    filtered_list = Enum.filter(message_list, fn({id, {_, _, msg_date, _}}) -> DateTime.diff(DateTime.utc_now, msg_date, :second) > get_tiempo_limite(agente) end)
+    Enum.each(filtered_list, fn({id, {_, _, _, _}}) -> eliminar_mensaje(agente, id) end)
+    #IO.puts("DEBUG: Se terminó de ejecutar el borrado de mensajes expirados.")
+  end
+
   def modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id) do
     ChatAgent.modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id)
   end
