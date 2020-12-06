@@ -24,5 +24,7 @@ alias backToScriptFolder="cd ${projectFolder}"
 
 new ./Router/start_router1.sh
 
+new ./Server/start_server1.sh
+
 # Ending Program
 echo "IASC Program - End"
