@@ -67,6 +67,6 @@ defmodule ChatSeguroServer do
       |> Quantum.Job.set_task({ChatSeguro, :eliminar_mensajes_expirados, [usuario1, usuario2]})
       |> ChatSeguroScheduler.add_job()
 
-    IO.puts("DEBUG: Se creo el job de eliminado de mensajes.")
+    #IO.puts("DEBUG: Se creo el job de eliminado de mensajes.")
   end
 end
