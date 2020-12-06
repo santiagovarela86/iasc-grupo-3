@@ -41,6 +41,7 @@ defmodule ChatSeguro do
 
   def eliminar_mensajes_expirados(sender, receiver) do
     pid = get_chat_pid(sender, receiver)
+    IO.puts("DEBUG: Se llamó al borrado de mensajes expirados.")
     GenServer.cast(pid, {:eliminar_mensajes_expirados})
   end
 
