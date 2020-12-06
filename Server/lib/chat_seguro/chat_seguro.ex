@@ -39,7 +39,7 @@ defmodule ChatSeguro do
 
   def eliminar_mensajes_expirados(sender, receiver) do
     pid = get_chat_pid(sender, receiver)
-    GenServer.call(pid, {:eliminar_mensajes_expirados})
+    GenServer.cast(pid, {:eliminar_mensajes_expirados})
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
@@ -57,9 +57,9 @@ defmodule ChatSeguro do
     {:reply, state, state}
   end
 
-  def handle_call({:eliminar_mensajes_expirados}, _from, state) do
+  def handle_cast({:eliminar_mensajes_expirados}, state) do
     ChatSeguroEntity.eliminar_mensajes_expirados(state.chat_name)
-    {:reply, state, state}
+    {:noreply, state}
   end
 
   def handle_call({:get_messages}, _from, state) do
