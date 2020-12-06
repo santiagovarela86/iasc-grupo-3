@@ -26,5 +26,9 @@ new ./Router/start_router1.sh
 
 new ./Server/start_server1.sh
 
+new ./Cliente/start_client1.sh
+
+new ./Cliente/start_client2.sh
+
 # Ending Program
 echo "IASC Program - End"
