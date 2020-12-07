@@ -25,8 +25,15 @@ defmodule Usuario do
   end
 
   def iniciar_chat(username, destinatario) do
+    IO.puts("DEBUG B1: ")
+	IO.puts(inspect(username))
+	IO.puts("DEBUG B2: ")
+	IO.puts(inspect(destinatario))
     pid = get_pid(username)
+    IO.puts("DEBUG B3: ")
+	IO.puts(inspect(pid))
     GenServer.call(pid, {:crear_chat, destinatario})
+    IO.puts("DEBUG B4: ")
   end
 
   def crear_grupo(username, nombre_grupo) do
@@ -151,11 +158,32 @@ defmodule Usuario do
   end
 
   def handle_call({:crear_chat, destinatario}, _from, state) do
+  
+    IO.puts("DEBUG B5: ")
+	IO.puts(inspect(destinatario))
+	IO.puts("DEBUG B6: ")
+	IO.puts(inspect(_from))
+    IO.puts("DEBUG B7: ")
+	IO.puts(inspect(state))
+  
     case ChatUnoAUnoServer.crear(destinatario, state.nombre) do
+        
       {:ok, _} ->
+        
+        IO.puts("DEBUG B8: ")
+       
         Usuario.informar_chat(MapSet.new([destinatario, state.nombre]), state.nombre, destinatario)
+        
+        IO.puts("DEBUG B9: ")
+        
         chat_name = MapSet.new([state.nombre, destinatario])
+        
+        IO.puts("DEBUG B10: ")
+        
         UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
+        
+        IO.puts("DEBUG B11: ")
+        
         {:reply, chat_name, state}
 
       {:already_exists, _} ->{:reply, MapSet.new([state.nombre, destinatario]), state}
