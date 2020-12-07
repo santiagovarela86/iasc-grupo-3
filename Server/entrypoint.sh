@@ -1,2 +1,2 @@
 #!/bin/bash
-iex --sname server1@server.internal -S mix
+iex --sname server1 -S mix

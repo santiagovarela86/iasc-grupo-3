@@ -8,7 +8,7 @@ services:
     networks:
       iasc-network:
         aliases:
-          - router.internal
+          - router
 
   server:
     build: ./Server
@@ -17,7 +17,7 @@ services:
     networks:
       iasc-network:
         aliases:
-          - server.internal
+          - server
     depends_on:
       - router
 

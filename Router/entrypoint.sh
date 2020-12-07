@@ -1,2 +1,2 @@
 #!/bin/bash
-iex --sname router-1@router.internal -S mix
+iex --sname router-1 -S mix
