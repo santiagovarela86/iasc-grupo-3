@@ -3,7 +3,7 @@ version: "3.7"
 services:
   router1:
     build: ./Router
-    entrypoint: ["iex", "--sname", "router@router1", "--erl", "'-config config/router-1'", "-S", "mix"]
+    entrypoint: ["iex", "--sname", "router@router1", "--cookie", "useasecurepasswordhere", "-S", "mix"]
     stdin_open: true
     tty: true
     networks:
@@ -11,25 +11,25 @@ services:
         aliases:
           - router1
           
-  router2:
-    build: ./router
-    entrypoint: ["iex", "--sname", "router@router2", "--erl", "'-config config/router-2'", "-S", "mix"]
-    stdin_open: true
-    tty: true
-    networks:
-      iasc-network:
-        aliases:
-          - router2
+  # router2:
+    # build: ./router
+    # entrypoint: ["iex", "--sname", "router@router2", "--erl", "'-config config/router-2'", "-S", "mix"]
+    # stdin_open: true
+    # tty: true
+    # networks:
+      # iasc-network:
+        # aliases:
+          # - router2
           
-  router3:
-    build: ./Router
-    entrypoint: ["iex", "--sname", "router@router3", "--erl", "'-config config/router-3'", "-S", "mix"]
-    stdin_open: true
-    tty: true
-    networks:
-      iasc-network:
-        aliases:
-          - router3
+  # router3:
+    # build: ./Router
+    # entrypoint: ["iex", "--sname", "router@router3", "--erl", "'-config config/router-3'", "-S", "mix"]
+    # stdin_open: true
+    # tty: true
+    # networks:
+      # iasc-network:
+        # aliases:
+          # - router3
 
   server1:
     build: ./Server
@@ -40,10 +40,6 @@ services:
       iasc-network:
         aliases:
           - server1
-    #depends_on:
-    #  - router1
-    #  - router2
-    #  - router3
       
   # server2:
     # build: ./Server
@@ -54,10 +50,6 @@ services:
       # iasc-network:
         # aliases:
           # - server2
-    # #depends_on:
-    # #  - router1
-    # #  - router2
-    # #  - router3
       
   # server3:
     # build: ./Server
@@ -68,10 +60,6 @@ services:
       # iasc-network:
         # aliases:
           # - server3
-    # #depends_on:
-    # #  - router1
-    # #  - router2
-    # #  - router3
       
   usuario1:
     build: ./Cliente
@@ -82,10 +70,6 @@ services:
       iasc-network:
         aliases:
           - usuario1
-    #depends_on:
-    #  - server1
-    #  - server2
-    #  - server3
 
   usuario2:
     build: ./Cliente
@@ -96,10 +80,6 @@ services:
       iasc-network:
         aliases:
           - usuario2
-    #depends_on:
-    #  - server1
-    #  - server2
-    #  - server3
       
   # usuario3:
     # build: ./Cliente
@@ -110,10 +90,6 @@ services:
       # iasc-network:
         # aliases:
           # - usuario3
-    # #depends_on:
-    # #  - server1
-    # #  - server2
-    # #  - server3
 
 networks:
   iasc-network:
