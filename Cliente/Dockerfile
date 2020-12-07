@@ -28,4 +28,4 @@ EXPOSE 4369
 # Exposed ports for clustering
 EXPOSE 9100-9155
 
-CMD ["/bin/bash", "/app/entrypoint.sh"]
+#CMD ["/bin/bash", "/app/entrypoint.sh"]

@@ -1,36 +1,119 @@
 version: "3.7"
 
 services:
-  router:
+  router1:
     build: ./Router
+    entrypoint: ["iex", "--sname", "router@router1", "--cookie", "useasecurepasswordhere", "-S", "mix"]
     stdin_open: true
     tty: true
     networks:
       iasc-network:
         aliases:
-          - router
+          - router1
+          
+  router2:
+    build: ./Router
+    entrypoint: ["iex", "--sname", "router@router2", "--cookie", "useasecurepasswordhere", "-S", "mix"]
+    stdin_open: true
+    tty: true
+    networks:
+      iasc-network:
+        aliases:
+          - router2
+          
+  router3:
+    build: ./Router
+    entrypoint: ["iex", "--sname", "router@router3", "--cookie", "useasecurepasswordhere", "-S", "mix"]
+    stdin_open: true
+    tty: true
+    networks:
+      iasc-network:
+        aliases:
+          - router3
 
-  server:
+  server1:
     build: ./Server
+    entrypoint: ["iex", "--sname", "server@server1", "--cookie", "useasecurepasswordhere", "-S", "mix"]
     stdin_open: true
     tty: true
     networks:
       iasc-network:
         aliases:
-          - server
+          - server1
     depends_on:
-      - router
+      - router1
+      - router2
+      - router3
       
-  usuario:
-    build: ./Cliente
+  server2:
+    build: ./Server
+    entrypoint: ["iex", "--sname", "server@server2", "--cookie", "useasecurepasswordhere", "-S", "mix"]
     stdin_open: true
     tty: true
     networks:
       iasc-network:
         aliases:
-          - usuario
+          - server2
     depends_on:
-      - server
+      - router1
+      - router2
+      - router3
+      
+  server3:
+    build: ./Server
+    entrypoint: ["iex", "--sname", "server@server3", "--cookie", "useasecurepasswordhere", "-S", "mix"]
+    stdin_open: true
+    tty: true
+    networks:
+      iasc-network:
+        aliases:
+          - server3
+    depends_on:
+      - router1
+      - router2
+      - router3
+      
+  usuario1:
+    build: ./Cliente
+    entrypoint: ["iex", "--sname", "usuario@usuario1", "--cookie", "useasecurepasswordhere", "-S", "mix"]
+    stdin_open: true
+    tty: true
+    networks:
+      iasc-network:
+        aliases:
+          - usuario1
+    depends_on:
+      - server1
+      - server2
+      - server3
+
+  usuario2:
+    build: ./Cliente
+    entrypoint: ["iex", "--sname", "usuario@usuario2", "--cookie", "useasecurepasswordhere", "-S", "mix"]
+    stdin_open: true
+    tty: true
+    networks:
+      iasc-network:
+        aliases:
+          - usuario2
+    depends_on:
+      - server1
+      - server2
+      - server3
+      
+  usuario3:
+    build: ./Cliente
+    entrypoint: ["iex", "--sname", "usuario@usuario3", "--cookie", "useasecurepasswordhere", "-S", "mix"]
+    stdin_open: true
+    tty: true
+    networks:
+      iasc-network:
+        aliases:
+          - usuario3
+    depends_on:
+      - server1
+      - server2
+      - server3
 
 networks:
   iasc-network:
