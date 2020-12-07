@@ -26,9 +26,6 @@ defmodule UsuarioServer do
    case get_private(nombre) do
     {:ok, pid} -> {:reply, {:already_exists, pid}, state}
     {:not_found, nil} ->
-      {_, agente} = UsuarioAgent.start_link(nombre)
-      Swarm.join({:usuario_agent, nombre}, agente)
-      ServerEntity.agregar_usuario(nombre)
       {:ok, pid} = UsuarioSupervisor.start_child(nombre)
       Swarm.join({:usuario, nombre}, pid)
       {:reply, {:ok, pid}, state}
@@ -43,9 +40,6 @@ defmodule UsuarioServer do
         case Swarm.members({:usuario_agent, nombre}) do
           [] -> {:not_found, nil}
           _ ->
-            {_, agente} = UsuarioAgent.start_link(nombre)
-            ServerEntity.copiar(agente, {:usuario_agent, nombre})
-            Swarm.join({:usuario_agent, nombre}, agente)
             {:ok, pid} = UsuarioSupervisor.start_child(nombre)
             Swarm.join({:usuario, nombre}, pid)
             {:ok, pid}

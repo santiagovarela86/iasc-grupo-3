@@ -1,12 +1,19 @@
 defmodule ChatSeguro do
   use GenServer
 
-  def start_link(chat_name) do
-    GenServer.start_link(__MODULE__, chat_name, name: {:via, Registry, {ChatSeguroRegistry, chat_name}})
+  def start_link([chat_name, tiempo_limite]) do
+    GenServer.start_link(__MODULE__, [chat_name, tiempo_limite],
+      name: {:via, Registry, {ChatSeguroRegistry, chat_name}}
+    )
   end
 
-  def init(chat_name) do
+  def init([chat_name, tiempo_limite]) do
     state = %{chat_name: chat_name}
+    [usuario1, usuario2] = MapSet.to_list(chat_name)
+    {_, agente} = ChatSeguroAgent.start_link(usuario1, usuario2, tiempo_limite)
+    ServerEntity.agregar_chat_seguro(chat_name)
+    ServerEntity.copiar(agente, {:chat_seguro_agent, chat_name})
+    Swarm.join({:chat_seguro_agent, chat_name}, agente)
     {:ok, state}
   end
 
@@ -29,11 +36,11 @@ defmodule ChatSeguro do
     GenServer.call(pid, {:get_messages})
   end
 
-  def editar_mensaje(idChatDestino, mensajeNuevo, idMensaje ,idOrigen) do
+  def editar_mensaje(idChatDestino, mensajeNuevo, idMensaje, idOrigen) do
     GenServer.call(idChatDestino, {:editar_mensaje, mensajeNuevo, idMensaje, idOrigen})
   end
 
-  def eliminar_mensaje(idChatDestino, idMensaje ,idOrigen) do
+  def eliminar_mensaje(idChatDestino, idMensaje, idOrigen) do
     GenServer.call(idChatDestino, {:eliminar_mensaje, idMensaje, idOrigen})
   end
 
@@ -43,12 +50,12 @@ defmodule ChatSeguro do
   end
 
   def handle_call({:editar_mensaje, mensajeNuevo, idMensaje, idOrigen}, _from, state) do
-    ChatSeguroEntity.modificar_mensaje(state.chat_name, idOrigen , mensajeNuevo, idMensaje)
+    ChatSeguroEntity.modificar_mensaje(state.chat_name, idOrigen, mensajeNuevo, idMensaje)
     {:reply, state, state}
   end
 
   def handle_call({:eliminar_mensaje, idMensaje, _idOrigen}, _from, state) do
-    ChatSeguroEntity.eliminar_mensaje(state.chat_name,idMensaje)
+    ChatSeguroEntity.eliminar_mensaje(state.chat_name, idMensaje)
     {:reply, state, state}
   end
 
@@ -61,5 +68,4 @@ defmodule ChatSeguro do
     {_ok?, id} = ChatSeguroServer.get(username1, username2)
     id
   end
-
 end

@@ -25,12 +25,10 @@ defmodule ChatUnoAUnoServer do
     case get_private(usuario1, usuario2) do
     {:ok, pid} -> {:reply, {:already_exists, pid}, state}
     {:not_found, _} ->
-      {_, agente} = ChatUnoAUnoAgent.start_link(usuario1, usuario2)
       chat_id = MapSet.new([usuario1, usuario2])
-      Swarm.join({:chat_uno_a_uno_agent, chat_id}, agente)
-      ServerEntity.agregar_chat_uno_a_uno(chat_id)
       {:ok, chatPid} = ChatUnoAUnoSupervisor.start_child(chat_id)
       Swarm.join({:chat_uno_a_uno, chat_id}, chatPid)
+      Task.start(fn () -> GenServer.multi_call(Router.servers(Node.self), ChatUnoAUnoServer, {:crear, usuario1, usuario2}) end)
       {:reply, {:ok, chatPid}, state}
     error -> {:reply, {:error, error}, state}
    end
@@ -44,9 +42,6 @@ defmodule ChatUnoAUnoServer do
         case Swarm.members({:chat_uno_a_uno_agent, chat_id}) do
           [] -> {:not_found, nil}
           _ ->
-            {_, agente} = ChatUnoAUnoAgent.start_link(usuario1, usuario2)
-            ServerEntity.copiar(agente, {:chat_uno_a_uno_agent, chat_id})
-            Swarm.join({:chat_uno_a_uno_agent, chat_id}, agente)
             {:ok, chatPid} = ChatUnoAUnoSupervisor.start_child(chat_id)
             Swarm.join({:chat_uno_a_uno, chat_id}, chatPid)
             {:ok, chatPid}

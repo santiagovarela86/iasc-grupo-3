@@ -12,6 +12,15 @@ defmodule UsuarioAgent do
     )
   end
 
+  def child_spec(nombre) do
+      %{
+        id: nombre,
+        start: {__MODULE__, :start_link, [nombre]},
+        type: :worker,
+        restart: :transient
+      }
+  end
+
   def get_nombre(agente) do
     Agent.get(agente, &Map.get(&1, :nombre))
   end

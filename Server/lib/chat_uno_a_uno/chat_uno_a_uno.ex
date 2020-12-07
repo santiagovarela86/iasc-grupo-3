@@ -7,6 +7,11 @@ defmodule ChatUnoAUno do
 
   def init(chat_name) do
     state = %{chat_name: chat_name}
+    [usuario1, usuario2] = MapSet.to_list(chat_name)
+    {_, agente} = ChatUnoAUnoAgent.start_link(usuario1, usuario2)
+    ServerEntity.agregar_chat_uno_a_uno(chat_name)
+    ServerEntity.copiar(agente, {:chat_uno_a_uno_agent, chat_name})
+    Swarm.join({:chat_uno_a_uno_agent, chat_name}, agente)
     {:ok, state}
   end
 

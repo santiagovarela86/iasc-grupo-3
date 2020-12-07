@@ -9,9 +9,8 @@ defmodule ChatSeguroSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def start_child(chat_name) do
-    spec = {ChatSeguro, chat_name}
+  def start_child(chat_name, tiempo_limite) do
+    spec = {ChatSeguro, [chat_name, tiempo_limite]}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
-
 end

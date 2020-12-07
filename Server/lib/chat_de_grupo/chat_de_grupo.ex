@@ -1,15 +1,18 @@
 defmodule ChatDeGrupo do
   use GenServer
 
-  def start_link(nombre_grupo) do
-    GenServer.start_link(__MODULE__, nombre_grupo, name: ChatDeGrupoRegistry.build_name(nombre_grupo))
+  def start_link([nombre_grupo, usuario_admin]) do
+    GenServer.start_link(__MODULE__, [nombre_grupo, usuario_admin], name: ChatDeGrupoRegistry.build_name(nombre_grupo))
   end
 
-  def init(nombre_grupo) do
+  def init([nombre_grupo, usuario_admin]) do
     state = %{
       nombre_grupo: nombre_grupo
     }
-
+    {_, agente} = ChatDeGrupoAgent.start_link(usuario_admin, nombre_grupo)
+    ServerEntity.agregar_chat_de_grupo(nombre_grupo)
+    ServerEntity.copiar(agente, {:chat_grupo_agent, nombre_grupo})
+    Swarm.join({:chat_grupo_agent, nombre_grupo}, agente)
     {:ok, state}
   end
 

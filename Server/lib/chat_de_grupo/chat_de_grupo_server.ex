@@ -27,11 +27,9 @@ defmodule ChatDeGrupoServer do
    case get_private(nombre_grupo) do
     {:ok, pid} -> {:reply, {:already_exists, pid}, state}
     {:not_found, nil} ->
-      {_, agente} = ChatDeGrupoAgent.start_link(usuario_admin, nombre_grupo)
-      Swarm.join({:chat_grupo_agent, nombre_grupo}, agente)
-      ServerEntity.agregar_chat_de_grupo(nombre_grupo)
-      {:ok, chatPid} = ChatDeGrupoSupervisor.start_child(nombre_grupo)
+      {:ok, chatPid} = ChatDeGrupoSupervisor.start_child(nombre_grupo, usuario_admin)
       Swarm.join({:chat_de_grupo, nombre_grupo}, chatPid)
+      Task.start(fn () -> GenServer.multi_call(Router.servers(Node.self), ChatDeGrupoServer, {:crear, nombre_grupo, usuario_admin}) end)
       {:reply, {:ok, chatPid}, state}
     error -> {:reply, {:error, error}, state}
    end
@@ -45,10 +43,7 @@ defmodule ChatDeGrupoServer do
         case Swarm.members({:chat_grupo_agent, nombre_grupo}) do
           [] -> {:not_found, nil}
           _ ->
-            {_, agente} = ChatDeGrupoAgent.start_link(nil, nombre_grupo)
-            ServerEntity.copiar(agente, {:chat_grupo_agent, nombre_grupo})
-            Swarm.join({:chat_grupo_agent, nombre_grupo}, agente)
-            {:ok, chatPid} = ChatDeGrupoSupervisor.start_child(nombre_grupo)
+            {:ok, chatPid} = ChatDeGrupoSupervisor.start_child(nombre_grupo, nil)
             Swarm.join({:chat_de_grupo, nombre_grupo}, chatPid)
             {:ok, chatPid}
         end

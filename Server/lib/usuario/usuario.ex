@@ -7,7 +7,12 @@ defmodule Usuario do
 
   def init(name) do
     state = %{nombre: name}
+    {_, agente} = UsuarioAgent.start_link(name)
+    ServerEntity.agregar_usuario(name)
+    ServerEntity.copiar(agente, {:usuario_agent, name})
+    Swarm.join({:usuario_agent, name}, agente)
     {:ok, state}
+
   end
 
   def child_spec(name) do
