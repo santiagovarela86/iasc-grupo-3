@@ -17,7 +17,7 @@ defmodule UsuarioAgent do
         id: nombre,
         start: {__MODULE__, :start_link, [nombre]},
         type: :worker,
-        restart: :transient
+        restart: :permanent
       }
   end
 

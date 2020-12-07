@@ -27,7 +27,6 @@ defmodule ChatUnoAUnoServer do
     {:not_found, _} ->
       chat_id = MapSet.new([usuario1, usuario2])
       {:ok, chatPid} = ChatUnoAUnoSupervisor.start_child(chat_id)
-      Swarm.join({:chat_uno_a_uno, chat_id}, chatPid)
       Task.start(fn () -> GenServer.multi_call(Router.servers(Node.self), ChatUnoAUnoServer, {:crear, usuario1, usuario2}) end)
       {:reply, {:ok, chatPid}, state}
     error -> {:reply, {:error, error}, state}
@@ -43,7 +42,6 @@ defmodule ChatUnoAUnoServer do
           [] -> {:not_found, nil}
           _ ->
             {:ok, chatPid} = ChatUnoAUnoSupervisor.start_child(chat_id)
-            Swarm.join({:chat_uno_a_uno, chat_id}, chatPid)
             {:ok, chatPid}
         end
       error -> {:error, error}

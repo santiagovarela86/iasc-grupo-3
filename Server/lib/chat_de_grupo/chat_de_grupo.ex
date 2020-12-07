@@ -21,7 +21,7 @@ defmodule ChatDeGrupo do
       id: nombre_grupo,
       start: {__MODULE__, :start_link, [nombre_grupo]},
       type: :worker,
-      restart: :transient
+      restart: :permanent
     }
   end
 

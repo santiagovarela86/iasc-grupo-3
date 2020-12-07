@@ -9,7 +9,7 @@ defmodule ChatDeGrupoRegistry do
       id: __MODULE__,
       start: {__MODULE__, :start_link, [opts]},
       type: :worker,
-      restart: :transient
+      restart: :permanent
     }
   end
 

@@ -20,7 +20,7 @@ defmodule ChatUnoAUno do
       id: chat_name,
       start: {__MODULE__, :start_link, [chat_name]},
       type: :worker,
-      restart: :transient
+      restart: :permanent
     }
   end
 

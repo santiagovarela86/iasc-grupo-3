@@ -30,7 +30,6 @@ defmodule ChatSeguroServer do
       {:not_found, nil} ->
         chat_id = MapSet.new([usuario1, usuario2])
         {:ok, chatPid} = ChatSeguroSupervisor.start_child(chat_id, tiempo_limite)
-        Swarm.join({:chat_seguro, chat_id}, chatPid)
         Task.start(fn () -> GenServer.multi_call(Router.servers(Node.self), ChatSeguroServer, {:crear, usuario1, usuario2, tiempo_limite}) end)
         {:reply, {:ok, chatPid}, state}
 
@@ -53,7 +52,6 @@ defmodule ChatSeguroServer do
 
           _ ->
             {:ok, chatPid} = ChatSeguroSupervisor.start_child(chat_id, 0)
-            Swarm.join({:chat_seguro, chat_id}, chatPid)
             {:ok, chatPid}
         end
 

@@ -27,7 +27,6 @@ defmodule UsuarioServer do
     {:ok, pid} -> {:reply, {:already_exists, pid}, state}
     {:not_found, nil} ->
       {:ok, pid} = UsuarioSupervisor.start_child(nombre)
-      Swarm.join({:usuario, nombre}, pid)
       {:reply, {:ok, pid}, state}
     error -> {:reply, {:error, error}, state}
    end
@@ -41,7 +40,6 @@ defmodule UsuarioServer do
           [] -> {:not_found, nil}
           _ ->
             {:ok, pid} = UsuarioSupervisor.start_child(nombre)
-            Swarm.join({:usuario, nombre}, pid)
             {:ok, pid}
         end
       error -> {:error, error}

@@ -41,10 +41,7 @@ defmodule ServerEntity do
     {_, usuarios} = ServerEntity.get_usuarios()
     MapSet.to_list(usuarios)
     |> Enum.each(fn usuario ->
-        if !Enum.any?(Swarm.members({:usuario, usuario}),fn(pid) -> is_local(pid) end) do
-          #{_, agente} = UsuarioAgent.start_link(usuario)
-          #copiar(agente, {:usuario_agent, usuario})
-          #Swarm.join({:usuario_agent, usuario}, agente)
+        if !Enum.any?(Swarm.members({:usuario_agent, usuario}),fn(pid) -> is_local(pid) end) do
           UsuarioSupervisor.start_child(usuario)
       end
     end)
@@ -52,10 +49,7 @@ defmodule ServerEntity do
     {_, chats} = ServerEntity.get_chats_uno_a_uno()
     MapSet.to_list(chats)
     |> Enum.each(fn chat ->
-        if !Enum.any?(Swarm.members({:chat_uno_a_uno, chat}),fn(pid) -> is_local(pid) end) do
-          #{_, agente} = ChatUnoAUnoAgent.start_link(List.first(MapSet.to_list(chat)), List.last(MapSet.to_list(chat)))
-          #copiar(agente, {:chat_uno_a_uno_agent, chat})
-          #Swarm.join({:chat_uno_a_uno_agent, chat}, agente)
+        if !Enum.any?(Swarm.members({:chat_uno_a_uno_agent, chat}),fn(pid) -> is_local(pid) end) do
           ChatUnoAUnoSupervisor.start_child(chat)
       end
     end)
@@ -63,7 +57,7 @@ defmodule ServerEntity do
     {_, chats} = ServerEntity.get_chats_seguros()
     MapSet.to_list(chats)
     |> Enum.each(fn chat ->
-        if !Enum.any?(Swarm.members({:chat_seguro, chat}),fn(pid) -> is_local(pid) end) do
+        if !Enum.any?(Swarm.members({:chat_seguro_agent, chat}),fn(pid) -> is_local(pid) end) do
           ChatSeguroSupervisor.start_child(chat, 0)
       end
     end)
@@ -71,7 +65,7 @@ defmodule ServerEntity do
     {_, chats} = ServerEntity.get_chats_de_grupo()
     MapSet.to_list(chats)
     |> Enum.each(fn chat ->
-        if !Enum.any?(Swarm.members({:chat_de_grupo, chat}),fn(pid) -> is_local(pid) end) do
+        if !Enum.any?(Swarm.members({:chat_grupo_agent, chat}),fn(pid) -> is_local(pid) end) do
           ChatDeGrupoSupervisor.start_child(chat, "")
       end
     end)

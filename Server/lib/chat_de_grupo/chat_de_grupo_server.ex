@@ -28,7 +28,6 @@ defmodule ChatDeGrupoServer do
     {:ok, pid} -> {:reply, {:already_exists, pid}, state}
     {:not_found, nil} ->
       {:ok, chatPid} = ChatDeGrupoSupervisor.start_child(nombre_grupo, usuario_admin)
-      Swarm.join({:chat_de_grupo, nombre_grupo}, chatPid)
       Task.start(fn () -> GenServer.multi_call(Router.servers(Node.self), ChatDeGrupoServer, {:crear, nombre_grupo, usuario_admin}) end)
       {:reply, {:ok, chatPid}, state}
     error -> {:reply, {:error, error}, state}
@@ -44,7 +43,6 @@ defmodule ChatDeGrupoServer do
           [] -> {:not_found, nil}
           _ ->
             {:ok, chatPid} = ChatDeGrupoSupervisor.start_child(nombre_grupo, nil)
-            Swarm.join({:chat_de_grupo, nombre_grupo}, chatPid)
             {:ok, chatPid}
         end
       error -> {:error, error}

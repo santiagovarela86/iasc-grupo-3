@@ -20,7 +20,7 @@ defmodule Usuario do
       id: name,
       start: {__MODULE__, :start_link, [name]},
       type: :worker,
-      restart: :transient
+      restart: :permanent
     }
   end
 
