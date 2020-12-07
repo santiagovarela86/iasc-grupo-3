@@ -16,47 +16,52 @@ services:
     command:
       - '/bin/sh'
       - '-c'
-      - '/bin/sleep 5 && iex "--sname" "server@server1" "--cookie" "useasecurepasswordhere" "-S" "mix"'
+      - '/app/wait-for-it.sh router1:4369 && sleep 5 && iex "--sname" "server@server1" "--cookie" "useasecurepasswordhere" "-S" "mix"'
     stdin_open: true
     tty: true
     networks:
       iasc-network:
         aliases:
           - server1
-    depends_on:
-      - router1        
 
   usuario1:
     build: ./Cliente
     command:
       - '/bin/sh'
       - '-c'
-      - '/bin/sleep 5 && iex "--sname" "usuario1@usuario1" "--cookie" "useasecurepasswordhere" "-S" "mix"'
+      - '/app/wait-for-it.sh server1:4369 && sleep 5 && iex "--sname" "usuario@usuario1" "--cookie" "useasecurepasswordhere" "-S" "mix"'
     stdin_open: true
     tty: true
     networks:
       iasc-network:
         aliases:
           - usuario1
-    depends_on:
-      - router1
-      - server1
 
   usuario2:
     build: ./Cliente
     command:
       - '/bin/sh'
       - '-c'
-      - '/bin/sleep 5 && iex "--sname" "usuario2@usuario2" "--cookie" "useasecurepasswordhere" "-S" "mix"'
+      - '/app/wait-for-it.sh server1:4369 && sleep 5 && iex "--sname" "usuario@usuario2" "--cookie" "useasecurepasswordhere" "-S" "mix"'
     stdin_open: true
     tty: true
     networks:
       iasc-network:
         aliases:
           - usuario2
-    depends_on:
-      - router1
-      - server1
+      
+  usuario3:
+    build: ./Cliente
+    command:
+      - '/bin/sh'
+      - '-c'
+      - '/app/wait-for-it.sh server1:4369 && sleep 5 && iex "--sname" "usuario@usuario3" "--cookie" "useasecurepasswordhere" "-S" "mix"'
+    stdin_open: true
+    tty: true
+    networks:
+      iasc-network:
+        aliases:
+          - usuario3
 
 networks:
   iasc-network:
