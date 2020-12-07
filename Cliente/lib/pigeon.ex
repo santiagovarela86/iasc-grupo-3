@@ -15,6 +15,6 @@ defmodule Pigeon do
   end
 
   def nodos_router() do
-    [String.to_atom("router-1" <> "@localhost"), String.to_atom("router-2" <> "@localhost"), String.to_atom("router-3" <> "@localhost")]
+    [String.to_atom("router-1" <> "@router"), String.to_atom("router-2" <> "@router"), String.to_atom("router-3" <> "@router")]
   end
 end
