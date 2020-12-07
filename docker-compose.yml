@@ -3,20 +3,40 @@ version: "3.7"
 services:
   router1:
     build: ./Router
-    entrypoint: ["iex", "--sname", "router@router1", "--cookie", "useasecurepasswordhere", "-S", "mix"]
+    entrypoint: ["iex", "--sname", "router@router1", "--cookie", "useasecurepasswordhere", "--erl",  "-config config/router-1", "-S", "mix"]
     stdin_open: true
     tty: true
     networks:
       iasc-network:
         aliases:
           - router1
+          
+  router2:
+    build: ./Router
+    entrypoint: ["iex", "--sname", "router@router2", "--cookie", "useasecurepasswordhere", "--erl",  "-config config/router-2", "-S", "mix"]
+    stdin_open: true
+    tty: true
+    networks:
+      iasc-network:
+        aliases:
+          - router2
+
+  router3:
+    build: ./Router
+    entrypoint: ["iex", "--sname", "router@router3", "--cookie", "useasecurepasswordhere", "--erl",  "-config config/router-3", "-S", "mix"]
+    stdin_open: true
+    tty: true
+    networks:
+      iasc-network:
+        aliases:
+          - router3
 
   server1:
     build: ./Server
     command:
       - '/bin/sh'
       - '-c'
-      - '/app/wait-for-it.sh router1:4369 && sleep 5 && iex "--sname" "server@server1" "--cookie" "useasecurepasswordhere" "-S" "mix"'
+      - '/app/wait-for-it.sh router1:4369 && /app/wait-for-it.sh router2:4369 && /app/wait-for-it.sh router3:4369 && sleep 5 && iex "--sname" "server@server1" "--cookie" "useasecurepasswordhere" "-S" "mix"'
     stdin_open: true
     tty: true
     networks:
@@ -29,7 +49,7 @@ services:
     command:
       - '/bin/sh'
       - '-c'
-      - '/app/wait-for-it.sh server1:4369 && sleep 5 && iex "--sname" "usuario@usuario1" "--cookie" "useasecurepasswordhere" "-S" "mix"'
+      - '/app/wait-for-it.sh server1:4369 && sleep 10 && iex "--sname" "usuario1@usuario1" "--cookie" "useasecurepasswordhere" "-S" "mix"'
     stdin_open: true
     tty: true
     networks:
@@ -42,7 +62,7 @@ services:
     command:
       - '/bin/sh'
       - '-c'
-      - '/app/wait-for-it.sh server1:4369 && sleep 5 && iex "--sname" "usuario@usuario2" "--cookie" "useasecurepasswordhere" "-S" "mix"'
+      - '/app/wait-for-it.sh server1:4369 && sleep 10 && iex "--sname" "usuario2@usuario2" "--cookie" "useasecurepasswordhere" "-S" "mix"'
     stdin_open: true
     tty: true
     networks:
@@ -55,7 +75,7 @@ services:
     command:
       - '/bin/sh'
       - '-c'
-      - '/app/wait-for-it.sh server1:4369 && sleep 5 && iex "--sname" "usuario@usuario3" "--cookie" "useasecurepasswordhere" "-S" "mix"'
+      - '/app/wait-for-it.sh server1:4369 && sleep 10 && iex "--sname" "usuario3@usuario3" "--cookie" "useasecurepasswordhere" "-S" "mix"'
     stdin_open: true
     tty: true
     networks:
