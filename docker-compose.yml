@@ -20,6 +20,17 @@ services:
           - server
     depends_on:
       - router
+      
+  usuario:
+    build: ./Cliente
+    stdin_open: true
+    tty: true
+    networks:
+      iasc-network:
+        aliases:
+          - usuario
+    depends_on:
+      - server
 
 networks:
   iasc-network:
