@@ -56,7 +56,8 @@ defmodule ChatUnoAUno do
   end
 
 
-  def handle_call({:eliminar_mensaje, _sender, id_mensaje}, _from, state) do
+
+  def handle_call({:eliminar_mensaje, _, id_mensaje}, _from, state) do
     ChatUnoAUnoEntity.eliminar_mensaje(state.chat_name, id_mensaje)
     {:reply, state, state}
   end

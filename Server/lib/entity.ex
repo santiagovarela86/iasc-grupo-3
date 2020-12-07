@@ -21,7 +21,6 @@ defmodule Entity do
     Swarm.members(grupo_swarm)
     |> Task.async_stream(fn(agente) -> funcion.(agente) end, ordered: false)
     |> Stream.filter(fn({ok?, _}) -> ok? == :ok end)
-    #|> Stream.map(fn {_, value} -> value end)
     |> Enum.take(1)
     |> List.first()
   end

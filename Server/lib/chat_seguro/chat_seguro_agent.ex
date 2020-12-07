@@ -16,7 +16,15 @@ defmodule ChatSeguroAgent do
   end
 
   def get_mensajes(agente) do
+    limite = ChatSeguroAgent.get_tiempo_limite(agente)
+
     ChatAgent.get_mensajes(agente)
+    |> Enum.to_list()
+    |> Enum.map( fn {id, {origen, mensaje, publicado, modificado}} -> cond do
+      DateTime.diff(DateTime.utc_now(), publicado, :second) > limite -> {id, {origen, :borrado, publicado, modificado}}
+      true -> {id, {origen, mensaje, publicado, modificado}}
+    end end )
+    |> Enum.into(%{})
   end
 
   def get_tiempo_limite(agente) do
@@ -32,7 +40,6 @@ defmodule ChatSeguroAgent do
     Agent.update(agente, fn(state) ->  Map.update!(update_time.(state), :tiempo_limite, fn(_tiempo) -> tiempo_nuevo end) end)
   end
 
-  @spec registrar_mensaje(atom | pid | {atom, any} | {:via, atom, any}, any, any) :: :ok
   def registrar_mensaje(agente, mensaje, origen) do
     ChatAgent.registrar_mensaje(agente, mensaje, origen)
   end

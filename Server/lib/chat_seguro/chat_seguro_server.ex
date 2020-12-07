@@ -61,4 +61,5 @@ defmodule ChatSeguroServer do
         {:error, error}
     end
   end
+
 end

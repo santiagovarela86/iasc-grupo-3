@@ -1,7 +1,6 @@
 defmodule ServerAgent do
   use Agent
 
-
   def start_link() do
     Agent.start_link(fn -> %{
       usuarios: MapSet.new(),
