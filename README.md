@@ -14,32 +14,35 @@
 
 ## How to test the application using nodes
 
-- Quick option (Windows): run ".\1R1S2C.ps1" in a Powershell command line, it will start 4 Elixir Processes in a simple configuration (1 Router, 1 Server, 2 Clients).
+- Quick option (Windows): run ".\1R1S2C.ps1" in a Powershell command line, it will start 4 Elixir Processes in a simple configuration (1 Router, 1 Server, 2 Clients). You also have ".\3R3S3C.ps1" to run 3 Routers, 3 Servers and 3 Clients.
 
 - Or, go to the corresponding project folder and open a command line.
 
 - First the routers: 
    - If you want to use a single router node without fallback:
-      - type=router iex --sname router-1@localhost -S mix (Linux)
-      - $env:type = 'router'; iex.bat --werl --sname "router-1@localhost" -S mix (Windows)
+      - iex --sname router-1@localhost -S mix (Linux)
+      - iex.bat --werl --sname "router-1@localhost" -S mix (Windows)
 
    - If you want to use router with fallback nodes, you'll need to create 3 nodes
-      - type=router iex --sname router-1@localhost --erl "-config config/router-1" -S mix
-      - type=router iex --sname router-2@localhost --erl "-config config/router-2" -S mix
-      - type=router iex --sname router-3@localhost --erl "-config config/router-3" -S mix
+      - iex --sname router-1@localhost --erl "-config config/router-1" -S mix (Linux)
+      - iex --sname router-2@localhost --erl "-config config/router-2" -S mix (Linux)
+      - iex --sname router-3@localhost --erl "-config config/router-3" -S mix (Linux)
+      - iex.bat --werl --sname router-1@localhost --erl "-config config/router-1" -S mix (Windows)
+      - iex.bat --werl --sname router-2@localhost --erl "-config config/router-2" -S mix (Windows)
+      - iex.bat --werl --sname router-3@localhost --erl "-config config/router-3" -S mix (Windows)
 
 - Then the server nodes. Name then server-n where n is a different number each time
-  - type=server iex --sname server-1 -S mix (Linux)
-  - $env:type = 'server'; iex.bat --werl --sname server-1 -S mix (Windows)
+  - iex --sname server-1 -S mix (Linux)
+  - iex.bat --werl --sname server-1 -S mix (Windows)
 
 - Then the clients: 
   - Usuario1
-    - type=client iex --sname usuario1 -S mix (Linux)
-    - $env:type = 'client'; iex.bat --sname usuario1 --werl -S mix (Windows)
+    - iex --sname usuario1 -S mix (Linux)
+    - iex.bat --sname usuario1 --werl -S mix (Windows)
 
   - Usuario2
-    - type=client iex --sname usuario2 -S mix (Linux)
-    - $env:type = 'client'; iex.bat --sname usuario2 --werl -S mix (Windows)
+    - iex --sname usuario2 -S mix (Linux)
+    - iex.bat --sname usuario2 --werl -S mix (Windows)
 
 - You can create as many users/clients as you want.
 
