@@ -16,7 +16,15 @@ defmodule ChatSeguroAgent do
   end
 
   def get_mensajes(agente) do
+    limite = ChatSeguroAgent.get_tiempo_limite(agente)
+
     ChatAgent.get_mensajes(agente)
+    |> Enum.to_list()
+    |> Enum.map( fn {id, {origen, mensaje, publicado, modificado}} -> cond do
+      DateTime.diff(DateTime.utc_now(), publicado, :second) > limite -> {id, {origen, :borrado, publicado, modificado}}
+      true -> {id, {origen, mensaje, publicado, modificado}}
+    end end )
+    |> Enum.into(%{})
   end
 
   def get_tiempo_limite(agente) do
@@ -32,21 +40,12 @@ defmodule ChatSeguroAgent do
     Agent.update(agente, fn(state) ->  Map.update!(update_time.(state), :tiempo_limite, fn(_tiempo) -> tiempo_nuevo end) end)
   end
 
-  @spec registrar_mensaje(atom | pid | {atom, any} | {:via, atom, any}, any, any) :: :ok
   def registrar_mensaje(agente, mensaje, origen) do
     ChatAgent.registrar_mensaje(agente, mensaje, origen)
   end
 
   def eliminar_mensaje(agente, mensaje_id) do
     ChatAgent.eliminar_mensaje(agente, mensaje_id)
-  end
-
-  def eliminar_mensajes_expirados(agente) do
-    messages = ChatAgent.get_mensajes(agente)
-    message_list = Map.to_list(messages)
-    filtered_list = Enum.filter(message_list, fn({id, {_, _, msg_date, _}}) -> DateTime.diff(DateTime.utc_now, msg_date, :second) > get_tiempo_limite(agente) end)
-    Enum.each(filtered_list, fn({id, {_, _, _, _}}) -> eliminar_mensaje(agente, id) end)
-    #IO.puts("DEBUG: Se terminó de ejecutar el borrado de mensajes expirados.")
   end
 
   def modificar_mensaje(agente, origen, mensaje_nuevo, mensaje_id) do

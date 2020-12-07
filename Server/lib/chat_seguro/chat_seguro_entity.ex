@@ -31,10 +31,6 @@ defmodule ChatSeguroEntity do
     Entity.aplicar_cambio({:chat_seguro_agent, chat}, &ChatSeguroAgent.eliminar_mensaje(&1, mensaje_id))
   end
 
-  def eliminar_mensajes_expirados(chat) do
-    Entity.aplicar_cambio({:chat_seguro_agent, chat}, &ChatSeguroAgent.eliminar_mensajes_expirados(&1))
-  end
-
   def modificar_mensaje(chat, origen, mensaje_nuevo, mensaje_id) do
     Entity.aplicar_cambio({:chat_seguro_agent, chat}, &ChatSeguroAgent.modificar_mensaje(&1, origen, mensaje_nuevo, mensaje_id))
   end

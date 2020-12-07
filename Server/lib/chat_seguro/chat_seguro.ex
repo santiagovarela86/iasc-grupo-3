@@ -2,9 +2,9 @@ defmodule ChatSeguro do
   use GenServer
   import Crontab.CronExpression
   @every30seconds ~e[*/30]e
-  @every10seconds ~e[*/10]e
-  @every5seconds ~e[*/5]e
-  @everysecond ~e[*/1]e
+  #@every10seconds ~e[*/10]e
+  #@every5seconds ~e[*/5]e
+  #@everysecond ~e[*/1]e
 
   def start_link(chat_name) do
     GenServer.start_link(__MODULE__, chat_name, name: {:via, Registry, {ChatSeguroRegistry, chat_name}})
@@ -12,8 +12,7 @@ defmodule ChatSeguro do
 
   def init(chat_name) do
     state = %{chat_name: chat_name}
-    [{usuario1,_},{usuario2,_}] = Map.to_list(chat_name.map)
-    create_job(usuario1, usuario2)
+    create_job(List.first(MapSet.to_list(chat_name)), List.last(MapSet.to_list(chat_name)))
     {:ok, state}
   end
 
@@ -57,6 +56,11 @@ defmodule ChatSeguro do
     {:reply, state, state}
   end
 
+  def handle_call({:get_messages}, _from, state) do
+    mensajes = ChatSeguroEntity.get_mensajes(state.chat_name)
+    {:reply, mensajes, state}
+  end
+
   def handle_call({:editar_mensaje, sender, mensaje_nuevo, id_mensaje}, _from, state) do
     ChatSeguroEntity.modificar_mensaje(state.chat_name, sender , mensaje_nuevo, id_mensaje)
     {:reply, state, state}
@@ -68,13 +72,8 @@ defmodule ChatSeguro do
   end
 
   def handle_cast({:eliminar_mensajes_expirados}, state) do
-    ChatSeguroEntity.eliminar_mensajes_expirados(state.chat_name)
+    eliminar_mensajes_expirados(state.chat_name)
     {:noreply, state}
-  end
-
-  def handle_call({:get_messages}, _from, state) do
-    mensajes = ChatSeguroEntity.get_mensajes(state.chat_name)
-    {:reply, mensajes, state}
   end
 
   defp get_chat_pid(username1, username2) do
@@ -82,14 +81,24 @@ defmodule ChatSeguro do
     id
   end
 
+  def eliminar_mensajes_expirados(chat_id) do
+    ChatSeguroEntity.get_mensajes(chat_id)
+    |> elem(1)
+    |> Map.to_list()
+    |> Enum.filter(fn({_, {_, _, msg_date, _}}) -> DateTime.diff(DateTime.utc_now, msg_date, :second) > elem(ChatSeguroEntity.get_tiempo_limite(chat_id),1) end)
+    |> Enum.each(fn({id, {_, _, _, _}}) -> ChatSeguroEntity.eliminar_mensaje(chat_id, id) end)
+    #IO.puts("DEBUG: Se terminó de ejecutar el borrado de mensajes expirados.")
+  end
+
   defp create_job(usuario1, usuario2) do
     ChatSeguroScheduler.new_job()
-      |> Quantum.Job.set_schedule(@everysecond)
+      |> Quantum.Job.set_schedule(@every30seconds)
       |> Quantum.Job.set_overlap(false)
       |> Quantum.Job.set_task({ChatSeguro, :eliminar_mensajes_expirados, [usuario1, usuario2]})
       |> ChatSeguroScheduler.add_job()
 
     #IO.puts("DEBUG: Se creo el job de eliminado de mensajes.")
   end
+
 
 end
