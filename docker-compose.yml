@@ -40,10 +40,10 @@ services:
       iasc-network:
         aliases:
           - server1
-    depends_on:
-      - router1
-      - router2
-      - router3
+    #depends_on:
+    #  - router1
+    #  - router2
+    #  - router3
       
   server2:
     build: ./Server
@@ -54,10 +54,10 @@ services:
       iasc-network:
         aliases:
           - server2
-    depends_on:
-      - router1
-      - router2
-      - router3
+    #depends_on:
+    #  - router1
+    #  - router2
+    #  - router3
       
   server3:
     build: ./Server
@@ -68,10 +68,10 @@ services:
       iasc-network:
         aliases:
           - server3
-    depends_on:
-      - router1
-      - router2
-      - router3
+    #depends_on:
+    #  - router1
+    #  - router2
+    #  - router3
       
   usuario1:
     build: ./Cliente
@@ -82,10 +82,10 @@ services:
       iasc-network:
         aliases:
           - usuario1
-    depends_on:
-      - server1
-      - server2
-      - server3
+    #depends_on:
+    #  - server1
+    #  - server2
+    #  - server3
 
   usuario2:
     build: ./Cliente
@@ -96,10 +96,10 @@ services:
       iasc-network:
         aliases:
           - usuario2
-    depends_on:
-      - server1
-      - server2
-      - server3
+    #depends_on:
+    #  - server1
+    #  - server2
+    #  - server3
       
   usuario3:
     build: ./Cliente
@@ -110,10 +110,10 @@ services:
       iasc-network:
         aliases:
           - usuario3
-    depends_on:
-      - server1
-      - server2
-      - server3
+    #depends_on:
+    #  - server1
+    #  - server2
+    #  - server3
 
 networks:
   iasc-network:
