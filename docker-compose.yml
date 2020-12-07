@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+  router:
+    build: ./Router
+    stdin_open: true
+    tty: true
+    networks:
+      iasc-network:
+        aliases:
+          - router.internal
+
+  server:
+    build: ./Server
+    stdin_open: true
+    tty: true
+    networks:
+      iasc-network:
+        aliases:
+          - server.internal
+    depends_on:
+      - router
+
+networks:
+  iasc-network:
+    driver: bridge
