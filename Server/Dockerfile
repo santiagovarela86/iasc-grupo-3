@@ -1,5 +1,3 @@
-# ./Dockerfile
-
 # Extend from the official Elixir image
 FROM elixir:latest
 
@@ -20,6 +18,9 @@ RUN mix deps.get
 
 # Compile the project
 RUN mix do compile
+
+#Troubleshooting tools
+RUN apt-get update -y && apt-get install net-tools -y && apt-get install dnsutils -y && apt-get install telnet -y
 
 # Port for empd
 EXPOSE 4369
