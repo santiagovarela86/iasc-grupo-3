@@ -10,86 +10,53 @@ services:
       iasc-network:
         aliases:
           - router1
-          
-  # router2:
-    # build: ./router
-    # entrypoint: ["iex", "--sname", "router@router2", "--erl", "'-config config/router-2'", "-S", "mix"]
-    # stdin_open: true
-    # tty: true
-    # networks:
-      # iasc-network:
-        # aliases:
-          # - router2
-          
-  # router3:
-    # build: ./Router
-    # entrypoint: ["iex", "--sname", "router@router3", "--erl", "'-config config/router-3'", "-S", "mix"]
-    # stdin_open: true
-    # tty: true
-    # networks:
-      # iasc-network:
-        # aliases:
-          # - router3
 
   server1:
     build: ./Server
-    entrypoint: ["iex", "--sname", "server@server1", "--cookie", "useasecurepasswordhere", "-S", "mix"]
+    command:
+      - '/bin/sh'
+      - '-c'
+      - '/bin/sleep 5 && iex "--sname" "server@server1" "--cookie" "useasecurepasswordhere" "-S" "mix"'
     stdin_open: true
     tty: true
     networks:
       iasc-network:
         aliases:
           - server1
-      
-  # server2:
-    # build: ./Server
-    # entrypoint: ["iex", "--sname", "server@server2", "--cookie", "useasecurepasswordhere", "-S", "mix"]
-    # stdin_open: true
-    # tty: true
-    # networks:
-      # iasc-network:
-        # aliases:
-          # - server2
-      
-  # server3:
-    # build: ./Server
-    # entrypoint: ["iex", "--sname", "server@server3", "--cookie", "useasecurepasswordhere", "-S", "mix"]
-    # stdin_open: true
-    # tty: true
-    # networks:
-      # iasc-network:
-        # aliases:
-          # - server3
-      
+    depends_on:
+      - router1        
+
   usuario1:
     build: ./Cliente
-    entrypoint: ["iex", "--sname", "usuario@usuario1", "--cookie", "useasecurepasswordhere", "-S", "mix"]
+    command:
+      - '/bin/sh'
+      - '-c'
+      - '/bin/sleep 5 && iex "--sname" "usuario1@usuario1" "--cookie" "useasecurepasswordhere" "-S" "mix"'
     stdin_open: true
     tty: true
     networks:
       iasc-network:
         aliases:
           - usuario1
+    depends_on:
+      - router1
+      - server1
 
   usuario2:
     build: ./Cliente
-    entrypoint: ["iex", "--sname", "usuario@usuario2", "--cookie", "useasecurepasswordhere", "-S", "mix"]
+    command:
+      - '/bin/sh'
+      - '-c'
+      - '/bin/sleep 5 && iex "--sname" "usuario2@usuario2" "--cookie" "useasecurepasswordhere" "-S" "mix"'
     stdin_open: true
     tty: true
     networks:
       iasc-network:
         aliases:
           - usuario2
-      
-  # usuario3:
-    # build: ./Cliente
-    # entrypoint: ["iex", "--sname", "usuario@usuario3", "--cookie", "useasecurepasswordhere", "-S", "mix"]
-    # stdin_open: true
-    # tty: true
-    # networks:
-      # iasc-network:
-        # aliases:
-          # - usuario3
+    depends_on:
+      - router1
+      - server1
 
 networks:
   iasc-network:

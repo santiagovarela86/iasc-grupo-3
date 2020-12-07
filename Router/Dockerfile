@@ -20,7 +20,7 @@ RUN mix deps.get
 RUN mix do compile
 
 #Troubleshooting tools
-RUN apt-get update -y && apt-get install net-tools -y && apt-get install dnsutils -y && apt-get install telnet -y
+#RUN apt-get update -y && apt-get install net-tools -y && apt-get install dnsutils -y && apt-get install telnet -y
 
 # Port for empd
 EXPOSE 4369
