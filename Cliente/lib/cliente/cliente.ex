@@ -41,10 +41,6 @@ defmodule Cliente do
 
   def enviar_mensaje(receiver, mensaje) do
     pid = List.first(Enum.to_list(Enum.filter(clientes_mios(), fn(pid) -> is_local(pid) end)))
-	IO.puts("DEBUG A1: ")
-	IO.puts(inspect(pid))
-	IO.puts(inspect(receiver))
-	IO.puts(inspect(mensaje))
     GenServer.call(pid, {:enviar_mensaje, receiver, mensaje}, @timeout)
   end
 
@@ -151,18 +147,8 @@ defmodule Cliente do
 
 
   def handle_call({:enviar_mensaje, receiver, mensaje}, _from, state) do
-	IO.puts("DEBUG A2: ")
-	IO.puts(inspect(routeo_nodo()))
-	IO.puts("DEBUG A3: ")
-	IO.puts(inspect(name()))
-	IO.puts("DEBUG A4: ")
-	IO.puts(inspect(receiver))
-	IO.puts("DEBUG A5: ")
-	IO.puts(inspect(mensaje))  
     :rpc.call(routeo_nodo(), Usuario, :iniciar_chat, [name(), receiver])
-	IO.puts("DEBUG A6: ")
     :rpc.call(routeo_nodo(), Usuario, :enviar_mensaje, [name(), receiver, mensaje])
-	IO.puts("DEBUG A7: ")
     {:reply, state, state}
   end
 
