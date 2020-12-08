@@ -58,6 +58,7 @@ defmodule ChatDeGrupo do
   def agregar_usuario(nombre_grupo, usuario_origen, usuario) do
     {_ok?, pid} = ChatDeGrupoServer.get(nombre_grupo)
     GenServer.call(pid, {:agregar_usuario, usuario_origen, usuario})
+    Usuario.informar_grupo(nombre_grupo, usuario)
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do

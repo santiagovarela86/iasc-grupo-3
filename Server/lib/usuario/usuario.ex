@@ -93,6 +93,11 @@ defmodule Usuario do
     GenServer.cast(pid, {:informar_chat, chat_name})
   end
 
+  def informar_chat_seguro(chat_name, _origen, destino) do
+    pid = get_pid(destino)
+    GenServer.cast(pid, {:informar_chat_seguro, chat_name})
+  end
+
   def obtener_chats(username) do
     pid = get_pid(username)
     GenServer.call(pid, {:obtener_chats})
@@ -175,7 +180,7 @@ defmodule Usuario do
   def handle_call({:crear_chat_seguro, destinatario, tiempo_limite}, _from, state) do
     ChatSeguroServer.crear(destinatario, state.nombre, tiempo_limite)
     chat_seguro_name = MapSet.new([destinatario, state.nombre])
-    Usuario.informar_chat(chat_seguro_name, state.nombre, destinatario)
+    Usuario.informar_chat_seguro(chat_seguro_name, state.nombre, destinatario)
     UsuarioEntity.agregar_chat_seguros(state.nombre, chat_seguro_name)
     {:reply, chat_seguro_name, state}
   end
@@ -270,6 +275,11 @@ defmodule Usuario do
 
   def handle_cast({:informar_chat, chat_name}, state) do
     UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
+    {:noreply, state}
+  end
+
+  def handle_cast({:informar_chat_seguro, chat_name}, state) do
+    UsuarioEntity.agregar_chat_seguros(state.nombre, chat_name)
     {:noreply, state}
   end
 
