@@ -1,58 +1,58 @@
 defmodule ChatDeGrupoEntity do
 
   def get_nombre(chat) do
-    Entity.primera_respuesta({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.get_nombre/1)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_nombre/1)
   end
   def agregar_usuario(chat, usuario) do
-    Entity.aplicar_cambio({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.agregar_usuario(&1, usuario))
+    Entity.aplicar_cambio({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.agregar_usuario(&1, usuario))
   end
 
   def eliminar_usuario(chat, usuario) do
-    Entity.aplicar_cambio({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.eliminar_usuario(&1, usuario))
+    Entity.aplicar_cambio({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.eliminar_usuario(&1, usuario))
   end
 
   def agregar_admin(chat, usuario) do
-    Entity.aplicar_cambio({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.agregar_admin(&1, usuario))
+    Entity.aplicar_cambio({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.agregar_admin(&1, usuario))
   end
 
   def eliminar_admin(chat, usuario) do
-    Entity.aplicar_cambio({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.eliminar_admin(&1, usuario))
+    Entity.aplicar_cambio({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.eliminar_admin(&1, usuario))
   end
 
   def get_usuarios(chat) do
     actualizar_async(chat)
-    Entity.primera_respuesta({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.get_usuarios/1)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_usuarios/1)
   end
   def get_mensajes(chat) do
     actualizar_async(chat)
-    Entity.primera_respuesta({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.get_mensajes/1)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_mensajes/1)
   end
 
   def get_admins(chat) do
     actualizar_async(chat)
-    Entity.primera_respuesta({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.get_admins/1)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_admins/1)
   end
 
   def get_modificacion_usuarios(chat) do
     actualizar_async(chat)
-    Entity.primera_respuesta({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.get_modificacion_usuarios/1)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_modificacion_usuarios/1)
   end
 
   def get_modificacion_admins(chat) do
     actualizar_async(chat)
-    Entity.primera_respuesta({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.get_modificacion_admins/1)
+    Entity.primera_respuesta({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.get_modificacion_admins/1)
   end
 
   def registrar_mensaje(chat, mensaje, origen) do
-    Entity.aplicar_cambio({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.registrar_mensaje(&1, mensaje, origen))
+    Entity.aplicar_cambio({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.registrar_mensaje(&1, mensaje, origen))
   end
 
   def eliminar_mensaje(chat, mensaje_id) do
-    Entity.aplicar_cambio({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.eliminar_mensaje(&1, mensaje_id))
+    Entity.aplicar_cambio({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.eliminar_mensaje(&1, mensaje_id))
   end
 
   def modificar_mensaje(chat, origen, mensaje_nuevo, mensaje_id) do
-    Entity.aplicar_cambio({:chat_grupo_agent, chat}, &ChatDeGrupoAgent.modificar_mensaje(&1, origen, mensaje_nuevo, mensaje_id))
+    Entity.aplicar_cambio({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.modificar_mensaje(&1, origen, mensaje_nuevo, mensaje_id))
   end
 
 
@@ -76,7 +76,7 @@ defmodule ChatDeGrupoEntity do
   end
 
   defp actualizar(grupo_swarm) do
-    agentes = Swarm.members({:chat_grupo_agent,grupo_swarm})
+    agentes = Swarm.members({:chat_de_grupo_agent,grupo_swarm})
 
     if !Entity.campo_actualizado(grupo_swarm, &ChatDeGrupoAgent.get_mensajes/1) do
       agentes_mensajes =  Enum.map(agentes, fn(agente) -> {agente, ChatDeGrupoAgent.get_mensajes(agente)} end)

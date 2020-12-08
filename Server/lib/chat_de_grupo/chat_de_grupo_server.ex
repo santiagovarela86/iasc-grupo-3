@@ -30,22 +30,20 @@ defmodule ChatDeGrupoServer do
       {:ok, chatPid} = ChatDeGrupoSupervisor.start_child(nombre_grupo, usuario_admin)
       Task.start(fn () -> GenServer.multi_call(Router.servers(Node.self), ChatDeGrupoServer, {:crear, nombre_grupo, usuario_admin}) end)
       {:reply, {:ok, chatPid}, state}
-    error -> {:reply, {:error, error}, state}
    end
   end
 
 
   defp get_private(nombre_grupo) do
-    case ChatDeGrupoRegistry.lookup(nombre_grupo) do
-      [{chatPid, _}] -> {:ok, chatPid}
-      []->
-        case Swarm.members({:chat_grupo_agent, nombre_grupo}) do
+    case Swarm.whereis_name({:chat_de_grupo, Node.self(), nombre_grupo}) do
+      :undefined ->
+        case Swarm.members({:chat_de_grupo_agent, nombre_grupo}) do
           [] -> {:not_found, nil}
           _ ->
             {:ok, chatPid} = ChatDeGrupoSupervisor.start_child(nombre_grupo, nil)
             {:ok, chatPid}
         end
-      error -> {:error, error}
+      pid -> {:ok, pid}
     end
   end
 

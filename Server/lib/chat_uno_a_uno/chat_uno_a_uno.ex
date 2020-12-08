@@ -2,7 +2,7 @@ defmodule ChatUnoAUno do
   use GenServer
 
   def start_link(chat_name) do
-    GenServer.start_link(__MODULE__, chat_name, name: {:via, Registry, {ChatUnoAUnoRegistry, chat_name}})
+    GenServer.start_link(__MODULE__, chat_name, name: register(chat_name))
   end
 
   def init(chat_name) do
@@ -42,6 +42,10 @@ defmodule ChatUnoAUno do
   def eliminar_mensaje(sender, reciever, id_mensaje) do
     pid = get_chat_pid(sender, reciever)
     GenServer.call(pid, {:eliminar_mensaje, sender, id_mensaje})
+  end
+
+  def register(nombre) do
+    {:via, :swarm, {:chat_uno_a_uno, Node.self(), nombre}}
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do

@@ -28,21 +28,19 @@ defmodule UsuarioServer do
     {:not_found, nil} ->
       {:ok, pid} = UsuarioSupervisor.start_child(nombre)
       {:reply, {:ok, pid}, state}
-    error -> {:reply, {:error, error}, state}
    end
   end
 
   def get_private(nombre) do
-    case UsuarioRegistry.lookup(nombre) do
-      [{pid, _}] -> {:ok, pid}
-      []->
+    case Swarm.whereis_name({:usuario, Node.self(), nombre}) do
+      :undefined->
         case Swarm.members({:usuario_agent, nombre}) do
           [] -> {:not_found, nil}
           _ ->
             {:ok, pid} = UsuarioSupervisor.start_child(nombre)
             {:ok, pid}
         end
-      error -> {:error, error}
+      pid -> {:ok, pid}
     end
   end
 

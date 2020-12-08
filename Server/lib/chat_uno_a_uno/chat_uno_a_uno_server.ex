@@ -29,22 +29,20 @@ defmodule ChatUnoAUnoServer do
       {:ok, chatPid} = ChatUnoAUnoSupervisor.start_child(chat_id)
       Task.start(fn () -> GenServer.multi_call(Router.servers(Node.self), ChatUnoAUnoServer, {:crear, usuario1, usuario2}) end)
       {:reply, {:ok, chatPid}, state}
-    error -> {:reply, {:error, error}, state}
    end
   end
 
   defp get_private(usuario1, usuario2) do
     chat_id = MapSet.new([usuario1, usuario2])
-    case ChatUnoAUnoRegistry.lookup(chat_id) do
-      [{chatPid, _}] -> {:ok, chatPid}
-      []->
+    case Swarm.whereis_name({:chat_uno_a_uno, Node.self(), chat_id}) do
+      :undefined->
         case Swarm.members({:chat_uno_a_uno_agent, chat_id}) do
           [] -> {:not_found, nil}
           _ ->
             {:ok, chatPid} = ChatUnoAUnoSupervisor.start_child(chat_id)
             {:ok, chatPid}
         end
-      error -> {:error, error}
+      pid -> {:ok, pid}
     end
   end
 end

@@ -2,7 +2,7 @@ defmodule Usuario do
   use GenServer
 
   def start_link(name) do
-    GenServer.start_link(__MODULE__, name, name: UsuarioRegistry.build_name(name))
+    GenServer.start_link(__MODULE__, name, name: register(name))
   end
 
   def init(name) do
@@ -136,6 +136,10 @@ defmodule Usuario do
   def eliminar_mensaje_seguro(origen, destinatario, id_mensaje) do
     pid = get_pid(origen)
     GenServer.call(pid, {:eliminar_mensaje_seguro, destinatario, id_mensaje})
+  end
+
+  def register(nombre) do
+    {:via, :swarm, {:usuario, Node.self(), nombre}}
   end
 
 

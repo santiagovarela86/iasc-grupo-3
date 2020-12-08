@@ -8,7 +8,7 @@ defmodule ChatSeguro do
 
   def start_link([chat_name, tiempo_limite]) do
     GenServer.start_link(__MODULE__, [chat_name, tiempo_limite],
-      name: {:via, Registry, {ChatSeguroRegistry, chat_name}}
+      name: register(chat_name)
     )
   end
 
@@ -107,5 +107,9 @@ defmodule ChatSeguro do
       |> ChatSeguroScheduler.add_job()
 
     #IO.puts("DEBUG: Se creo el job de eliminado de mensajes.")
+  end
+
+  def register(nombre) do
+    {:via, :swarm, {:chat_seguro, Node.self(), nombre}}
   end
 end

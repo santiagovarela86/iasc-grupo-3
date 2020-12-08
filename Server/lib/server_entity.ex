@@ -65,7 +65,7 @@ defmodule ServerEntity do
     {_, chats} = ServerEntity.get_chats_de_grupo()
     MapSet.to_list(chats)
     |> Enum.each(fn chat ->
-        if !Enum.any?(Swarm.members({:chat_grupo_agent, chat}),fn(pid) -> is_local(pid) end) do
+        if !Enum.any?(Swarm.members({:chat_de_grupo_agent, chat}),fn(pid) -> is_local(pid) end) do
           ChatDeGrupoSupervisor.start_child(chat, "")
       end
     end)
