@@ -18,14 +18,14 @@ defmodule ChatAgent do
 
   def eliminar_mensaje(agente, mensaje_id) do
     fn({origen, _mensaje_viejo, tiempo_original, _tiempo_modificado_viejo}) -> {origen, :borrado, tiempo_original, DateTime.utc_now} end
-    |> (&fn(mensajes) -> Map.update(mensajes, mensaje_id, &1) end).()
+    |> (&fn(mensajes) -> if Map.has_key?(mensajes, mensaje_id) do Map.update!(mensajes, mensaje_id, &1) end end).()
     |> (&fn(state) -> Map.update!(state, :mensajes, &1) end).()
     |> (&Agent.update(agente, &1)).()
   end
 
   def modificar_mensaje(agente, _origen, mensaje_nuevo, mensaje_id) do
     fn({origen, _mensaje_viejo, tiempo_original, _tiempo_modificado_viejo}) -> {origen, mensaje_nuevo, tiempo_original, DateTime.utc_now} end
-    |> (&fn(mensajes) -> Map.update(mensajes, mensaje_id, &1) end).()
+    |> (&fn(mensajes) -> if Map.has_key?(mensajes, mensaje_id) do Map.update!(mensajes, mensaje_id, &1) end end).()
     |> (&fn(state) -> Map.update!(state, :mensajes, &1) end).()
     |> (&Agent.update(agente, &1)).()
   end
