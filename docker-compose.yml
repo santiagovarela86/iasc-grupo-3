@@ -3,6 +3,7 @@ version: "3.7"
 services:
   router1:
     build: ./Router
+    image: iasc/router
     entrypoint: ["iex", "--sname", "router@router1", "--cookie", "useasecurepasswordhere", "--erl",  "-config config/router-1", "-S", "mix"]
     stdin_open: true
     tty: true
@@ -13,6 +14,7 @@ services:
           
   router2:
     build: ./Router
+    image: iasc/router
     entrypoint: ["iex", "--sname", "router@router2", "--cookie", "useasecurepasswordhere", "--erl",  "-config config/router-2", "-S", "mix"]
     stdin_open: true
     tty: true
@@ -23,6 +25,7 @@ services:
 
   router3:
     build: ./Router
+    image: iasc/router
     entrypoint: ["iex", "--sname", "router@router3", "--cookie", "useasecurepasswordhere", "--erl",  "-config config/router-3", "-S", "mix"]
     stdin_open: true
     tty: true
@@ -33,6 +36,7 @@ services:
 
   server1:
     build: ./Server
+    image: iasc/server
     command:
       - '/bin/sh'
       - '-c'
@@ -46,6 +50,7 @@ services:
 
   usuario1:
     build: ./Cliente
+    image: iasc/cliente
     command:
       - '/bin/sh'
       - '-c'
@@ -59,6 +64,7 @@ services:
 
   usuario2:
     build: ./Cliente
+    image: iasc/cliente
     command:
       - '/bin/sh'
       - '-c'
@@ -72,6 +78,7 @@ services:
       
   usuario3:
     build: ./Cliente
+    image: iasc/cliente
     command:
       - '/bin/sh'
       - '-c'
