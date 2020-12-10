@@ -53,7 +53,7 @@ defmodule UsuarioEntity do
       Enum.each(agentes, fn(agente) -> Agent.update(agente, &update_chats.(&1, agente)) end)
     end
 
-    if !Entity.campo_actualizado(grupo_swarm, &UsuarioEntity.get_chats_uno_a_uno/1) do
+    if !Entity.campo_actualizado(grupo_swarm, &UsuarioAgent.get_chats_uno_a_uno/1) do
       agentes = Swarm.members(grupo_swarm)
       unir_chats_otros = fn(otro_agente,acc) ->  MapSet.union(UsuarioAgent.get_chats_uno_a_uno(otro_agente), acc) end
       reducir_otros = fn(chats, agente) -> Enum.reduce(agentes -- [agente], chats, unir_chats_otros) end

@@ -2,11 +2,16 @@ defmodule ChatUnoAUno do
   use GenServer
 
   def start_link(chat_name) do
-    GenServer.start_link(__MODULE__, chat_name, name: {:via, Registry, {ChatUnoAUnoRegistry, chat_name}})
+    GenServer.start_link(__MODULE__, chat_name, name: register(chat_name))
   end
 
   def init(chat_name) do
     state = %{chat_name: chat_name}
+    [usuario1, usuario2] = MapSet.to_list(chat_name)
+    {_, agente} = ChatUnoAUnoAgent.start_link(usuario1, usuario2)
+    ServerEntity.agregar_chat_uno_a_uno(chat_name)
+    ServerEntity.copiar(agente, {:chat_uno_a_uno_agent, chat_name})
+    Swarm.join({:chat_uno_a_uno_agent, chat_name}, agente)
     {:ok, state}
   end
 
@@ -15,7 +20,7 @@ defmodule ChatUnoAUno do
       id: chat_name,
       start: {__MODULE__, :start_link, [chat_name]},
       type: :worker,
-      restart: :transient
+      restart: :permanent
     }
   end
 
@@ -37,6 +42,10 @@ defmodule ChatUnoAUno do
   def eliminar_mensaje(sender, reciever, id_mensaje) do
     pid = get_chat_pid(sender, reciever)
     GenServer.call(pid, {:eliminar_mensaje, sender, id_mensaje})
+  end
+
+  def register(nombre) do
+    {:via, :swarm, {:chat_uno_a_uno, Node.self(), nombre}}
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do

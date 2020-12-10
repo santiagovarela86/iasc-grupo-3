@@ -4,10 +4,8 @@ defmodule Pigeon do
   def start(_type, _args) do
     IO.puts("Soy un server")
     connect_to_cluster()
-    init = ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
-    ServerAgentSupervisor.start_server_agent()
-    ServerEntity.copiar_faltantes()
-    init
+    ApplicationSupervisor.start_link(keys: :unique, name: Registry.Pigeon)
+
   end
 
   def connect_to_cluster() do

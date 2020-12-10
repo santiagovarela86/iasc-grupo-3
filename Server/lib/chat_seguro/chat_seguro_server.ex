@@ -24,33 +24,30 @@ defmodule ChatSeguroServer do
 
   def handle_call({:crear, usuario1, usuario2, tiempo_limite}, _from, state) do
     case get_private(usuario1, usuario2) do
-    {:ok, pid} -> {:reply, {:already_exists, pid}, state}
-    {:not_found, nil} ->
-      {_, agente} = ChatSeguroAgent.start_link(usuario1, usuario2, tiempo_limite)
-      chat_id = MapSet.new([usuario1, usuario2])
-      Swarm.join({:chat_seguro_agent, chat_id}, agente)
-      ServerEntity.agregar_chat_seguro(chat_id)
-      chatPid = ChatSeguroSupervisor.start_child(chat_id)
-      {:reply, {:ok, chatPid}, state}
-    error -> {:reply, {:error, error}, state}
-   end
+      {:ok, pid} ->
+        {:reply, {:already_exists, pid}, state}
+
+      {:not_found, nil} ->
+        chat_id = MapSet.new([usuario1, usuario2])
+        {:ok, chatPid} = ChatSeguroSupervisor.start_child(chat_id, tiempo_limite)
+        Task.start(fn () -> GenServer.multi_call(Router.servers(Node.self), ChatSeguroServer, {:crear, usuario1, usuario2, tiempo_limite}) end)
+        {:reply, {:ok, chatPid}, state}
+    end
   end
 
   defp get_private(usuario1, usuario2) do
     chat_id = MapSet.new([usuario1, usuario2])
-    case ChatSeguroRegistry.lookup(chat_id) do
-      [{chatPid, _}] -> {:ok, chatPid}
-      []->
-        case Swarm.members({:chat_seguro_agent, chat_id}) do
+
+    case Swarm.whereis_name({:chat_seguro, Node.self(), chat_id}) do
+      :undefined ->
+          case Swarm.members({:chat_seguro_agent, chat_id}) do
           [] -> {:not_found, nil}
           _ ->
-            {_, agente} = ChatSeguroAgent.start_link(usuario1, usuario2, 0)
-            ServerEntity.copiar(agente, {:chat_seguro_agent, chat_id})
-            Swarm.join({:chat_seguro_agent, chat_id}, agente)
-            chatPid = ChatSeguroSupervisor.start_child(chat_id)
+            {:ok, chatPid} = ChatSeguroSupervisor.start_child(chat_id, 0)
             {:ok, chatPid}
-        end
-      error -> {:error, error}
+          end
+
+      chatPid -> {:ok, chatPid}
     end
   end
 

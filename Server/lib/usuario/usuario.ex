@@ -2,12 +2,17 @@ defmodule Usuario do
   use GenServer
 
   def start_link(name) do
-    GenServer.start_link(__MODULE__, name, name: UsuarioRegistry.build_name(name))
+    GenServer.start_link(__MODULE__, name, name: register(name))
   end
 
   def init(name) do
     state = %{nombre: name}
+    {_, agente} = UsuarioAgent.start_link(name)
+    ServerEntity.agregar_usuario(name)
+    ServerEntity.copiar(agente, {:usuario_agent, name})
+    Swarm.join({:usuario_agent, name}, agente)
     {:ok, state}
+
   end
 
   def child_spec(name) do
@@ -15,7 +20,7 @@ defmodule Usuario do
       id: name,
       start: {__MODULE__, :start_link, [name]},
       type: :worker,
-      restart: :transient
+      restart: :permanent
     }
   end
 
@@ -88,6 +93,11 @@ defmodule Usuario do
     GenServer.cast(pid, {:informar_chat, chat_name})
   end
 
+  def informar_chat_seguro(chat_name, _origen, destino) do
+    pid = get_pid(destino)
+    GenServer.cast(pid, {:informar_chat_seguro, chat_name})
+  end
+
   def obtener_chats(username) do
     pid = get_pid(username)
     GenServer.call(pid, {:obtener_chats})
@@ -133,6 +143,10 @@ defmodule Usuario do
     GenServer.call(pid, {:eliminar_mensaje_seguro, destinatario, id_mensaje})
   end
 
+  def register(nombre) do
+    {:via, :swarm, {:usuario, Node.self(), nombre}}
+  end
+
 
 #################################################################
 ######################## PRIVATE ################################
@@ -165,7 +179,7 @@ defmodule Usuario do
   def handle_call({:crear_chat_seguro, destinatario, tiempo_limite}, _from, state) do
     ChatSeguroServer.crear(destinatario, state.nombre, tiempo_limite)
     chat_seguro_name = MapSet.new([destinatario, state.nombre])
-    Usuario.informar_chat(chat_seguro_name, state.nombre, destinatario)
+    Usuario.informar_chat_seguro(chat_seguro_name, state.nombre, destinatario)
     UsuarioEntity.agregar_chat_seguros(state.nombre, chat_seguro_name)
     {:reply, chat_seguro_name, state}
   end
@@ -260,6 +274,11 @@ defmodule Usuario do
 
   def handle_cast({:informar_chat, chat_name}, state) do
     UsuarioEntity.agregar_chat_uno_a_uno(state.nombre, chat_name)
+    {:noreply, state}
+  end
+
+  def handle_cast({:informar_chat_seguro, chat_name}, state) do
+    UsuarioEntity.agregar_chat_seguros(state.nombre, chat_name)
     {:noreply, state}
   end
 

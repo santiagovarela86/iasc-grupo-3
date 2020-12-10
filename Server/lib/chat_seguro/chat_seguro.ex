@@ -6,13 +6,22 @@ defmodule ChatSeguro do
   #@every5seconds ~e[*/5]e
   #@everysecond ~e[*/1]e
 
-  def start_link(chat_name) do
-    GenServer.start_link(__MODULE__, chat_name, name: {:via, Registry, {ChatSeguroRegistry, chat_name}})
+  def start_link([chat_name, tiempo_limite]) do
+    GenServer.start_link(__MODULE__, [chat_name, tiempo_limite],
+      name: register(chat_name)
+    )
   end
 
-  def init(chat_name) do
+  def init([chat_name, tiempo_limite]) do
     state = %{chat_name: chat_name}
+    [usuario1, usuario2] = MapSet.to_list(chat_name)
+    {_, agente} = ChatSeguroAgent.start_link(usuario1, usuario2, tiempo_limite)
+    ServerEntity.agregar_chat_seguro(chat_name)
+    ServerEntity.copiar(agente, {:chat_seguro_agent, chat_name})
+    Swarm.join({:chat_seguro_agent, chat_name}, agente)
+
     create_job(List.first(MapSet.to_list(chat_name)), List.last(MapSet.to_list(chat_name)))
+
     {:ok, state}
   end
 
@@ -21,7 +30,7 @@ defmodule ChatSeguro do
       id: chat_name,
       start: {__MODULE__, :start_link, [chat_name]},
       type: :worker,
-      restart: :transient
+      restart: :permanent
     }
   end
 
@@ -100,5 +109,7 @@ defmodule ChatSeguro do
     #IO.puts("DEBUG: Se creo el job de eliminado de mensajes.")
   end
 
-
+  def register(nombre) do
+    {:via, :swarm, {:chat_seguro, Node.self(), nombre}}
+  end
 end
