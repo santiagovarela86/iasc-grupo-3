@@ -44,7 +44,7 @@ defmodule ChatDeGrupoEntity do
   end
 
   def registrar_mensaje(chat, mensaje, origen) do
-    Entity.aplicar_cambio({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.registrar_mensaje(&1, mensaje, origen))
+    Entity.aplicar_cambio({:chat_de_grupo_agent, chat}, &ChatDeGrupoAgent.registrar_mensaje(&1, mensaje, origen, DateTime.utc_now))
   end
 
   def eliminar_mensaje(chat, mensaje_id) do

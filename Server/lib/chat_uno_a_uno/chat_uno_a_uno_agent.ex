@@ -18,8 +18,8 @@ defmodule ChatUnoAUnoAgent do
     ChatAgent.get_mensajes(agente)
   end
 
-  def registrar_mensaje(agente, mensaje, origen) do
-    ChatAgent.registrar_mensaje(agente, mensaje, origen)
+  def registrar_mensaje(agente, mensaje, origen, fecha) do
+    ChatAgent.registrar_mensaje(agente, mensaje, origen, fecha)
   end
 
   def eliminar_mensaje(agente, mensaje_id) do
@@ -31,8 +31,7 @@ defmodule ChatUnoAUnoAgent do
   end
 
   def build_name(usuario1, usuario2) do
-    name = :crypto.hash(:md5, usuario1 <> usuario2 <> to_string(DateTime.utc_now)) |> Base.encode16()
-    {:via, :swarm, name}
+    {:via, :swarm, {:chat_uno_a_uno_agent, Node.self(), MapSet.new([usuario1, usuario2])}}
   end
 
 end

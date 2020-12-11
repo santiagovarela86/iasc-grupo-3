@@ -131,11 +131,6 @@ defmodule ChatDeGrupo do
     {:reply, ChatDeGrupoEntity.get_mensajes(state.nombre_grupo), state}
   end
 
-
-  def getHash(mensaje) do
-    :crypto.hash(:md5, mensaje <> to_string(DateTime.utc_now)) |> Base.encode16()
-  end
-
   def ejecutar_si_tiene_permiso(nombre_grupo, origen, id_mensaje, fn_a_ejecutar) do
     {_, mensajes} = ChatDeGrupoEntity.get_mensajes(nombre_grupo)
 

@@ -186,7 +186,6 @@ defmodule Usuario do
 
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
     repuestaChat = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
-    IO.inspect(repuestaChat)
     IO.puts("Sending Message to.. -> " <> destinatario)
     Enum.each(Swarm.members({:cliente, destinatario}), fn pid ->  send(pid , mensaje) end)
 
@@ -233,7 +232,11 @@ defmodule Usuario do
   end
 
   def handle_call({:obtener_chats}, _from, state) do
-    chats = UsuarioEntity.get_chats_uno_a_uno(state.nombre)
+    {:ok, chats_uno} = UsuarioEntity.get_chats_uno_a_uno(state.nombre)
+    {:ok, chats_grupo} = UsuarioEntity.get_chats_de_grupo(state.nombre)
+    {:ok, chats_seguros} = UsuarioEntity.get_chats_seguros(state.nombre)
+
+    chats = [{"Chats Uno A Uno:", chats_uno},{"Chats De Grupo:", chats_grupo},{"Chats Seguros:", chats_seguros}]
     {:reply, chats, state}
   end
 

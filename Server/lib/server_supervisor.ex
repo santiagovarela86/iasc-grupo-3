@@ -15,7 +15,8 @@ defmodule ServerSupervisor do
       ChatDeGrupoServer,
       ChatSeguroSupervisor,
       ChatSeguroServer,
-      ChatSeguroScheduler
+      ChatSeguroScheduler,
+      AutoConnect
     ]
     Supervisor.init(children, strategy: :one_for_one)
   end

@@ -40,8 +40,8 @@ defmodule ChatSeguroAgent do
     Agent.update(agente, fn(state) ->  Map.update!(update_time.(state), :tiempo_limite, fn(_tiempo) -> tiempo_nuevo end) end)
   end
 
-  def registrar_mensaje(agente, mensaje, origen) do
-    ChatAgent.registrar_mensaje(agente, mensaje, origen)
+  def registrar_mensaje(agente, mensaje, origen, fecha) do
+    ChatAgent.registrar_mensaje(agente, mensaje, origen, fecha)
   end
 
   def eliminar_mensaje(agente, mensaje_id) do
@@ -53,7 +53,6 @@ defmodule ChatSeguroAgent do
   end
 
   def build_name(usuario1, usuario2) do
-    name = :crypto.hash(:md5, usuario1 <> usuario2 <> "SEGURO" <> to_string(DateTime.utc_now)) |> Base.encode16()
-    {:via, :swarm, name}
+    {:via, :swarm, {:chat_seguro_agent, Node.self(), MapSet.new([usuario1, usuario2])}}
   end
 end
