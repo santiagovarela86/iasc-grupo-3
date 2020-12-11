@@ -18,8 +18,8 @@ defmodule ChatUnoAUnoAgent do
     ChatAgent.get_mensajes(agente)
   end
 
-  def registrar_mensaje(agente, mensaje, origen, fecha) do
-    ChatAgent.registrar_mensaje(agente, mensaje, origen, fecha)
+  def registrar_mensaje(agente, mensaje, origen, fecha, id) do
+    ChatAgent.registrar_mensaje(agente, mensaje, origen, fecha, id)
   end
 
   def eliminar_mensaje(agente, mensaje_id) do

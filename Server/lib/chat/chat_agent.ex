@@ -9,9 +9,8 @@ defmodule ChatAgent do
     Agent.get(agente, &Map.get(&1, :mensajes))
   end
 
-  def registrar_mensaje(agente, mensaje, origen, fecha) do
-    :crypto.hash(:md5, mensaje <> DateTime.to_string(fecha)) |> Base.encode16()
-    |> (&fn(mensajes) -> Map.put(mensajes, &1, {origen, mensaje, fecha, fecha}) end).()
+  def registrar_mensaje(agente, mensaje, origen, fecha, id) do
+    fn(mensajes) -> Map.put(mensajes, id, {origen, mensaje, fecha, fecha}) end
     |> (&fn(state) -> Map.update!(state, :mensajes, &1) end).()
     |> (&Agent.update(agente, &1)).()
   end
