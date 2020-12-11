@@ -1,13 +1,13 @@
 defmodule RouterSupervisor do
   use Supervisor
 
-  def start_link(init_arg) do
-    Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
+  def start_link(name) do
+    Supervisor.start_link(__MODULE__, name, name: __MODULE__)
   end
 
-  def init(_init_arg) do
+  def init(name) do
     children = [
-      Router
+      {Router, name}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

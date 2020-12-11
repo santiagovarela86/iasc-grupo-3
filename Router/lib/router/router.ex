@@ -1,8 +1,8 @@
 defmodule Router do
   use GenServer
 
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, [], name: {:global, __MODULE__})
+  def start_link(name) do
+    GenServer.start_link(__MODULE__, [], name: {:global, name})
   end
 
   def init(init_arg) do
@@ -43,6 +43,10 @@ defmodule Router do
 
   def get_servers(nodo_excluido) do
     Enum.filter(get_servers(), fn node -> node != nodo_excluido end)
+  end
+
+  def name() do
+    String.to_atom(List.first(String.split(to_string(Node.self),"@")))
   end
 
 end

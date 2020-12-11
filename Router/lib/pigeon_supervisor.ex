@@ -5,8 +5,8 @@ defmodule ApplicationSupervisor do
     Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
   end
 
-  def init(_init_arg) do
-    children = [RouterSupervisor]
+  def init(router_name) do
+    children = [{RouterSupervisor, router_name}]
 
     Supervisor.init(children, strategy: :one_for_one)
   end

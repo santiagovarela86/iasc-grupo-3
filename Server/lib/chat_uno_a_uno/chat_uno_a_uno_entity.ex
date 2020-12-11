@@ -20,8 +20,8 @@ defmodule ChatUnoAUnoEntity do
     Entity.aplicar_cambio({:chat_uno_a_uno_agent, chat}, &ChatUnoAUnoAgent.modificar_mensaje(&1, origen, mensaje_nuevo, mensaje_id))
   end
 
-  def actualizar_async(grupo_swarm) do
-    Task.start(fn-> actualizar(grupo_swarm) end)
+  def actualizar_async(chat) do
+    Task.start(fn-> actualizar({:chat_uno_a_uno_agent, chat}) end)
   end
 
   defp resolver_conflicto_mensajes(_key, {origen1, mensaje1, publicado1, modificado1}, {origen2, mensaje2, publicado2, modificado2}) do
@@ -44,7 +44,7 @@ defmodule ChatUnoAUnoEntity do
 
     if !Entity.campo_actualizado(grupo_swarm, &ChatUnoAUnoAgent.get_mensajes/1) do
       agentes_mensajes =  Enum.map(agentes, fn(agente) -> {agente, ChatUnoAUnoAgent.get_mensajes(agente)} end)
-      mensajes_mergeados = Enum.reduce(agentes_mensajes, [], fn({_agente, mensajes},acc) -> Map.merge(mensajes, acc, &resolver_conflicto_mensajes/3) end)
+      mensajes_mergeados = Enum.reduce(agentes_mensajes, Map.new, fn({_agente, mensajes},acc) -> Map.merge(mensajes, acc, &resolver_conflicto_mensajes/3) end)
       agentes_diffs = Enum.map(agentes_mensajes, fn({agente, mensajes}) -> {agente, Enum.into(Map.to_list(mensajes_mergeados) -- Map.to_list(mensajes), %{})} end)
       Enum.map(agentes_diffs, fn({agente, diffs}) -> Agent.update(agente, fn(state) -> Map.update!(state, :mensajes, fn(mensajes) ->  Map.merge(mensajes, diffs) end) end)end)
     end
