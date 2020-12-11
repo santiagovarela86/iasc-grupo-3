@@ -66,7 +66,10 @@ defmodule Cliente do
 
   def obtener_mensajes(receiver) do
     pid = List.first(Enum.to_list(Enum.filter(clientes_mios(), fn(pid) -> is_local(pid) end)))
-    GenServer.call(pid,{:obtener_mensajes, receiver})
+    {_, mensajes} = GenServer.call(pid,{:obtener_mensajes, receiver})
+    Map.to_list(mensajes)
+    |> Enum.map( fn({_C, mensaje}) -> mensaje end)
+    |> Enum.sort_by(fn {_,_,time,_} -> time end, DateTime)
   end
 
   ############## GRUPOS ###################
