@@ -188,7 +188,7 @@ defmodule Usuario do
     repuestaChat = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
     IO.inspect(repuestaChat)
     IO.puts("Sending Message to.. -> " <> destinatario)
-    send(List.first(Swarm.members({:cliente, destinatario})), mensaje)
+    Enum.each(Swarm.members({:cliente, destinatario}), fn pid ->  send(pid , mensaje) end)
 
     {:reply, repuestaChat, state}
   end
@@ -217,7 +217,7 @@ defmodule Usuario do
     repuestaChatSeguro = ChatSeguro.enviar_mensaje(state.nombre, destinatario, mensaje_seguro)
 
     IO.puts("Sending Secure Message to.. -> " <> destinatario)
-    send(List.first(Swarm.members({:cliente, destinatario})), mensaje_seguro)
+    Enum.each(Swarm.members({:cliente, destinatario}), fn pid ->  send(pid , mensaje_seguro) end)
 
     {:reply, repuestaChatSeguro, state}
   end

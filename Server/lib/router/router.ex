@@ -10,15 +10,15 @@ defmodule Router do
   end
 
   def route() do
-    GenServer.call({:global, __MODULE__}, :route)
+    GenServer.call({:global, any_router()}, :route)
   end
 
   def servers() do
-    GenServer.call({:global, __MODULE__}, :servers)
+    GenServer.call({:global, any_router()}, :servers)
   end
 
   def servers(nodo) do
-    GenServer.call({:global, __MODULE__}, {:servers, nodo})
+    GenServer.call({:global, any_router()}, {:servers, nodo})
   end
 
   def handle_call(:route, _from, state) do
@@ -44,4 +44,24 @@ defmodule Router do
   def get_servers(nodo_excluido) do
       Enum.filter(get_servers(), fn node -> node != nodo_excluido end)
   end
+
+  defp any_router do
+    routers = Enum.map(router_names(), fn name -> {name, :global.whereis_name name} end)
+    |> Enum.filter(fn {_, pid} -> pid != :undefined end)
+    |> Enum.map(fn {name, _} -> name end)
+    if Enum.empty?(routers) do
+      raise "no me pude conectar"
+    else
+    Enum.at(routers, :rand.uniform(Enum.count(routers)) - 1)
+    end
+  end
+
+  defp router_names do
+    [
+      :Router1,
+      :Router2,
+      :Router3
+  ]
+  end
+
 end

@@ -1,33 +1,33 @@
 defmodule Router do
   use GenServer
 
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, [], name: {:global, __MODULE__})
+  def start_link(name) do
+    GenServer.start_link(__MODULE__, [], name: {:global, name})
   end
 
   def init(init_arg) do
     {:ok, init_arg}
   end
 
-  def child_spec(opts) do
+  def child_spec(name) do
     %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_link, [opts]},
+      id: name,
+      start: {__MODULE__, :start_link, [name]},
       type: :worker,
       restart: :transient
     }
   end
 
   def route() do
-    GenServer.call({:global, __MODULE__}, :route)
+    GenServer.call({:global, any_router()}, :route)
   end
 
   def route(nodo_origen) do
-    GenServer.call({:global, __MODULE__}, {:route, nodo_origen})
+    GenServer.call({:global, any_router()}, {:route, nodo_origen})
   end
 
   def servers() do
-    GenServer.call({:global, __MODULE__}, :servers)
+    GenServer.call(any_router(), :servers)
   end
 
   def handle_call(:route, _from, state) do
@@ -52,4 +52,24 @@ defmodule Router do
       String.contains?(String.downcase(Atom.to_string(nodo)), "server")
     end)
   end
+
+  defp any_router do
+    routers = Enum.map(router_names(), fn name -> {name, :global.whereis_name name} end)
+    |> Enum.filter(fn {_, pid} -> pid != :undefined end)
+    |> Enum.map(fn {name, _} -> name end)
+    if Enum.empty?(routers) do
+      raise "no me pude conectar"
+    else
+    Enum.at(routers, :rand.uniform(Enum.count(routers)) - 1)
+    end
+  end
+
+  defp router_names do
+    [
+      :Router1,
+      :Router2,
+      :Router3
+  ]
+  end
+
 end
