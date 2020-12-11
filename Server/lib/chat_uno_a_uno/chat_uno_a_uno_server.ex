@@ -14,7 +14,7 @@ defmodule ChatUnoAUnoServer do
   end
 
   def crear(usuario1, usuario2) do
-    IO.puts("CREANDO UN CHAT UNO A UNO")
+    #IO.puts("CREANDO UN CHAT UNO A UNO")
     GenServer.call(ChatUnoAUnoServer, {:crear, usuario1, usuario2})
   end
   def handle_call({:get, usuario1, usuario2}, _from, state) do

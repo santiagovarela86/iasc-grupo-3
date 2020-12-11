@@ -35,7 +35,8 @@ defmodule UsuarioServer do
     case Swarm.whereis_name({:usuario, Node.self(), nombre}) do
       :undefined->
         case Swarm.members({:usuario_agent, nombre}) do
-          [] -> {:not_found, nil}
+          [] ->
+            {:not_found, nil}
           _ ->
             {:ok, pid} = UsuarioSupervisor.start_child(nombre)
             {:ok, pid}

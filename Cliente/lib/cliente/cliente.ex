@@ -130,8 +130,7 @@ defmodule Cliente do
   end
 
   def build_name(nombre) do
-    name = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now())) |> Base.encode16()
-    {:via, :swarm, name}
+    {:via, :swarm, {:cliente, nombre, Node.self}}
   end
 
   #################################################################################

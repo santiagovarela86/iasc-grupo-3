@@ -12,7 +12,6 @@ defmodule Pigeon do
     if(!List.foldl(nodos_router(), false, fn value, acum -> acum || Node.connect(value) end)) do
       raise RuntimeError.exception("No me pude conectar al router")
     end
-    IO.puts("conectado")
   end
 
   def nodos_router() do

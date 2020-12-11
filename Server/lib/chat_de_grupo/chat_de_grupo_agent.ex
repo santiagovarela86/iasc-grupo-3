@@ -2,8 +2,6 @@ defmodule ChatDeGrupoAgent do
   use Agent
 
   def start_link(creador, nombre_grupo) do
-    IO.puts("INSTANCIO EL CHAT DE GRUPO")
-    IO.puts(creador)
     Agent.start_link(
       fn -> %{
         usuarios: MapSet.new([creador]),
@@ -72,8 +70,7 @@ defmodule ChatDeGrupoAgent do
   end
 
   def build_name(nombre_grupo) do
-    name = :crypto.hash(:md5, nombre_grupo <> to_string(DateTime.utc_now)) |> Base.encode16()
-    {:via, :swarm, name}
+    {:via, :swarm, {:chat_de_grupo_agent, Node.self(), nombre_grupo}}
   end
 
 end

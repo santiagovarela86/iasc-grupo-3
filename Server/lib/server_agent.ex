@@ -46,8 +46,7 @@ defmodule ServerAgent do
   end
 
   def build_name() do
-    pname = :crypto.hash(:md5, to_string(Node.self) <> to_string(DateTime.utc_now)) |> Base.encode16()
-    {:via, :swarm, pname}
+    {:via, :swarm, {:server_agent, Node.self()}}
   end
 
 end

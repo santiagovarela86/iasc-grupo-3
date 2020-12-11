@@ -50,8 +50,7 @@ defmodule UsuarioAgent do
   end
 
   def build_name(nombre) do
-    pname = :crypto.hash(:md5, nombre <> to_string(DateTime.utc_now)) |> Base.encode16()
-    {:via, :swarm, pname}
+    {:via, :swarm, {:usuario_agent, Node.self(), nombre}}
   end
 
 end
