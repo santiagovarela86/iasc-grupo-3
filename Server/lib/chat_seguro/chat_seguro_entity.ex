@@ -24,7 +24,9 @@ defmodule ChatSeguroEntity do
   end
 
   def registrar_mensaje(chat, mensaje, origen) do
-    Entity.aplicar_cambio({:chat_seguro_agent, chat}, &ChatSeguroAgent.registrar_mensaje(&1, mensaje, origen, DateTime.utc_now))
+    fecha = DateTime.utc_now
+    id = :crypto.hash(:md5, mensaje <> DateTime.to_string(fecha)) |> Base.encode16()
+    Entity.aplicar_cambio({:chat_seguro_agent, chat}, &ChatSeguroAgent.registrar_mensaje(&1, mensaje, origen, fecha, id))
   end
 
   def eliminar_mensaje(chat, mensaje_id) do

@@ -66,7 +66,7 @@ defmodule ChatDeGrupo do
 
     {:ok, usuarios} = ChatDeGrupoEntity.get_usuarios(state.nombre_grupo)
 
-    fn(cliente) -> send(cliente, mensaje) end
+    fn(cliente) -> send(cliente, {state.nombre_grupo<>" -> "<>sender, mensaje}) end
     |> (&fn(usuario) -> Enum.each(Swarm.members({:cliente, usuario}), &1)end).()
     |> (&Enum.each(usuarios, fn(usuario) -> Task.start(fn -> &1.(usuario) end) end)).()
 
