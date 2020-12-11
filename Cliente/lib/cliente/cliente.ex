@@ -112,7 +112,11 @@ defmodule Cliente do
 
   def obtener_mensajes_grupo(nombre_grupo) do
     pid = List.first(Enum.to_list(Enum.filter(clientes_mios(), fn(pid) -> is_local(pid) end)))
-    GenServer.call(pid,{:obtener_mensajes_grupo, nombre_grupo})
+    {_, mensajes} = GenServer.call(pid,{:obtener_mensajes_grupo, nombre_grupo})
+    Map.to_list(mensajes)
+    |> Enum.map( fn({_C, mensaje}) -> mensaje end)
+    |> Enum.sort_by(fn {_,_,time,_} -> time end, DateTime)
+    |> Enum.map( fn {u,m,date1,date2} -> Enum.reverse(Enum.to_list(%{usuario: u, mensaje: m, hora_enviado: (to_string(date1.hour) <> ":" <> to_string(date1.minute) <> ":" <> to_string(date1.second)), hora_modificado: (to_string(date2.hour) <> ":" <> to_string(date2.minute) <> ":" <> to_string(date2.second))})) end)
   end
 
 
@@ -140,7 +144,11 @@ defmodule Cliente do
 
   def obtener_mensajes_seguro(receiver) do
     pid = List.first(Enum.to_list(Enum.filter(clientes_mios(), fn(pid) -> is_local(pid) end)))
-    GenServer.call(pid,{:obtener_mensajes_seguro, receiver})
+    {_, mensajes} = GenServer.call(pid,{:obtener_mensajes_seguro, receiver})
+    Map.to_list(mensajes)
+    |> Enum.map( fn({_C, mensaje}) -> mensaje end)
+    |> Enum.sort_by(fn {_,_,time,_} -> time end, DateTime)
+    |> Enum.map( fn {u,m,date1,date2} -> Enum.reverse(Enum.to_list(%{usuario: u, mensaje: m, hora_enviado: (to_string(date1.hour) <> ":" <> to_string(date1.minute) <> ":" <> to_string(date1.second)), hora_modificado: (to_string(date2.hour) <> ":" <> to_string(date2.minute) <> ":" <> to_string(date2.second))})) end)
   end
 
   def build_name(nombre) do
