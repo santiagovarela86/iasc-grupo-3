@@ -123,6 +123,11 @@ defmodule Usuario do
     GenServer.cast(pid, {:informar_grupo, nombre_grupo})
   end
 
+  def informar_eliminado_grupo(nombre_grupo, username) do
+    pid = get_pid(username)
+    GenServer.cast(pid, {:informar_eliminado_grupo, nombre_grupo})
+  end
+
   def editar_mensaje_grupo(origen, nombre_grupo, mensaje_nuevo, id_mensaje) do
     pid = get_pid(origen)
     GenServer.call(pid, {:editar_mensaje_grupo, nombre_grupo, mensaje_nuevo, id_mensaje})
@@ -287,6 +292,11 @@ defmodule Usuario do
 
   def handle_cast({:informar_grupo, nombre_grupo}, state) do
     UsuarioEntity.agregar_chat_de_grupo(state.nombre, nombre_grupo)
+    {:noreply, state}
+  end
+
+  def handle_cast({:informar_eliminado_grupo, nombre_grupo}, state) do
+    UsuarioEntity.eliminar_chat_de_grupo(state.nombre, nombre_grupo)
     {:noreply, state}
   end
 

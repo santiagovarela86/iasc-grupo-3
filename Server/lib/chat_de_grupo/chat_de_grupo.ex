@@ -58,7 +58,7 @@ defmodule ChatDeGrupo do
   def agregar_usuario(nombre_grupo, usuario_origen, usuario) do
     {_ok?, pid} = ChatDeGrupoServer.get(nombre_grupo)
     GenServer.call(pid, {:agregar_usuario, usuario_origen, usuario})
-    Usuario.informar_grupo(nombre_grupo, usuario)
+
   end
 
   def handle_call({:enviar_mensaje, sender, mensaje}, _from, state) do
@@ -90,6 +90,7 @@ defmodule ChatDeGrupo do
   def handle_call({:agregar_usuario, usuario_origen, usuario}, _from, state) do
     if(es_administrador(usuario_origen, state.nombre_grupo)) do
         ChatDeGrupoEntity.agregar_usuario(state.nombre_grupo, usuario)
+        Usuario.informar_grupo(state.nombre_grupo, usuario)
         {:reply, :ok, state}
     else
       {:reply, :not_admin, state}
@@ -100,15 +101,14 @@ defmodule ChatDeGrupo do
     if(es_administrador(usuario_origen, state.nombre_grupo)) do
       if(es_usuario(usuario_eliminado, state.nombre_grupo)) do
         ChatDeGrupoEntity.eliminar_usuario(state.nombre_grupo, usuario_eliminado)
+        Usuario.informar_eliminado_grupo(state.nombre_grupo, usuario_eliminado)
+        {:reply, :ok, state}
       else
         {:reply, :user_not_found, state}
       end
     else
       {:reply, :not_admin, state}
     end
-
-    {:reply, :ok, state}
-
   end
 
   def handle_call({:editar_mensaje, sender, mensaje_nuevo, id_mensaje}, _from, state) do
