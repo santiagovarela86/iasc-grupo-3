@@ -40,8 +40,8 @@ defmodule ChatSeguroAgent do
     Agent.update(agente, fn(state) ->  Map.update!(update_time.(state), :tiempo_limite, fn(_tiempo) -> tiempo_nuevo end) end)
   end
 
-  def registrar_mensaje(agente, mensaje, origen) do
-    ChatAgent.registrar_mensaje(agente, mensaje, origen)
+  def registrar_mensaje(agente, mensaje, origen, fecha) do
+    ChatAgent.registrar_mensaje(agente, mensaje, origen, fecha)
   end
 
   def eliminar_mensaje(agente, mensaje_id) do
