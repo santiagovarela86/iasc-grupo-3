@@ -49,6 +49,10 @@ defmodule UsuarioAgent do
     Agent.update(agente, fn(state) -> Map.update!(state, :chats_de_grupo, fn(chats_de_grupo) -> MapSet.put(chats_de_grupo, chat_id) end) end)
   end
 
+  def eliminar_chat_de_grupo(agente, chat_id) do
+    Agent.update(agente, fn(state) -> Map.update!(state, :chats_de_grupo, fn(chats_de_grupo) -> MapSet.delete(chats_de_grupo, chat_id) end) end)
+  end
+
   def build_name(nombre) do
     {:via, :swarm, {:usuario_agent, Node.self(), nombre}}
   end
