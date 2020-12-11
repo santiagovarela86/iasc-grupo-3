@@ -37,6 +37,16 @@ defmodule Cliente do
     name()
   end
 
+  def obtener_chats() do
+    pid = List.first(Enum.to_list(Enum.filter(clientes_mios(), fn(pid) -> is_local(pid) end)))
+    GenServer.call(pid, {:obtener_chats}, @timeout)
+  end
+
+  def handle_call({:obtener_chats}, _from, state) do
+    chats = :rpc.call(routeo_nodo(), Usuario, :obtener_chats, [name()])
+    {:reply, chats, state}
+  end
+
   ############## UNO A UNO ###################
 
   def enviar_mensaje(receiver, mensaje) do
