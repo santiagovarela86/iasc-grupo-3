@@ -269,8 +269,8 @@ defmodule Cliente do
     {:reply, response, state}
   end
 
-  def handle_info(mensaje, state) do
-    IO.puts(mensaje)
+  def handle_info({origen, mensaje}, state) do
+    IO.puts("#{origen}: #{mensaje}")
     {:noreply, state}
   end
 

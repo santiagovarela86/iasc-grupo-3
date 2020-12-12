@@ -188,7 +188,7 @@ defmodule Usuario do
   def handle_call({:enviar_mensaje, destinatario, mensaje}, _from, state) do
     repuestaChat = ChatUnoAUno.enviar_mensaje(state.nombre, destinatario, mensaje)
     IO.puts("Sending Message to.. -> " <> destinatario)
-    Enum.each(Swarm.members({:cliente, destinatario}), fn pid ->  send(pid , mensaje) end)
+    Enum.each(Swarm.members({:cliente, destinatario}), fn pid ->  send(pid , {state.nombre, mensaje}) end)
 
     {:reply, repuestaChat, state}
   end
